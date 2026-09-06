@@ -1,0 +1,345 @@
+<title>Crude Oil Import Assay</title>
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#f0f0f1;
+  --surface:#ffffff;
+  --surface-2:#f7f7f8;
+  --border:#c3c3c6;
+  --border-soft:#e2e2e5;
+  --ink:#1c1e1f;
+  --ink-dim:#4b4d4f;
+  --muted:#7d7d80;
+  --accent:#3d5c78;
+  --accent-2:#5980a6;
+  --accent-soft:#b5d9fd;
+  --sulfur-track:#e2e2e5;
+  --shadow: 0 1px 2px rgba(20,22,24,.04);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#16181a;
+    --surface:#1e2124;
+    --surface-2:#242729;
+    --border:#3a3d40;
+    --border-soft:#2b2e30;
+    --ink:#eceded;
+    --ink-dim:#c2c3c5;
+    --muted:#8f9092;
+    --accent:#8fb2d1;
+    --accent-2:#6f97bd;
+    --accent-soft:#294256;
+    --sulfur-track:#2b2e30;
+    --shadow: 0 1px 3px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16181a;
+  --surface:#1e2124;
+  --surface-2:#242729;
+  --border:#3a3d40;
+  --border-soft:#2b2e30;
+  --ink:#eceded;
+  --ink-dim:#c2c3c5;
+  --muted:#8f9092;
+  --accent:#8fb2d1;
+  --accent-2:#6f97bd;
+  --accent-soft:#294256;
+  --sulfur-track:#2b2e30;
+  --shadow: 0 1px 3px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:Barlow,system-ui,sans-serif;
+  padding:40px 20px 64px;
+}
+.page{max-width:800px;margin:0 auto}
+.eyebrow{
+  font-family:"Barlow Condensed",system-ui,sans-serif;
+  font-weight:600;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent-2);margin:0 0 10px;
+}
+h1{
+  font-family:"Barlow Condensed",system-ui,sans-serif;
+  font-weight:700;font-size:clamp(28px,5vw,38px);line-height:1.05;margin:0 0 10px;
+  text-wrap:balance;
+}
+.dek{
+  font-size:15px;line-height:1.5;color:var(--ink-dim);margin:0;max-width:56ch;
+}
+.meta-row{
+  display:flex;flex-wrap:wrap;gap:20px;margin-top:20px;padding-top:18px;
+  border-top:1px solid var(--border-soft);
+}
+.meta-item{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:var(--muted)}
+.meta-item b{color:var(--ink-dim);font-weight:600}
+
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:3px;
+  box-shadow:var(--shadow);margin-top:24px;overflow:hidden;
+}
+.card-head{
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  padding:18px 20px 14px;border-bottom:1px solid var(--border-soft);
+}
+.card-head h2{
+  font-family:"Barlow Condensed",system-ui,sans-serif;font-weight:600;
+  font-size:16.5px;margin:0;letter-spacing:.01em;
+}
+.card-head .tag{
+  font-family:ui-monospace,Menlo,monospace;font-size:10px;color:var(--muted);
+  white-space:nowrap;
+}
+.card-body{padding:18px 20px 20px}
+
+/* ---- quality plane ---- */
+.qp-wrap{overflow-x:auto}
+.qp-wrap svg{display:block;overflow:visible;min-width:520px}
+.qp-lbl{font-size:9.6px;fill:var(--ink-dim)}
+.qp-lbl.big{font-weight:600;fill:var(--ink)}
+.qp-tick{font-family:ui-monospace,Menlo,monospace;font-size:8.6px;fill:var(--muted)}
+.qp-mean{font-family:ui-monospace,Menlo,monospace;font-size:8.6px;font-weight:700;fill:var(--accent)}
+.qp-axis{
+  font-family:"Barlow Condensed",system-ui,sans-serif;font-weight:600;font-size:9px;
+  letter-spacing:.1em;text-transform:uppercase;fill:var(--muted);
+}
+.qp-note{font-size:11.5px;color:var(--muted);margin:12px 2px 0;line-height:1.5}
+
+/* ---- ledger table ---- */
+.ledger-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed;min-width:560px}
+colgroup .c-name{width:34%}
+colgroup .c-vol{width:22%}
+th,td{padding:7px 8px 7px 0;border-bottom:1px solid var(--border-soft);text-align:left;font-weight:400;vertical-align:middle}
+thead th{padding:0 8px 8px 0;border-bottom:1px solid var(--border)}
+tbody th{color:var(--ink-dim);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.num{font-family:ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
+td.num{text-align:right;padding-right:14px}
+th.h-vol button{justify-content:flex-end;padding-right:14px}
+tbody tr:hover{background:var(--surface-2)}
+button.sort{
+  display:flex;align-items:baseline;gap:5px;width:100%;
+  font-family:"Barlow Condensed",system-ui,sans-serif;font-weight:600;font-size:9.5px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+  background:none;border:0;padding:0;cursor:pointer;text-align:inherit;
+}
+button.sort:hover{color:var(--accent)}
+button.sort:active{color:var(--accent-2)}
+button.sort:focus-visible{outline:2px solid var(--accent-2);outline-offset:2px;border-radius:2px}
+.caret{visibility:hidden;font-size:8px}
+[aria-sort="ascending"] button.sort,[aria-sort="descending"] button.sort{color:var(--accent)}
+[aria-sort="ascending"] .caret,[aria-sort="descending"] .caret{visibility:visible}
+[aria-sort="ascending"] .caret::after{content:"\25B2"}
+[aria-sort="descending"] .caret::after{content:"\25BC"}
+.gauge{display:inline-block;width:calc(100% - 34px);height:6px;background:var(--sulfur-track);vertical-align:middle;margin-right:7px;border-radius:1px;overflow:hidden}
+.fill{display:block;height:100%}
+.fill.s{background:var(--accent-2)}
+.fill.a{background:var(--accent-soft)}
+.v{font-size:10.5px;display:inline-block;width:28px;text-align:right;vertical-align:middle}
+caption{
+  caption-side:bottom;margin-top:12px;padding-top:10px;border-top:1px solid var(--border);
+  font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:var(--muted);text-align:left;
+}
+@media (max-width:460px){
+  .gauge{display:none}
+  .v{width:auto}
+}
+
+footer.page-foot{
+  margin-top:28px;padding-top:16px;border-top:1px solid var(--border-soft);
+  font-size:11px;color:var(--muted);
+}
+</style>
+
+<div class="page">
+  <header>
+    <p class="eyebrow">EIA &#183; Petroleum Imports</p>
+    <h1>Crude Oil Import Assay</h1>
+    <p class="dek">Sulfur content and API gravity of U.S. crude oil imports by country of origin &#8212; the two properties that set a barrel's refining value and its price relative to WTI.</p>
+    <div class="meta-row">
+      <span class="meta-item"><b>Window</b> Feb 2025 &#8211; Jan 2026</span>
+      <span class="meta-item"><b>Vol-wtd mean</b> 2.48% S &#183; 25.6&#176; API</span>
+      <span class="meta-item"><b>Origins</b> 29</span>
+    </div>
+  </header>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Quality plane</h2>
+      <span class="tag">SULFUR &#215; API GRAVITY, BUBBLE = VOLUME</span>
+    </div>
+    <div class="card-body">
+      <div class="qp-wrap">
+        <svg viewBox="0 0 552 310" width="100%" role="img" aria-labelledby="qp-title qp-desc" xmlns="http://www.w3.org/2000/svg">
+          <title id="qp-title">US crude oil imports by origin: sulfur content against API gravity</title>
+          <desc id="qp-desc">Twelve largest origin countries, February 2025 to January 2026. Bubble area is
+          import volume. Canada dominates at 1,427,229 thousand barrels, 2.91 percent sulfur and 24.1 degrees
+          API &#8212; heavy and sour. Volume-weighted means for all crude imports are 2.48 percent sulfur and
+          25.6 degrees API, shown as a dashed crosshair.</desc>
+          <g stroke-width="1">
+            <line x1="44.0" y1="18" x2="44.0" y2="268" stroke="var(--border-soft)"/>
+            <line x1="115.4" y1="18" x2="115.4" y2="268" stroke="var(--border-soft)"/>
+            <line x1="186.9" y1="18" x2="186.9" y2="268" stroke="var(--border-soft)"/>
+            <line x1="258.3" y1="18" x2="258.3" y2="268" stroke="var(--border-soft)"/>
+            <line x1="329.7" y1="18" x2="329.7" y2="268" stroke="var(--border-soft)"/>
+            <line x1="401.1" y1="18" x2="401.1" y2="268" stroke="var(--border-soft)"/>
+            <line x1="472.6" y1="18" x2="472.6" y2="268" stroke="var(--border-soft)"/>
+            <line x1="544.0" y1="18" x2="544.0" y2="268" stroke="var(--border-soft)"/>
+            <line x1="44" y1="268.0" x2="544" y2="268.0" stroke="var(--border-soft)"/>
+            <line x1="44" y1="205.5" x2="544" y2="205.5" stroke="var(--border-soft)"/>
+            <line x1="44" y1="143.0" x2="544" y2="143.0" stroke="var(--border-soft)"/>
+            <line x1="44" y1="80.5" x2="544" y2="80.5" stroke="var(--border-soft)"/>
+            <line x1="44" y1="18.0" x2="544" y2="18.0" stroke="var(--border-soft)"/>
+          </g>
+          <line x1="44" y1="18" x2="44" y2="268" stroke="var(--border)"/>
+          <line x1="44" y1="268" x2="544" y2="268" stroke="var(--border)"/>
+          <line x1="44" y1="113.0" x2="544" y2="113.0" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4 3"/>
+          <line x1="266.9" y1="18" x2="266.9" y2="268" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4 3"/>
+          <text x="542" y="108.0" text-anchor="end" class="qp-mean">VOL-WTD MEAN 2.48% S</text>
+          <text x="271.9" y="28" class="qp-mean">VOL-WTD MEAN 25.6&#176; API</text>
+          <circle cx="245.4" cy="86.1" r="17.5" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="267.9" y="89.6" text-anchor="start" class="qp-lbl">Canada</text>
+          <line x1="258.3" y1="86.1" x2="270.8" y2="73.1" stroke="var(--border)"/>
+          <circle cx="258.3" cy="86.1" r="7.5" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="270.8" y="76.6" text-anchor="start" class="qp-lbl">Mexico</text>
+          <circle cx="368.3" cy="139.9" r="6.5" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="379.8" y="143.4" text-anchor="start" class="qp-lbl">Saudi Arabia</text>
+          <circle cx="348.3" cy="233.6" r="6.0" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="359.3" y="237.1" text-anchor="start" class="qp-lbl">Guyana</text>
+          <circle cx="276.9" cy="228.0" r="6.0" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="287.9" y="231.5" text-anchor="start" class="qp-lbl">Brazil</text>
+          <line x1="184.0" y1="160.5" x2="195.0" y2="147.5" stroke="var(--border)"/>
+          <circle cx="184.0" cy="160.5" r="6.0" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="195.0" y="151.0" text-anchor="start" class="qp-lbl">Colombia</text>
+          <circle cx="279.7" cy="48.0" r="5.5" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="290.2" y="51.5" text-anchor="start" class="qp-lbl">Iraq</text>
+          <circle cx="102.6" cy="46.8" r="5.5" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="113.1" y="50.3" text-anchor="start" class="qp-lbl">Venezuela</text>
+          <line x1="409.7" y1="259.9" x2="419.7" y2="220.9" stroke="var(--border)"/>
+          <circle cx="409.7" cy="259.9" r="5.0" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="419.7" y="224.4" text-anchor="start" class="qp-lbl">Nigeria</text>
+          <circle cx="475.4" cy="248.6" r="5.0" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="485.4" y="252.1" text-anchor="start" class="qp-lbl">Argentina</text>
+          <circle cx="214.0" cy="168.0" r="4.5" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="223.5" y="171.5" text-anchor="start" class="qp-lbl">Ecuador</text>
+          <line x1="445.4" y1="249.9" x2="454.9" y2="236.9" stroke="var(--border)"/>
+          <circle cx="445.4" cy="249.9" r="4.5" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="454.9" y="240.4" text-anchor="start" class="qp-lbl">Libya</text>
+          <text x="44.0" y="283" text-anchor="middle" class="qp-tick">10&#176;</text>
+          <text x="115.4" y="283" text-anchor="middle" class="qp-tick">15&#176;</text>
+          <text x="186.9" y="283" text-anchor="middle" class="qp-tick">20&#176;</text>
+          <text x="258.3" y="283" text-anchor="middle" class="qp-tick">25&#176;</text>
+          <text x="329.7" y="283" text-anchor="middle" class="qp-tick">30&#176;</text>
+          <text x="401.1" y="283" text-anchor="middle" class="qp-tick">35&#176;</text>
+          <text x="472.6" y="283" text-anchor="middle" class="qp-tick">40&#176;</text>
+          <text x="544.0" y="283" text-anchor="middle" class="qp-tick">45&#176;</text>
+          <text x="36" y="271.5" text-anchor="end" class="qp-tick">0.0</text>
+          <text x="36" y="209.0" text-anchor="end" class="qp-tick">1.0</text>
+          <text x="36" y="146.5" text-anchor="end" class="qp-tick">2.0</text>
+          <text x="36" y="84.0" text-anchor="end" class="qp-tick">3.0</text>
+          <text x="36" y="21.5" text-anchor="end" class="qp-tick">4.0</text>
+          <text x="44" y="300" class="qp-axis">&#8592; heavier &#183; API GRAVITY &#183; lighter &#8594;</text>
+          <text x="36" y="12" text-anchor="end" class="qp-axis">SULFUR wt%</text>
+        </svg>
+      </div>
+      <p class="qp-note">Twelve largest origins by volume, February 2025 &#8211; January 2026. Bubble area scales with import volume; dashed crosshair marks the volume-weighted mean across all crude imports.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Import ledger</h2>
+      <span class="tag">29 ORIGINS &#183; CLICK A HEADER TO SORT</span>
+    </div>
+    <div class="card-body">
+      <div class="ledger-wrap">
+        <table id="ledger">
+          <caption>US crude oil imports by origin, February 2025 &#8211; January 2026. Volume in thousand barrels;
+          sulfur and API gravity are volume-weighted. Source: EIA company-level imports.</caption>
+          <colgroup><col class="c-name"><col class="c-vol"><col><col></colgroup>
+          <thead>
+            <tr>
+              <th scope="col" data-key="name" aria-sort="none"><button type="button" class="sort">Origin<span class="caret"></span></button></th>
+              <th scope="col" data-key="num" class="h-vol" aria-sort="descending"><button type="button" class="sort">Mbbl<span class="caret"></span></button></th>
+              <th scope="col" data-key="num" aria-sort="none"><button type="button" class="sort">Sulfur wt%<span class="caret"></span></button></th>
+              <th scope="col" data-key="num" aria-sort="none"><button type="button" class="sort">API gravity<span class="caret"></span></button></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Canada</th><td class="num" data-v="1427229">1,427,229</td><td data-v="2.91"><span class="gauge"><span class="fill s" style="width:48.5%"></span></span><span class="num v">2.91</span></td><td data-v="24.1"><span class="gauge"><span class="fill a" style="width:35.3%"></span></span><span class="num v">24.1</span></td></tr>
+            <tr><th scope="row">Mexico</th><td class="num" data-v="139928">139,928</td><td data-v="2.91"><span class="gauge"><span class="fill s" style="width:48.5%"></span></span><span class="num v">2.91</span></td><td data-v="25.0"><span class="gauge"><span class="fill a" style="width:37.5%"></span></span><span class="num v">25.0</span></td></tr>
+            <tr><th scope="row">Saudi Arabia</th><td class="num" data-v="98278">98,278</td><td data-v="2.05"><span class="gauge"><span class="fill s" style="width:34.2%"></span></span><span class="num v">2.05</span></td><td data-v="32.7"><span class="gauge"><span class="fill a" style="width:56.8%"></span></span><span class="num v">32.7</span></td></tr>
+            <tr><th scope="row">Guyana</th><td class="num" data-v="76020">76,020</td><td data-v="0.55"><span class="gauge"><span class="fill s" style="width:9.2%"></span></span><span class="num v">0.55</span></td><td data-v="31.3"><span class="gauge"><span class="fill a" style="width:53.3%"></span></span><span class="num v">31.3</span></td></tr>
+            <tr><th scope="row">Brazil</th><td class="num" data-v="72382">72,382</td><td data-v="0.64"><span class="gauge"><span class="fill s" style="width:10.7%"></span></span><span class="num v">0.64</span></td><td data-v="26.3"><span class="gauge"><span class="fill a" style="width:40.8%"></span></span><span class="num v">26.3</span></td></tr>
+            <tr><th scope="row">Colombia</th><td class="num" data-v="70883">70,883</td><td data-v="1.72"><span class="gauge"><span class="fill s" style="width:28.7%"></span></span><span class="num v">1.72</span></td><td data-v="19.8"><span class="gauge"><span class="fill a" style="width:24.5%"></span></span><span class="num v">19.8</span></td></tr>
+            <tr><th scope="row">Iraq</th><td class="num" data-v="65160">65,160</td><td data-v="3.52"><span class="gauge"><span class="fill s" style="width:58.7%"></span></span><span class="num v">3.52</span></td><td data-v="26.5"><span class="gauge"><span class="fill a" style="width:41.3%"></span></span><span class="num v">26.5</span></td></tr>
+            <tr><th scope="row">Venezuela</th><td class="num" data-v="51033">51,033</td><td data-v="3.54"><span class="gauge"><span class="fill s" style="width:59.0%"></span></span><span class="num v">3.54</span></td><td data-v="14.1"><span class="gauge"><span class="fill a" style="width:10.3%"></span></span><span class="num v">14.1</span></td></tr>
+            <tr><th scope="row">Nigeria</th><td class="num" data-v="50087">50,087</td><td data-v="0.13"><span class="gauge"><span class="fill s" style="width:2.2%"></span></span><span class="num v">0.13</span></td><td data-v="35.6"><span class="gauge"><span class="fill a" style="width:64.0%"></span></span><span class="num v">35.6</span></td></tr>
+            <tr><th scope="row">Argentina</th><td class="num" data-v="47618">47,618</td><td data-v="0.31"><span class="gauge"><span class="fill s" style="width:5.2%"></span></span><span class="num v">0.31</span></td><td data-v="40.2"><span class="gauge"><span class="fill a" style="width:75.5%"></span></span><span class="num v">40.2</span></td></tr>
+            <tr><th scope="row">Ecuador</th><td class="num" data-v="35593">35,593</td><td data-v="1.60"><span class="gauge"><span class="fill s" style="width:26.7%"></span></span><span class="num v">1.60</span></td><td data-v="21.9"><span class="gauge"><span class="fill a" style="width:29.8%"></span></span><span class="num v">21.9</span></td></tr>
+            <tr><th scope="row">Libya</th><td class="num" data-v="24507">24,507</td><td data-v="0.29"><span class="gauge"><span class="fill s" style="width:4.8%"></span></span><span class="num v">0.29</span></td><td data-v="38.1"><span class="gauge"><span class="fill a" style="width:70.3%"></span></span><span class="num v">38.1</span></td></tr>
+            <tr><th scope="row">United Kingdom</th><td class="num" data-v="17879">17,879</td><td data-v="0.93"><span class="gauge"><span class="fill s" style="width:15.5%"></span></span><span class="num v">0.93</span></td><td data-v="25.8"><span class="gauge"><span class="fill a" style="width:39.5%"></span></span><span class="num v">25.8</span></td></tr>
+            <tr><th scope="row">Trinidad and Tobago</th><td class="num" data-v="13208">13,208</td><td data-v="1.47"><span class="gauge"><span class="fill s" style="width:24.5%"></span></span><span class="num v">1.47</span></td><td data-v="23.7"><span class="gauge"><span class="fill a" style="width:34.3%"></span></span><span class="num v">23.7</span></td></tr>
+            <tr><th scope="row">Kazakhstan</th><td class="num" data-v="11121">11,121</td><td data-v="1.65"><span class="gauge"><span class="fill s" style="width:27.5%"></span></span><span class="num v">1.65</span></td><td data-v="47.1"><span class="gauge"><span class="fill a" style="width:92.8%"></span></span><span class="num v">47.1</span></td></tr>
+            <tr><th scope="row">Angola</th><td class="num" data-v="10730">10,730</td><td data-v="0.69"><span class="gauge"><span class="fill s" style="width:11.5%"></span></span><span class="num v">0.69</span></td><td data-v="32.8"><span class="gauge"><span class="fill a" style="width:57.0%"></span></span><span class="num v">32.8</span></td></tr>
+            <tr><th scope="row">United Arab Emirates</th><td class="num" data-v="10132">10,132</td><td data-v="0.97"><span class="gauge"><span class="fill s" style="width:16.2%"></span></span><span class="num v">0.97</span></td><td data-v="39.8"><span class="gauge"><span class="fill a" style="width:74.5%"></span></span><span class="num v">39.8</span></td></tr>
+            <tr><th scope="row">Gabon</th><td class="num" data-v="6405">6,405</td><td data-v="0.16"><span class="gauge"><span class="fill s" style="width:2.7%"></span></span><span class="num v">0.16</span></td><td data-v="35.7"><span class="gauge"><span class="fill a" style="width:64.3%"></span></span><span class="num v">35.7</span></td></tr>
+            <tr><th scope="row">Kuwait</th><td class="num" data-v="5130">5,130</td><td data-v="4.58"><span class="gauge"><span class="fill s" style="width:76.3%"></span></span><span class="num v">4.58</span></td><td data-v="18.9"><span class="gauge"><span class="fill a" style="width:22.2%"></span></span><span class="num v">18.9</span></td></tr>
+            <tr><th scope="row">Norway</th><td class="num" data-v="3882">3,882</td><td data-v="0.81"><span class="gauge"><span class="fill s" style="width:13.5%"></span></span><span class="num v">0.81</span></td><td data-v="27.5"><span class="gauge"><span class="fill a" style="width:43.8%"></span></span><span class="num v">27.5</span></td></tr>
+            <tr><th scope="row">Ghana</th><td class="num" data-v="3824">3,824</td><td data-v="0.41"><span class="gauge"><span class="fill s" style="width:6.8%"></span></span><span class="num v">0.41</span></td><td data-v="33.2"><span class="gauge"><span class="fill a" style="width:58.0%"></span></span><span class="num v">33.2</span></td></tr>
+            <tr><th scope="row">Algeria</th><td class="num" data-v="3122">3,122</td><td data-v="0.17"><span class="gauge"><span class="fill s" style="width:2.8%"></span></span><span class="num v">0.17</span></td><td data-v="43.1"><span class="gauge"><span class="fill a" style="width:82.8%"></span></span><span class="num v">43.1</span></td></tr>
+            <tr><th scope="row">Senegal</th><td class="num" data-v="1910">1,910</td><td data-v="1.10"><span class="gauge"><span class="fill s" style="width:18.3%"></span></span><span class="num v">1.10</span></td><td data-v="30.8"><span class="gauge"><span class="fill a" style="width:52.0%"></span></span><span class="num v">30.8</span></td></tr>
+            <tr><th scope="row">Congo (Kinshasa)</th><td class="num" data-v="1689">1,689</td><td data-v="0.16"><span class="gauge"><span class="fill s" style="width:2.7%"></span></span><span class="num v">0.16</span></td><td data-v="35.5"><span class="gauge"><span class="fill a" style="width:63.7%"></span></span><span class="num v">35.5</span></td></tr>
+            <tr><th scope="row">Cameroon</th><td class="num" data-v="958">958</td><td data-v="0.34"><span class="gauge"><span class="fill s" style="width:5.7%"></span></span><span class="num v">0.34</span></td><td data-v="28.5"><span class="gauge"><span class="fill a" style="width:46.3%"></span></span><span class="num v">28.5</span></td></tr>
+            <tr><th scope="row">Peru</th><td class="num" data-v="727">727</td><td data-v="0.46"><span class="gauge"><span class="fill s" style="width:7.7%"></span></span><span class="num v">0.46</span></td><td data-v="18.3"><span class="gauge"><span class="fill a" style="width:20.8%"></span></span><span class="num v">18.3</span></td></tr>
+            <tr><th scope="row">Cote d&#39;Ivoire (Ivory Coast)</th><td class="num" data-v="671">671</td><td data-v="0.19"><span class="gauge"><span class="fill s" style="width:3.2%"></span></span><span class="num v">0.19</span></td><td data-v="38.4"><span class="gauge"><span class="fill a" style="width:71.0%"></span></span><span class="num v">38.4</span></td></tr>
+            <tr><th scope="row">Tunisia</th><td class="num" data-v="653">653</td><td data-v="0.09"><span class="gauge"><span class="fill s" style="width:1.5%"></span></span><span class="num v">0.09</span></td><td data-v="44.0"><span class="gauge"><span class="fill a" style="width:85.0%"></span></span><span class="num v">44.0</span></td></tr>
+            <tr><th scope="row">Guatemala</th><td class="num" data-v="622">622</td><td data-v="5.78"><span class="gauge"><span class="fill s" style="width:96.3%"></span></span><span class="num v">5.78</span></td><td data-v="21.7"><span class="gauge"><span class="fill a" style="width:29.3%"></span></span><span class="num v">21.7</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer class="page-foot">Source: EIA company-level crude oil import data. Vanilla HTML/CSS/JS &#8212; no framework, no build step; the table's sort control is the only script on the page.</footer>
+</div>
+
+<script>
+(function () {
+  var table = document.getElementById('ledger');
+  var heads = table.tHead.rows[0].cells;
+  var body = table.tBodies[0];
+
+  function sort(i, dir) {
+    var numeric = heads[i].dataset.key === 'num';
+    var rows = Array.prototype.slice.call(body.rows);
+    rows.sort(function (a, b) {
+      var x = a.cells[i], y = b.cells[i];
+      return numeric
+        ? dir * (parseFloat(x.dataset.v) - parseFloat(y.dataset.v))
+        : dir * x.textContent.trim().localeCompare(y.textContent.trim());
+    });
+    rows.forEach(function (r) { body.appendChild(r); });
+    for (var j = 0; j < heads.length; j++) {
+      if (j === i) heads[j].setAttribute('aria-sort', dir === 1 ? 'ascending' : 'descending');
+      else heads[j].setAttribute('aria-sort', 'none');
+    }
+  }
+
+  Array.prototype.forEach.call(heads, function (th, i) {
+    th.querySelector('button').addEventListener('click', function () {
+      var current = th.getAttribute('aria-sort') || 'none';
+      var dir = current === 'none'
+        ? (heads[i].dataset.key === 'num' ? -1 : 1)
+        : (current === 'ascending' ? -1 : 1);
+      sort(i, dir);
+    });
+  });
+})();
+</script>
