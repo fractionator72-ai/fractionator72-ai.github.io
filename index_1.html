@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EIA Data Browsers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #fafaf9;
+    color: #242430;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px;
+  }
+  main {
+    max-width: 560px;
+    width: 100%;
+    text-align: center;
+  }
+  h1 {
+    font-family: "Jost", system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 26px;
+    margin: 0 0 8px;
+  }
+  p.sub {
+    margin: 0 0 32px;
+    font-size: 14px;
+    color: #6f6f79;
+  }
+  .links {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  a.card {
+    display: block;
+    text-decoration: none;
+    border: 1.5px solid #d4d4d9;
+    border-radius: 10px;
+    padding: 20px 22px;
+    background: #fff;
+    transition: border-color .15s ease, transform .15s ease;
+  }
+  a.card:hover { border-color: #a6a6ae; transform: translateY(-1px); }
+  a.card:focus-visible { outline: 2px solid #3a6fd8; outline-offset: 2px; }
+  .card-title {
+    font-family: "Jost", system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 17px;
+    color: #242430;
+    margin: 0 0 4px;
+  }
+  .card-desc {
+    font-size: 13px;
+    color: #6f6f79;
+    margin: 0;
+  }
+  .electricity .card-title { color: #232a4a; }
+  .coal .card-title { color: #2a2320; }
+  footer {
+    margin-top: 32px;
+    font-size: 11.5px;
+    color: #8a8a92;
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>EIA Data Browsers</h1>
+  <p class="sub">Personal tools built on EIA&rsquo;s public Open Data API.</p>
+  <div class="links">
+    <a class="card electricity" href="electricity.html">
+      <p class="card-title">Electricity Browser</p>
+      <p class="card-desc">Generation, sales, and fuel receipts by state</p>
+    </a>
+    <a class="card coal" href="coal.html">
+      <p class="card-title">Coal Data Browser</p>
+      <p class="card-desc">Mine production, shipments, prices, and reserves</p>
+    </a>
+  </div>
+  <footer>Not an official EIA product</footer>
+</main>
+</body>
+</html>
