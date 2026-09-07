@@ -1,685 +1,345 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Crude Oil Imports Browser</title>
+<title>Crude Oil Import Assay</title>
+<meta name="color-scheme" content="light dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
 <style>
-  #eb-root, #eb-root * { box-sizing: border-box; }
-  #eb-root {
-    background: #fafaf9;
-    color: #242430;
-    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-    max-width: 1160px;
-    margin: 0 auto;
-    border: 1px solid #e2e2e6;
-    border-radius: 10px;
+:root{
+  --bg:#f0f0f1;
+  --surface:#ffffff;
+  --surface-2:#f7f7f8;
+  --border:#c3c3c6;
+  --border-soft:#e2e2e5;
+  --ink:#1c1e1f;
+  --ink-dim:#4b4d4f;
+  --muted:#7d7d80;
+  --accent:#3d5c78;
+  --accent-2:#5980a6;
+  --accent-soft:#b5d9fd;
+  --sulfur-track:#e2e2e5;
+  --shadow: 0 1px 2px rgba(20,22,24,.04);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#16181a;
+    --surface:#1e2124;
+    --surface-2:#242729;
+    --border:#3a3d40;
+    --border-soft:#2b2e30;
+    --ink:#eceded;
+    --ink-dim:#c2c3c5;
+    --muted:#8f9092;
+    --accent:#8fb2d1;
+    --accent-2:#6f97bd;
+    --accent-soft:#294256;
+    --sulfur-track:#2b2e30;
+    --shadow: 0 1px 3px rgba(0,0,0,.35);
   }
-  #eb-root h1, #eb-root h2, #eb-root h3 { font-family: "Jost", system-ui, sans-serif; margin: 0; }
-  #eb-root button { font-family: inherit; cursor: pointer; }
-  #eb-root input { font-family: inherit; }
-  #eb-root .num { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+}
+:root[data-theme="dark"]{
+  --bg:#16181a;
+  --surface:#1e2124;
+  --surface-2:#242729;
+  --border:#3a3d40;
+  --border-soft:#2b2e30;
+  --ink:#eceded;
+  --ink-dim:#c2c3c5;
+  --muted:#8f9092;
+  --accent:#8fb2d1;
+  --accent-2:#6f97bd;
+  --accent-soft:#294256;
+  --sulfur-track:#2b2e30;
+  --shadow: 0 1px 3px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:Barlow,system-ui,sans-serif;
+  padding:40px 20px 64px;
+}
+.page{max-width:800px;margin:0 auto}
+.eyebrow{
+  font-family:"Barlow Condensed",system-ui,sans-serif;
+  font-weight:600;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent-2);margin:0 0 10px;
+}
+h1{
+  font-family:"Barlow Condensed",system-ui,sans-serif;
+  font-weight:700;font-size:clamp(28px,5vw,38px);line-height:1.05;margin:0 0 10px;
+  text-wrap:balance;
+}
+.dek{
+  font-size:15px;line-height:1.5;color:var(--ink-dim);margin:0;max-width:56ch;
+}
+.meta-row{
+  display:flex;flex-wrap:wrap;gap:20px;margin-top:20px;padding-top:18px;
+  border-top:1px solid var(--border-soft);
+}
+.meta-item{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:var(--muted)}
+.meta-item b{color:var(--ink-dim);font-weight:600}
 
-  #eb-root .eb-header { background: #3d5c78; padding: 22px 32px; display: flex; flex-direction: column; gap: 4px; border-radius: 9px 9px 0 0; }
-  #eb-root .eb-header-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-  #eb-root .eb-eyebrow { font-family: "Jost", sans-serif; font-size: 13px; font-weight: 600; letter-spacing: .12em; color: #b5d9fd; text-transform: uppercase; }
-  #eb-root .eb-badge { font-size: 11px; font-weight: 700; letter-spacing: .06em; padding: 2px 8px; border-radius: 3px; text-transform: uppercase; }
-  #eb-root .eb-badge-live { color: #16311f; background: #8fe0a8; }
-  #eb-root .eb-badge-off { color: #3d5c78; background: #e8c25c; }
-  #eb-root .eb-title { font-size: 26px; font-weight: 600; color: #fff; }
-  #eb-root .eb-sub { margin: 0; font-size: 14px; color: #dbe9f5; max-width: 680px; }
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:3px;
+  box-shadow:var(--shadow);margin-top:24px;overflow:hidden;
+}
+.card-head{
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  padding:18px 20px 14px;border-bottom:1px solid var(--border-soft);
+}
+.card-head h2{
+  font-family:"Barlow Condensed",system-ui,sans-serif;font-weight:600;
+  font-size:16.5px;margin:0;letter-spacing:.01em;
+}
+.card-head .tag{
+  font-family:ui-monospace,Menlo,monospace;font-size:10px;color:var(--muted);
+  white-space:nowrap;
+}
+.card-body{padding:18px 20px 20px}
 
-  #eb-root .eb-content { padding: 26px 32px 56px; display: flex; flex-direction: column; gap: 22px; }
-  #eb-root .eb-section-label { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #6f6f79; }
-  #eb-root .eb-sub-label { font-size: 10.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #8f8f97; margin-bottom: 4px; }
+/* ---- quality plane ---- */
+.qp-wrap{overflow-x:auto}
+.qp-wrap svg{display:block;overflow:visible;min-width:520px}
+.qp-lbl{font-size:9.6px;fill:var(--ink-dim)}
+.qp-lbl.big{font-weight:600;fill:var(--ink)}
+.qp-tick{font-family:ui-monospace,Menlo,monospace;font-size:8.6px;fill:var(--muted)}
+.qp-mean{font-family:ui-monospace,Menlo,monospace;font-size:8.6px;font-weight:700;fill:var(--accent)}
+.qp-axis{
+  font-family:"Barlow Condensed",system-ui,sans-serif;font-weight:600;font-size:9px;
+  letter-spacing:.1em;text-transform:uppercase;fill:var(--muted);
+}
+.qp-note{font-size:11.5px;color:var(--muted);margin:12px 2px 0;line-height:1.5}
 
-  #eb-root .eb-key-bar { background: #fff; border: 1.5px solid #d4d4d9; border-radius: 8px; padding: 14px 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-  #eb-root .eb-key-bar input[type="password"], #eb-root .eb-key-bar input[type="text"] {
-    flex: 1 1 260px; min-width: 200px; border: 1.5px solid #d4d4d9; border-radius: 6px; padding: 8px 10px; font-size: 13px;
-  }
-  #eb-root .eb-key-status { font-size: 12.5px; color: #6f6f79; }
-  #eb-root .eb-key-status.eb-key-ok { color: #1f7a3f; font-weight: 600; }
+/* ---- ledger table ---- */
+.ledger-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed;min-width:560px}
+colgroup .c-name{width:34%}
+colgroup .c-vol{width:22%}
+th,td{padding:7px 8px 7px 0;border-bottom:1px solid var(--border-soft);text-align:left;font-weight:400;vertical-align:middle}
+thead th{padding:0 8px 8px 0;border-bottom:1px solid var(--border)}
+tbody th{color:var(--ink-dim);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.num{font-family:ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
+td.num{text-align:right;padding-right:14px}
+th.h-vol button{justify-content:flex-end;padding-right:14px}
+tbody tr:hover{background:var(--surface-2)}
+button.sort{
+  display:flex;align-items:baseline;gap:5px;width:100%;
+  font-family:"Barlow Condensed",system-ui,sans-serif;font-weight:600;font-size:9.5px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+  background:none;border:0;padding:0;cursor:pointer;text-align:inherit;
+}
+button.sort:hover{color:var(--accent)}
+button.sort:active{color:var(--accent-2)}
+button.sort:focus-visible{outline:2px solid var(--accent-2);outline-offset:2px;border-radius:2px}
+.caret{visibility:hidden;font-size:8px}
+[aria-sort="ascending"] button.sort,[aria-sort="descending"] button.sort{color:var(--accent)}
+[aria-sort="ascending"] .caret,[aria-sort="descending"] .caret{visibility:visible}
+[aria-sort="ascending"] .caret::after{content:"\25B2"}
+[aria-sort="descending"] .caret::after{content:"\25BC"}
+.gauge{display:inline-block;width:calc(100% - 34px);height:6px;background:var(--sulfur-track);vertical-align:middle;margin-right:7px;border-radius:1px;overflow:hidden}
+.fill{display:block;height:100%}
+.fill.s{background:var(--accent-2)}
+.fill.a{background:var(--accent-soft)}
+.v{font-size:10.5px;display:inline-block;width:28px;text-align:right;vertical-align:middle}
+caption{
+  caption-side:bottom;margin-top:12px;padding-top:10px;border-top:1px solid var(--border);
+  font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:var(--muted);text-align:left;
+}
+@media (max-width:460px){
+  .gauge{display:none}
+  .v{width:auto}
+}
 
-  #eb-root .eb-dd-trigger {
-    display: flex; align-items: center; justify-content: space-between; gap: 16px;
-    background: #fff; border: 1.5px solid #d4d4d9; border-radius: 6px;
-    padding: 9px 11px 9px 13px; font-size: 13.5px; font-weight: 600; color: #33333c;
-  }
-  #eb-root .eb-dd-trigger:focus-visible, #eb-root button:focus-visible { outline: 2px solid #3d5c78; outline-offset: 1px; }
-  #eb-root .eb-dd-panel {
-    position: absolute; top: calc(100% + 4px); left: 0; background: #fff;
-    border: 1px solid #d4d4d9; border-radius: 6px; box-shadow: 0 8px 20px rgba(20,20,30,.14);
-    padding: 5px; z-index: 40; display: flex; flex-direction: column; gap: 1px; max-height: 360px; overflow-y: auto;
-  }
-  #eb-root .eb-dd-row {
-    display: flex; align-items: center; gap: 9px; text-align: left; background: #fff;
-    border: none; border-radius: 4px; padding: 7px 8px; font-size: 13px; width: 100%; color: #2c2c34;
-  }
-  #eb-root .eb-dd-row:hover, #eb-root .eb-dd-row:focus-visible { background: #f1f1f4; }
-  #eb-root .eb-dd-row[aria-selected="true"] { background: #dceafb; font-weight: 600; }
-  #eb-root .eb-swatch-box { width: 14px; height: 14px; border-radius: 3px; flex: none; display: inline-block; border: 1.5px solid; }
-  #eb-root .eb-check { width: 14px; flex: none; text-align: center; color: #3d5c78; font-weight: 700; }
-
-  #eb-root .eb-nodata, #eb-root .eb-keyprompt {
-    background: #fff; border: 1.5px dashed #cfcfd4; border-radius: 8px; padding: 44px 24px;
-    text-align: center; color: #6f6f79; font-size: 14px; line-height: 1.6;
-  }
-
-  #eb-root .eb-toolbar {
-    display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap;
-    border-top: 1px solid #e2e2e6; border-bottom: 1px solid #e2e2e6; padding: 16px 0;
-  }
-  #eb-root .eb-filters { display: flex; gap: 14px; flex-wrap: wrap; }
-  #eb-root .eb-dd-wrap { position: relative; }
-  #eb-root .eb-btn {
-    display: flex; align-items: center; gap: 7px; background: #fff; border: 1.5px solid #d4d4d9;
-    border-radius: 6px; padding: 8px 14px; font-size: 13px; font-weight: 600; color: #33333c;
-  }
-  #eb-root .eb-btn-sm { padding: 6px 11px; font-size: 12.5px; }
-  #eb-root .eb-btn:hover { background: #f5f5f7; }
-  #eb-root .eb-btn:disabled { opacity: .5; cursor: default; }
-  #eb-root .eb-link-btn { background: none; border: none; padding: 0; font-size: 12.5px; font-weight: 600; color: #3d5c78; }
-  #eb-root .eb-link-btn:hover { text-decoration: underline; }
-  #eb-root .eb-note { font-size: 10.5px; color: #8a8a92; font-style: italic; }
-
-  #eb-root .eb-api-panel { background: #28282f; border-radius: 8px; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; }
-  #eb-root .eb-api-title { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #a3a3ab; }
-  #eb-root .eb-api-url { color: #a8c8e0; font-size: 12.5px; line-height: 1.6; word-break: break-all; }
-
-  #eb-root .eb-card { background: #fff; border: 1px solid #e2e2e6; border-radius: 8px; padding: 20px 22px; position: relative; min-height: 120px; }
-  #eb-root .eb-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 10px; }
-  #eb-root .eb-card-head h2 { font-size: 17px; font-weight: 600; }
-  #eb-root .eb-card-meta { font-size: 12.5px; color: #6f6f79; }
-  #eb-root .eb-notice { font-size: 11.5px; color: #a4431f; margin-top: 8px; }
-  #eb-root .eb-loading, #eb-root .eb-error { padding: 30px 10px; text-align: center; color: #6f6f79; font-size: 13.5px; }
-  #eb-root .eb-error { color: #a4431f; }
-
-  #eb-root .eb-grid-card { padding: 4px 22px 18px; overflow-x: auto; }
-  #eb-root .eb-grid-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 0 2px; flex-wrap: wrap; gap: 10px; }
-  #eb-root .eb-grid-head h2 { font-size: 14px; font-weight: 600; color: #3d3d45; }
-  #eb-root table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-  #eb-root th, #eb-root td { padding: 8px 10px; border-bottom: 1.5px solid #dcdce0; }
-  #eb-root thead th { text-align: right; color: #6f6f79; font-weight: 600; }
-  #eb-root thead th:first-child { text-align: left; padding-left: 0; }
-  #eb-root tbody th { text-align: left; font-weight: 400; padding-left: 0; border-bottom: 1px solid #e9e9ea; display: flex; align-items: center; gap: 8px; }
-  #eb-root tbody td { text-align: right; border-bottom: 1px solid #e9e9ea; }
-
-  #eb-root .eb-limits { background: #fbf3e6; border: 1px solid #e8c896; border-radius: 8px; padding: 12px 16px; font-size: 12.5px; color: #6b4e1e; line-height: 1.6; }
-
-  #eb-root .eb-footer { font-size: 12px; color: #8a8a92; padding: 16px 32px 22px; }
+footer.page-foot{
+  margin-top:28px;padding-top:16px;border-top:1px solid var(--border-soft);
+  font-size:11px;color:var(--muted);
+}
 </style>
-</head>
-<body>
 
-<div id="eb-root">
-  <div class="eb-header">
-    <div class="eb-header-top">
-      <span class="eb-eyebrow">EIA public data &middot; personal build</span>
-      <span class="eb-badge" id="eb-live-badge">Sample data</span>
+<div class="page">
+  <header>
+    <p class="eyebrow">EIA &#183; Petroleum Imports</p>
+    <h1>Crude Oil Import Assay</h1>
+    <p class="dek">Sulfur content and API gravity of U.S. crude oil imports by country of origin &#8212; the two properties that set a barrel's refining value and its price relative to WTI.</p>
+    <div class="meta-row">
+      <span class="meta-item"><b>Window</b> Feb 2025 &#8211; Jan 2026</span>
+      <span class="meta-item"><b>Vol-wtd mean</b> 2.48% S &#183; 25.6&#176; API</span>
+      <span class="meta-item"><b>Origins</b> 29</span>
     </div>
-    <h1 class="eb-title">Crude Oil Imports Browser</h1>
-    <p class="eb-sub">A lightweight personal view of EIA&rsquo;s crude oil import data by country of origin and crude grade &mdash; pulled live from the public Open Data API using your own free key.</p>
-  </div>
-  <div class="eb-content" id="eb-app"></div>
-  <div class="eb-footer">Personal tool &middot; not an official EIA product &middot; built on EIA&rsquo;s public Open Data API</div>
+  </header>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Quality plane</h2>
+      <span class="tag">SULFUR &#215; API GRAVITY, BUBBLE = VOLUME</span>
+    </div>
+    <div class="card-body">
+      <div class="qp-wrap">
+        <svg viewBox="0 0 552 310" width="100%" role="img" aria-labelledby="qp-title qp-desc" xmlns="http://www.w3.org/2000/svg">
+          <title id="qp-title">US crude oil imports by origin: sulfur content against API gravity</title>
+          <desc id="qp-desc">Twelve largest origin countries, February 2025 to January 2026. Bubble area is
+          import volume. Canada dominates at 1,427,229 thousand barrels, 2.91 percent sulfur and 24.1 degrees
+          API &#8212; heavy and sour. Volume-weighted means for all crude imports are 2.48 percent sulfur and
+          25.6 degrees API, shown as a dashed crosshair.</desc>
+          <g stroke-width="1">
+            <line x1="44.0" y1="18" x2="44.0" y2="268" stroke="var(--border-soft)"/>
+            <line x1="115.4" y1="18" x2="115.4" y2="268" stroke="var(--border-soft)"/>
+            <line x1="186.9" y1="18" x2="186.9" y2="268" stroke="var(--border-soft)"/>
+            <line x1="258.3" y1="18" x2="258.3" y2="268" stroke="var(--border-soft)"/>
+            <line x1="329.7" y1="18" x2="329.7" y2="268" stroke="var(--border-soft)"/>
+            <line x1="401.1" y1="18" x2="401.1" y2="268" stroke="var(--border-soft)"/>
+            <line x1="472.6" y1="18" x2="472.6" y2="268" stroke="var(--border-soft)"/>
+            <line x1="544.0" y1="18" x2="544.0" y2="268" stroke="var(--border-soft)"/>
+            <line x1="44" y1="268.0" x2="544" y2="268.0" stroke="var(--border-soft)"/>
+            <line x1="44" y1="205.5" x2="544" y2="205.5" stroke="var(--border-soft)"/>
+            <line x1="44" y1="143.0" x2="544" y2="143.0" stroke="var(--border-soft)"/>
+            <line x1="44" y1="80.5" x2="544" y2="80.5" stroke="var(--border-soft)"/>
+            <line x1="44" y1="18.0" x2="544" y2="18.0" stroke="var(--border-soft)"/>
+          </g>
+          <line x1="44" y1="18" x2="44" y2="268" stroke="var(--border)"/>
+          <line x1="44" y1="268" x2="544" y2="268" stroke="var(--border)"/>
+          <line x1="44" y1="113.0" x2="544" y2="113.0" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4 3"/>
+          <line x1="266.9" y1="18" x2="266.9" y2="268" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4 3"/>
+          <text x="542" y="108.0" text-anchor="end" class="qp-mean">VOL-WTD MEAN 2.48% S</text>
+          <text x="271.9" y="28" class="qp-mean">VOL-WTD MEAN 25.6&#176; API</text>
+          <circle cx="245.4" cy="86.1" r="17.5" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="267.9" y="89.6" text-anchor="start" class="qp-lbl">Canada</text>
+          <line x1="258.3" y1="86.1" x2="270.8" y2="73.1" stroke="var(--border)"/>
+          <circle cx="258.3" cy="86.1" r="7.5" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="270.8" y="76.6" text-anchor="start" class="qp-lbl">Mexico</text>
+          <circle cx="368.3" cy="139.9" r="6.5" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="379.8" y="143.4" text-anchor="start" class="qp-lbl">Saudi Arabia</text>
+          <circle cx="348.3" cy="233.6" r="6.0" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="359.3" y="237.1" text-anchor="start" class="qp-lbl">Guyana</text>
+          <circle cx="276.9" cy="228.0" r="6.0" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="287.9" y="231.5" text-anchor="start" class="qp-lbl">Brazil</text>
+          <line x1="184.0" y1="160.5" x2="195.0" y2="147.5" stroke="var(--border)"/>
+          <circle cx="184.0" cy="160.5" r="6.0" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="195.0" y="151.0" text-anchor="start" class="qp-lbl">Colombia</text>
+          <circle cx="279.7" cy="48.0" r="5.5" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="290.2" y="51.5" text-anchor="start" class="qp-lbl">Iraq</text>
+          <circle cx="102.6" cy="46.8" r="5.5" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="113.1" y="50.3" text-anchor="start" class="qp-lbl">Venezuela</text>
+          <line x1="409.7" y1="259.9" x2="419.7" y2="220.9" stroke="var(--border)"/>
+          <circle cx="409.7" cy="259.9" r="5.0" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="419.7" y="224.4" text-anchor="start" class="qp-lbl">Nigeria</text>
+          <circle cx="475.4" cy="248.6" r="5.0" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="485.4" y="252.1" text-anchor="start" class="qp-lbl">Argentina</text>
+          <circle cx="214.0" cy="168.0" r="4.5" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="223.5" y="171.5" text-anchor="start" class="qp-lbl">Ecuador</text>
+          <line x1="445.4" y1="249.9" x2="454.9" y2="236.9" stroke="var(--border)"/>
+          <circle cx="445.4" cy="249.9" r="4.5" fill="var(--accent-2)" fill-opacity="0.35" stroke="var(--accent)"/>
+          <text x="454.9" y="240.4" text-anchor="start" class="qp-lbl">Libya</text>
+          <text x="44.0" y="283" text-anchor="middle" class="qp-tick">10&#176;</text>
+          <text x="115.4" y="283" text-anchor="middle" class="qp-tick">15&#176;</text>
+          <text x="186.9" y="283" text-anchor="middle" class="qp-tick">20&#176;</text>
+          <text x="258.3" y="283" text-anchor="middle" class="qp-tick">25&#176;</text>
+          <text x="329.7" y="283" text-anchor="middle" class="qp-tick">30&#176;</text>
+          <text x="401.1" y="283" text-anchor="middle" class="qp-tick">35&#176;</text>
+          <text x="472.6" y="283" text-anchor="middle" class="qp-tick">40&#176;</text>
+          <text x="544.0" y="283" text-anchor="middle" class="qp-tick">45&#176;</text>
+          <text x="36" y="271.5" text-anchor="end" class="qp-tick">0.0</text>
+          <text x="36" y="209.0" text-anchor="end" class="qp-tick">1.0</text>
+          <text x="36" y="146.5" text-anchor="end" class="qp-tick">2.0</text>
+          <text x="36" y="84.0" text-anchor="end" class="qp-tick">3.0</text>
+          <text x="36" y="21.5" text-anchor="end" class="qp-tick">4.0</text>
+          <text x="44" y="300" class="qp-axis">&#8592; heavier &#183; API GRAVITY &#183; lighter &#8594;</text>
+          <text x="36" y="12" text-anchor="end" class="qp-axis">SULFUR wt%</text>
+        </svg>
+      </div>
+      <p class="qp-note">Twelve largest origins by volume, February 2025 &#8211; January 2026. Bubble area scales with import volume; dashed crosshair marks the volume-weighted mean across all crude imports.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Import ledger</h2>
+      <span class="tag">29 ORIGINS &#183; CLICK A HEADER TO SORT</span>
+    </div>
+    <div class="card-body">
+      <div class="ledger-wrap">
+        <table id="ledger">
+          <caption>US crude oil imports by origin, February 2025 &#8211; January 2026. Volume in thousand barrels;
+          sulfur and API gravity are volume-weighted. Source: EIA company-level imports.</caption>
+          <colgroup><col class="c-name"><col class="c-vol"><col><col></colgroup>
+          <thead>
+            <tr>
+              <th scope="col" data-key="name" aria-sort="none"><button type="button" class="sort">Origin<span class="caret"></span></button></th>
+              <th scope="col" data-key="num" class="h-vol" aria-sort="descending"><button type="button" class="sort">Mbbl<span class="caret"></span></button></th>
+              <th scope="col" data-key="num" aria-sort="none"><button type="button" class="sort">Sulfur wt%<span class="caret"></span></button></th>
+              <th scope="col" data-key="num" aria-sort="none"><button type="button" class="sort">API gravity<span class="caret"></span></button></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Canada</th><td class="num" data-v="1427229">1,427,229</td><td data-v="2.91"><span class="gauge"><span class="fill s" style="width:48.5%"></span></span><span class="num v">2.91</span></td><td data-v="24.1"><span class="gauge"><span class="fill a" style="width:35.3%"></span></span><span class="num v">24.1</span></td></tr>
+            <tr><th scope="row">Mexico</th><td class="num" data-v="139928">139,928</td><td data-v="2.91"><span class="gauge"><span class="fill s" style="width:48.5%"></span></span><span class="num v">2.91</span></td><td data-v="25.0"><span class="gauge"><span class="fill a" style="width:37.5%"></span></span><span class="num v">25.0</span></td></tr>
+            <tr><th scope="row">Saudi Arabia</th><td class="num" data-v="98278">98,278</td><td data-v="2.05"><span class="gauge"><span class="fill s" style="width:34.2%"></span></span><span class="num v">2.05</span></td><td data-v="32.7"><span class="gauge"><span class="fill a" style="width:56.8%"></span></span><span class="num v">32.7</span></td></tr>
+            <tr><th scope="row">Guyana</th><td class="num" data-v="76020">76,020</td><td data-v="0.55"><span class="gauge"><span class="fill s" style="width:9.2%"></span></span><span class="num v">0.55</span></td><td data-v="31.3"><span class="gauge"><span class="fill a" style="width:53.3%"></span></span><span class="num v">31.3</span></td></tr>
+            <tr><th scope="row">Brazil</th><td class="num" data-v="72382">72,382</td><td data-v="0.64"><span class="gauge"><span class="fill s" style="width:10.7%"></span></span><span class="num v">0.64</span></td><td data-v="26.3"><span class="gauge"><span class="fill a" style="width:40.8%"></span></span><span class="num v">26.3</span></td></tr>
+            <tr><th scope="row">Colombia</th><td class="num" data-v="70883">70,883</td><td data-v="1.72"><span class="gauge"><span class="fill s" style="width:28.7%"></span></span><span class="num v">1.72</span></td><td data-v="19.8"><span class="gauge"><span class="fill a" style="width:24.5%"></span></span><span class="num v">19.8</span></td></tr>
+            <tr><th scope="row">Iraq</th><td class="num" data-v="65160">65,160</td><td data-v="3.52"><span class="gauge"><span class="fill s" style="width:58.7%"></span></span><span class="num v">3.52</span></td><td data-v="26.5"><span class="gauge"><span class="fill a" style="width:41.3%"></span></span><span class="num v">26.5</span></td></tr>
+            <tr><th scope="row">Venezuela</th><td class="num" data-v="51033">51,033</td><td data-v="3.54"><span class="gauge"><span class="fill s" style="width:59.0%"></span></span><span class="num v">3.54</span></td><td data-v="14.1"><span class="gauge"><span class="fill a" style="width:10.3%"></span></span><span class="num v">14.1</span></td></tr>
+            <tr><th scope="row">Nigeria</th><td class="num" data-v="50087">50,087</td><td data-v="0.13"><span class="gauge"><span class="fill s" style="width:2.2%"></span></span><span class="num v">0.13</span></td><td data-v="35.6"><span class="gauge"><span class="fill a" style="width:64.0%"></span></span><span class="num v">35.6</span></td></tr>
+            <tr><th scope="row">Argentina</th><td class="num" data-v="47618">47,618</td><td data-v="0.31"><span class="gauge"><span class="fill s" style="width:5.2%"></span></span><span class="num v">0.31</span></td><td data-v="40.2"><span class="gauge"><span class="fill a" style="width:75.5%"></span></span><span class="num v">40.2</span></td></tr>
+            <tr><th scope="row">Ecuador</th><td class="num" data-v="35593">35,593</td><td data-v="1.60"><span class="gauge"><span class="fill s" style="width:26.7%"></span></span><span class="num v">1.60</span></td><td data-v="21.9"><span class="gauge"><span class="fill a" style="width:29.8%"></span></span><span class="num v">21.9</span></td></tr>
+            <tr><th scope="row">Libya</th><td class="num" data-v="24507">24,507</td><td data-v="0.29"><span class="gauge"><span class="fill s" style="width:4.8%"></span></span><span class="num v">0.29</span></td><td data-v="38.1"><span class="gauge"><span class="fill a" style="width:70.3%"></span></span><span class="num v">38.1</span></td></tr>
+            <tr><th scope="row">United Kingdom</th><td class="num" data-v="17879">17,879</td><td data-v="0.93"><span class="gauge"><span class="fill s" style="width:15.5%"></span></span><span class="num v">0.93</span></td><td data-v="25.8"><span class="gauge"><span class="fill a" style="width:39.5%"></span></span><span class="num v">25.8</span></td></tr>
+            <tr><th scope="row">Trinidad and Tobago</th><td class="num" data-v="13208">13,208</td><td data-v="1.47"><span class="gauge"><span class="fill s" style="width:24.5%"></span></span><span class="num v">1.47</span></td><td data-v="23.7"><span class="gauge"><span class="fill a" style="width:34.3%"></span></span><span class="num v">23.7</span></td></tr>
+            <tr><th scope="row">Kazakhstan</th><td class="num" data-v="11121">11,121</td><td data-v="1.65"><span class="gauge"><span class="fill s" style="width:27.5%"></span></span><span class="num v">1.65</span></td><td data-v="47.1"><span class="gauge"><span class="fill a" style="width:92.8%"></span></span><span class="num v">47.1</span></td></tr>
+            <tr><th scope="row">Angola</th><td class="num" data-v="10730">10,730</td><td data-v="0.69"><span class="gauge"><span class="fill s" style="width:11.5%"></span></span><span class="num v">0.69</span></td><td data-v="32.8"><span class="gauge"><span class="fill a" style="width:57.0%"></span></span><span class="num v">32.8</span></td></tr>
+            <tr><th scope="row">United Arab Emirates</th><td class="num" data-v="10132">10,132</td><td data-v="0.97"><span class="gauge"><span class="fill s" style="width:16.2%"></span></span><span class="num v">0.97</span></td><td data-v="39.8"><span class="gauge"><span class="fill a" style="width:74.5%"></span></span><span class="num v">39.8</span></td></tr>
+            <tr><th scope="row">Gabon</th><td class="num" data-v="6405">6,405</td><td data-v="0.16"><span class="gauge"><span class="fill s" style="width:2.7%"></span></span><span class="num v">0.16</span></td><td data-v="35.7"><span class="gauge"><span class="fill a" style="width:64.3%"></span></span><span class="num v">35.7</span></td></tr>
+            <tr><th scope="row">Kuwait</th><td class="num" data-v="5130">5,130</td><td data-v="4.58"><span class="gauge"><span class="fill s" style="width:76.3%"></span></span><span class="num v">4.58</span></td><td data-v="18.9"><span class="gauge"><span class="fill a" style="width:22.2%"></span></span><span class="num v">18.9</span></td></tr>
+            <tr><th scope="row">Norway</th><td class="num" data-v="3882">3,882</td><td data-v="0.81"><span class="gauge"><span class="fill s" style="width:13.5%"></span></span><span class="num v">0.81</span></td><td data-v="27.5"><span class="gauge"><span class="fill a" style="width:43.8%"></span></span><span class="num v">27.5</span></td></tr>
+            <tr><th scope="row">Ghana</th><td class="num" data-v="3824">3,824</td><td data-v="0.41"><span class="gauge"><span class="fill s" style="width:6.8%"></span></span><span class="num v">0.41</span></td><td data-v="33.2"><span class="gauge"><span class="fill a" style="width:58.0%"></span></span><span class="num v">33.2</span></td></tr>
+            <tr><th scope="row">Algeria</th><td class="num" data-v="3122">3,122</td><td data-v="0.17"><span class="gauge"><span class="fill s" style="width:2.8%"></span></span><span class="num v">0.17</span></td><td data-v="43.1"><span class="gauge"><span class="fill a" style="width:82.8%"></span></span><span class="num v">43.1</span></td></tr>
+            <tr><th scope="row">Senegal</th><td class="num" data-v="1910">1,910</td><td data-v="1.10"><span class="gauge"><span class="fill s" style="width:18.3%"></span></span><span class="num v">1.10</span></td><td data-v="30.8"><span class="gauge"><span class="fill a" style="width:52.0%"></span></span><span class="num v">30.8</span></td></tr>
+            <tr><th scope="row">Congo (Kinshasa)</th><td class="num" data-v="1689">1,689</td><td data-v="0.16"><span class="gauge"><span class="fill s" style="width:2.7%"></span></span><span class="num v">0.16</span></td><td data-v="35.5"><span class="gauge"><span class="fill a" style="width:63.7%"></span></span><span class="num v">35.5</span></td></tr>
+            <tr><th scope="row">Cameroon</th><td class="num" data-v="958">958</td><td data-v="0.34"><span class="gauge"><span class="fill s" style="width:5.7%"></span></span><span class="num v">0.34</span></td><td data-v="28.5"><span class="gauge"><span class="fill a" style="width:46.3%"></span></span><span class="num v">28.5</span></td></tr>
+            <tr><th scope="row">Peru</th><td class="num" data-v="727">727</td><td data-v="0.46"><span class="gauge"><span class="fill s" style="width:7.7%"></span></span><span class="num v">0.46</span></td><td data-v="18.3"><span class="gauge"><span class="fill a" style="width:20.8%"></span></span><span class="num v">18.3</span></td></tr>
+            <tr><th scope="row">Cote d&#39;Ivoire (Ivory Coast)</th><td class="num" data-v="671">671</td><td data-v="0.19"><span class="gauge"><span class="fill s" style="width:3.2%"></span></span><span class="num v">0.19</span></td><td data-v="38.4"><span class="gauge"><span class="fill a" style="width:71.0%"></span></span><span class="num v">38.4</span></td></tr>
+            <tr><th scope="row">Tunisia</th><td class="num" data-v="653">653</td><td data-v="0.09"><span class="gauge"><span class="fill s" style="width:1.5%"></span></span><span class="num v">0.09</span></td><td data-v="44.0"><span class="gauge"><span class="fill a" style="width:85.0%"></span></span><span class="num v">44.0</span></td></tr>
+            <tr><th scope="row">Guatemala</th><td class="num" data-v="622">622</td><td data-v="5.78"><span class="gauge"><span class="fill s" style="width:96.3%"></span></span><span class="num v">5.78</span></td><td data-v="21.7"><span class="gauge"><span class="fill a" style="width:29.3%"></span></span><span class="num v">21.7</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer class="page-foot">Source: EIA company-level crude oil import data. Vanilla HTML/CSS/JS &#8212; no framework, no build step; the table's sort control is the only script on the page.</footer>
 </div>
 
 <script>
 (function () {
-  "use strict";
+  var table = document.getElementById('ledger');
+  var heads = table.tHead.rows[0].cells;
+  var body = table.tBodies[0];
 
-  // ---- Route + facet ground truth, verified live against api.eia.gov -------
-  // Confirmed with real calls before this page was written. IMPORTANT: the
-  // crude-oil-imports route only carries origin/destination/grade/quantity
-  // (source: EIA-814) — it does NOT expose sulfur content or API gravity.
-  // Those quality figures live only in EIA's separately published "Company
-  // Level Imports" spreadsheet (eia.gov/petroleum/imports/companylevel/),
-  // which isn't a queryable, date-ranged API endpoint. So this build shows
-  // import quantity by origin and grade — a different (but real, live,
-  // date-rangeable) slice of the same underlying report — rather than the
-  // sulfur/API-gravity quality plane.
-  var ROUTE = { path: 'crude-oil-imports', seriesFacet: 'gradeId' };
-
-  var PERIODS_WANTED = 13;
-  var PERIODS_BUFFER = 4;
-
-  var GRADE5 = [
-    { id: 'LSW', label: 'Light Sweet', color: '#5980a6' },
-    { id: 'LSO', label: 'Light Sour', color: '#3d5c78' },
-    { id: 'MED', label: 'Medium', color: '#b5651d' },
-    { id: 'HSW', label: 'Heavy Sweet', color: '#7a8471' },
-    { id: 'HSO', label: 'Heavy Sour', color: '#4b3b3b' },
-  ];
-
-  var CATEGORIES = [
-    {
-      label: 'Crude oil imports by origin (EIA-814)',
-      items: [
-        { id: 'import-quantity', label: 'Import quantity by grade', dataKey: 'quantity', seriesSet: 'grade5' },
-      ],
-    },
-  ];
-
-  // Countries only (the full origin facet also includes region/OPEC/World
-  // aggregates — offered separately below as "Aggregate" entries so the two
-  // kinds of rows are never confused with one another).
-  var COUNTRIES = [
-    { id: 'CTY_CA', label: 'Canada' }, { id: 'CTY_MX', label: 'Mexico' }, { id: 'CTY_SA', label: 'Saudi Arabia' },
-    { id: 'CTY_GY', label: 'Guyana' }, { id: 'CTY_BR', label: 'Brazil' }, { id: 'CTY_CO', label: 'Colombia' },
-    { id: 'CTY_IZ', label: 'Iraq' }, { id: 'CTY_VE', label: 'Venezuela' }, { id: 'CTY_NI', label: 'Nigeria' },
-    { id: 'CTY_AR', label: 'Argentina' }, { id: 'CTY_EC', label: 'Ecuador' }, { id: 'CTY_LY', label: 'Libya' },
-    { id: 'CTY_UK', label: 'United Kingdom' }, { id: 'CTY_TD', label: 'Trinidad and Tobago' }, { id: 'CTY_KZ', label: 'Kazakhstan' },
-    { id: 'CTY_AO', label: 'Angola' }, { id: 'CTY_AE', label: 'United Arab Emirates' }, { id: 'CTY_GB', label: 'Gabon' },
-    { id: 'CTY_KU', label: 'Kuwait' }, { id: 'CTY_NO', label: 'Norway' }, { id: 'CTY_GH', label: 'Ghana' },
-    { id: 'CTY_AG', label: 'Algeria' }, { id: 'CTY_SG', label: 'Senegal' }, { id: 'CTY_CG', label: 'Congo-Kinshasa' },
-    { id: 'CTY_CM', label: 'Cameroon' }, { id: 'CTY_PE', label: 'Peru' }, { id: 'CTY_IV', label: "Cote d'Ivoire" },
-    { id: 'CTY_TS', label: 'Tunisia' }, { id: 'CTY_GT', label: 'Guatemala' }, { id: 'CTY_QA', label: 'Qatar' },
-    { id: 'CTY_MU', label: 'Oman' }, { id: 'CTY_EG', label: 'Egypt' }, { id: 'CTY_CF', label: 'Congo-Brazzaville' },
-    { id: 'CTY_ID', label: 'Indonesia' }, { id: 'CTY_MR', label: 'Mauritania' }, { id: 'CTY_OD', label: 'South Sudan' },
-    { id: 'CTY_YM', label: 'Yemen' }, { id: 'CTY_SY', label: 'Syria' }, { id: 'CTY_IR', label: 'Iran' },
-    { id: 'CTY_RS', label: 'Russia' }, { id: 'CTY_CH', label: 'China' }, { id: 'CTY_AJ', label: 'Azerbaijan' },
-    { id: 'CTY_TH', label: 'Thailand' }, { id: 'CTY_VM', label: 'Vietnam' }, { id: 'CTY_BX', label: 'Brunei' },
-    { id: 'CTY_MY', label: 'Malaysia' }, { id: 'CTY_AS', label: 'Australia' }, { id: 'CTY_PP', label: 'Papua New Guinea' },
-    { id: 'CTY_BL', label: 'Bolivia' }, { id: 'CTY_PM', label: 'Panama' }, { id: 'CTY_BH', label: 'Belize' },
-    { id: 'CTY_BB', label: 'Barbados' }, { id: 'CTY_BF', label: 'The Bahamas' }, { id: 'CTY_SF', label: 'South Africa' },
-    { id: 'CTY_SP', label: 'Spain' }, { id: 'CTY_IT', label: 'Italy' }, { id: 'CTY_NL', label: 'Netherlands' },
-    { id: 'CTY_DA', label: 'Denmark' }, { id: 'CTY_AL', label: 'Albania' }, { id: 'CTY_EK', label: 'Equatorial Guinea' },
-    { id: 'CTY_CD', label: 'Chad' },
-  ];
-  var AGGREGATES = [
-    { id: 'WORLD', label: 'World (Total)' }, { id: 'OPN_Y', label: 'OPEC' }, { id: 'OPN_N', label: 'Non-OPEC' },
-    { id: 'REG_ME', label: 'Middle East' }, { id: 'REG_AF', label: 'Africa' }, { id: 'REG_EU', label: 'Europe' },
-    { id: 'REG_AP', label: 'Asia-Pacific' }, { id: 'REG_EA', label: 'Eurasia' }, { id: 'REG_CA', label: 'Canada (Region)' },
-    { id: 'REG_OA', label: 'Other Americas' },
-  ];
-  var GEO_LIST = AGGREGATES.concat(COUNTRIES);
-
-  function flatItems() {
-    var out = [];
-    CATEGORIES.forEach(function (cat) { cat.items.forEach(function (it) { out.push(it); }); });
-    return out;
-  }
-
-  var dataCache = {};
-
-  var state = {
-    apiKey: '',
-    keyInput: '',
-    selectedId: flatItems()[0].id,
-    visible: new Set(GRADE5.map(function (s) { return s.id; })),
-    geoId: 'WORLD',
-    showApi: false,
-    dsOpen: false,
-    seriesOpen: false,
-    geoOpen: false,
-    gridExpanded: false,
-    loading: false,
-    loadError: '',
-    rows: [],
-    unit: '',
-    exportNotice: '',
-    startPeriod: '',
-    endPeriod: '',
-    startInput: '',
-    endInput: '',
-    rangeError: '',
-  };
-  try { state.apiKey = window.localStorage.getItem('crudeImportsApiKey') || ''; } catch (e) { /* storage unavailable */ }
-  state.keyInput = state.apiKey;
-
-  function getSelectedItem() {
-    var items = flatItems();
-    var found = items.filter(function (it) { return it.id === state.selectedId; })[0];
-    return found || items[0];
-  }
-  function currentGeo() {
-    var found = GEO_LIST.filter(function (g) { return g.id === state.geoId; })[0];
-    return found || GEO_LIST[0];
-  }
-  function currentSeriesList() { return GRADE5; }
-
-  function periodPlaceholder() { return 'YYYY-MM'; }
-  function validPeriod(v) { return /^\d{4}-(0[1-9]|1[0-2])$/.test(v); }
-
-  function buildApiUrl(forDisplay) {
-    var item = getSelectedItem();
-    var seriesList = currentSeriesList();
-    var geo = currentGeo();
-    var p = [];
-    p.push('frequency=monthly');
-    p.push('data[]=' + encodeURIComponent(item.dataKey));
-    seriesList.forEach(function (s) { p.push('facets[' + ROUTE.seriesFacet + '][]=' + encodeURIComponent(s.id)); });
-    p.push('facets[originId][]=' + encodeURIComponent(geo.id));
-    var hasRange = !!(state.startPeriod || state.endPeriod);
-    if (hasRange) {
-      // A custom range replaces the "most recent N periods" default below.
-      // The API filters start/end server-side; ascending sort hands back the
-      // whole span directly. `length` is capped generously (API max 5000);
-      // a range wide enough to exceed that would need pagination via
-      // `offset`, which this build doesn't do.
-      if (state.startPeriod) { p.push('start=' + encodeURIComponent(state.startPeriod)); }
-      if (state.endPeriod) { p.push('end=' + encodeURIComponent(state.endPeriod)); }
-      p.push('sort[0][column]=period');
-      p.push('sort[0][direction]=asc');
-      p.push('length=' + Math.min(5000, 500 * seriesList.length));
-    } else {
-      p.push('sort[0][column]=period');
-      p.push('sort[0][direction]=desc');
-      p.push('length=' + ((PERIODS_WANTED + PERIODS_BUFFER) * seriesList.length));
-    }
-    p.push('api_key=' + (forDisplay ? 'YOUR_KEY' : encodeURIComponent(state.apiKey)));
-    return 'https://api.eia.gov/v2/' + ROUTE.path + '/data/?' + p.join('&');
-  }
-
-  function cacheKeyFor() {
-    return state.selectedId + '|' + state.geoId + '|' + (state.startPeriod || '') + '|' + (state.endPeriod || '');
-  }
-
-  async function loadData() {
-    if (!state.apiKey) { state.rows = []; state.loading = false; state.loadError = ''; render(); return; }
-    var key = cacheKeyFor();
-    if (dataCache[key]) {
-      state.rows = dataCache[key].rows; state.unit = dataCache[key].unit;
-      state.loading = false; state.loadError = ''; render();
-      return;
-    }
-    state.loading = true; state.loadError = ''; render();
-    try {
-      var url = buildApiUrl(false);
-      var res = await fetch(url);
-      var json = await res.json().catch(function () { return null; });
-      if (!res.ok || !json || json.error) {
-        throw new Error((json && json.error) || ('HTTP ' + res.status));
-      }
-      var rawRows = (json.response && json.response.data) || [];
-      var byPeriod = {};
-      var unit = '';
-      rawRows.forEach(function (r) {
-        var p = r.period;
-        if (!byPeriod[p]) { byPeriod[p] = {}; }
-        var seriesId = r[ROUTE.seriesFacet];
-        var raw = r.quantity;
-        byPeriod[p][seriesId] = (byPeriod[p][seriesId] || 0) + ((raw === null || raw === undefined || raw === '') ? 0 : parseFloat(raw));
-        if (!unit && r['quantity-units']) { unit = r['quantity-units']; }
-      });
-      var periods = Object.keys(byPeriod).sort();
-      var hasRange = !!(state.startPeriod || state.endPeriod);
-      if (!hasRange && periods.length > PERIODS_WANTED) { periods = periods.slice(-PERIODS_WANTED); }
-      var rows = periods.map(function (p) { return { period: p, values: byPeriod[p] }; });
-      dataCache[key] = { rows: rows, unit: unit };
-      state.rows = rows; state.unit = unit; state.loading = false; state.loadError = '';
-    } catch (e) {
-      state.rows = []; state.unit = ''; state.loading = false;
-      state.loadError = "Couldn't load live data (" + (e && e.message ? e.message : 'network error') + ').';
-    }
-    render();
-  }
-
-  function buildPath(values, maxVal, w, h, padL, padT, padB) {
-    var pts = values.map(function (v, i) { return { v: v, i: i }; }).filter(function (p) { return p.v !== null; });
-    if (!pts.length) { return ''; }
-    var n = values.length;
-    var stepX = (w - padL - 6) / Math.max(n - 1, 1);
-    var usableH = h - padT - padB;
-    var d = '';
-    pts.forEach(function (p, idx) {
-      var x = padL + p.i * stepX;
-      var y = padT + (usableH - (p.v / (maxVal || 1)) * usableH);
-      d += (idx === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1) + ' ';
+  function sort(i, dir) {
+    var numeric = heads[i].dataset.key === 'num';
+    var rows = Array.prototype.slice.call(body.rows);
+    rows.sort(function (a, b) {
+      var x = a.cells[i], y = b.cells[i];
+      return numeric
+        ? dir * (parseFloat(x.dataset.v) - parseFloat(y.dataset.v))
+        : dir * x.textContent.trim().localeCompare(y.textContent.trim());
     });
-    return d.trim();
+    rows.forEach(function (r) { body.appendChild(r); });
+    for (var j = 0; j < heads.length; j++) {
+      if (j === i) heads[j].setAttribute('aria-sort', dir === 1 ? 'ascending' : 'descending');
+      else heads[j].setAttribute('aria-sort', 'none');
+    }
   }
 
-  function csvField(v) {
-    var s = String(v);
-    if (s.indexOf(',') !== -1 || s.indexOf('"') !== -1 || s.indexOf('\n') !== -1) {
-      return '"' + s.replace(/"/g, '""') + '"';
-    }
-    return s;
-  }
-  function slugFilename(geoId) { return 'crude-imports-' + geoId.toLowerCase(); }
-  function downloadFile(filename, content, mime) {
-    try {
-      var blob = new Blob([content], { type: mime });
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
-      a.href = url; a.download = filename;
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-      state.exportNotice = '';
-    } catch (e) {
-      state.exportNotice = 'Export failed in this browser (' + (e && e.message ? e.message : 'unknown error') + ').';
-    }
-    render();
-  }
-
-  function exportCsv() {
-    var geo = currentGeo();
-    var seriesList = currentSeriesList().filter(function (s) { return state.visible.has(s.id); });
-    if (!seriesList.length || !state.rows.length) { return; }
-    var header = ['Period'].concat(seriesList.map(function (s) { return csvField(s.label + (state.unit ? ' (' + state.unit + ')' : '')); }));
-    var rows = state.rows.map(function (row) {
-      return [row.period].concat(seriesList.map(function (s) {
-        var v = row.values[s.id];
-        return v === null || v === undefined ? '' : String(v);
-      }));
+  Array.prototype.forEach.call(heads, function (th, i) {
+    th.querySelector('button').addEventListener('click', function () {
+      var current = th.getAttribute('aria-sort') || 'none';
+      var dir = current === 'none'
+        ? (heads[i].dataset.key === 'num' ? -1 : 1)
+        : (current === 'ascending' ? -1 : 1);
+      sort(i, dir);
     });
-    var csv = [header.join(',')].concat(rows.map(function (r) { return r.join(','); })).join('\n');
-    downloadFile(slugFilename(geo.id) + '.csv', csv, 'text/csv;charset=utf-8');
-  }
-
-  function exportChartImage() {
-    var geo = currentGeo();
-    var seriesList = currentSeriesList().filter(function (s) { return state.visible.has(s.id); });
-    if (!seriesList.length || !state.rows.length) { return; }
-    var allVals = [];
-    state.rows.forEach(function (row) { seriesList.forEach(function (s) { var v = row.values[s.id]; if (v !== null && v !== undefined) { allVals.push(v); } }); });
-    var maxVal = Math.max.apply(null, allVals.concat([1]));
-    var W = 900, H = 300, padL = 56, padT = 14, padB = 26;
-    var lines = seriesList.map(function (s) {
-      var values = state.rows.map(function (row) { var v = row.values[s.id]; return v === undefined ? null : v; });
-      return { color: s.color, path: buildPath(values, maxVal, W, H, padL, padT, padB) };
-    });
-    var parts = [];
-    parts.push('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '">');
-    parts.push('<rect x="0" y="0" width="' + W + '" height="' + H + '" fill="#ffffff"/>');
-    lines.forEach(function (line) { if (line.path) { parts.push('<path d="' + line.path + '" fill="none" stroke="' + line.color + '" stroke-width="2.25" stroke-linejoin="round" stroke-linecap="round"/>'); } });
-    parts.push('</svg>');
-    downloadFile(slugFilename(geo.id) + '-chart.svg', parts.join(''), 'image/svg+xml;charset=utf-8');
-  }
-
-  function toggleSeriesItem(id) {
-    var next = new Set(state.visible);
-    if (next.has(id)) { if (next.size > 1) next.delete(id); }
-    else { next.add(id); }
-    state.visible = next;
-    render();
-  }
-  function pickGeo(id) { state.geoId = id; state.geoOpen = false; render(); loadData(); }
-  function toggleApi() { state.showApi = !state.showApi; render(); }
-  function toggleGridExpanded() { state.gridExpanded = !state.gridExpanded; render(); }
-  function toggleDropdown(which) {
-    var wasOpen = state[which];
-    state.dsOpen = false; state.seriesOpen = false; state.geoOpen = false;
-    state[which] = !wasOpen;
-    render();
-  }
-  function closeAllDropdowns() {
-    if (!state.dsOpen && !state.seriesOpen && !state.geoOpen) { return; }
-    state.dsOpen = false; state.seriesOpen = false; state.geoOpen = false;
-    render();
-  }
-  function saveKey() {
-    state.apiKey = (state.keyInput || '').trim();
-    try { window.localStorage.setItem('crudeImportsApiKey', state.apiKey); } catch (e) { /* unavailable */ }
-    dataCache = {};
-    render();
-    loadData();
-  }
-  function clearKey() {
-    state.apiKey = ''; state.keyInput = '';
-    try { window.localStorage.removeItem('crudeImportsApiKey'); } catch (e) { /* unavailable */ }
-    state.rows = []; state.unit = '';
-    render();
-  }
-  function applyRange() {
-    var s = (state.startInput || '').trim();
-    var e = (state.endInput || '').trim();
-    state.rangeError = '';
-    if (s && !validPeriod(s)) { state.rangeError = 'From must look like ' + periodPlaceholder() + '.'; render(); return; }
-    if (e && !validPeriod(e)) { state.rangeError = 'To must look like ' + periodPlaceholder() + '.'; render(); return; }
-    if (s && e && s > e) { state.rangeError = 'From must come before To.'; render(); return; }
-    state.startPeriod = s; state.endPeriod = e;
-    render();
-    loadData();
-  }
-  function resetRange() {
-    state.startPeriod = ''; state.endPeriod = ''; state.startInput = ''; state.endInput = ''; state.rangeError = '';
-    render();
-    loadData();
-  }
-
-  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
-
-  function renderApp() {
-    var selectedItem = getSelectedItem();
-    var geo = currentGeo();
-    var seriesList = currentSeriesList();
-    var visibleSeries = seriesList.filter(function (s) { return state.visible.has(s.id); });
-
-    var html = '';
-
-    html += '<section class="eb-key-bar">';
-    html += '<span class="eb-sub-label" style="margin:0;">EIA API key</span>';
-    html += '<input type="password" id="eb-key-input" placeholder="Paste your free api.eia.gov key" value="' + esc(state.keyInput) + '">';
-    html += '<button type="button" class="eb-btn eb-btn-sm" data-action="save-key">Save</button>';
-    if (state.apiKey) {
-      html += '<button type="button" class="eb-btn eb-btn-sm" data-action="clear-key">Clear</button>';
-      html += '<span class="eb-key-status eb-key-ok">Saved in this browser</span>';
-    } else {
-      html += '<span class="eb-key-status">Not set &mdash; register free at eia.gov/opendata/register.php</span>';
-    }
-    html += '</section>';
-
-    html += '<div class="eb-limits">Sulfur content and API gravity aren&rsquo;t available through EIA&rsquo;s live API &mdash; only origin, destination, grade, and quantity are (source: EIA-814). Those quality figures live only in EIA&rsquo;s separately published <a href="https://www.eia.gov/petroleum/imports/companylevel/" target="_blank" rel="noopener">Company Level Imports</a> spreadsheet, which isn&rsquo;t a queryable, date-ranged endpoint. This browser shows quantity by origin and grade instead.</div>';
-
-    if (!state.apiKey) {
-      html += '<section class="eb-keyprompt">Paste your free EIA API key above to load <strong>' + esc(selectedItem.label) + '</strong>.<br>Register at eia.gov/opendata/register.php &mdash; the key arrives by email in a minute or two.</section>';
-      return html;
-    }
-
-    html += '<section class="eb-toolbar">';
-    html += '<div style="display:flex; flex-direction:column; gap:8px;">';
-    html += '<div class="eb-section-label">Filter / order</div>';
-    html += '<div class="eb-filters">';
-
-    var visCount = visibleSeries.length;
-    var seriesSummary = visCount === seriesList.length ? 'All' : (visCount === 1 ? visibleSeries[0].label : visCount + ' of ' + seriesList.length);
-    html += '<div class="eb-dd-wrap">';
-    html += '<div class="eb-sub-label">Grade</div>';
-    html += '<button type="button" class="eb-dd-trigger" style="width:200px;" data-action="toggle-series" aria-haspopup="listbox" aria-expanded="' + state.seriesOpen + '">';
-    html += '<span>' + esc(seriesSummary) + '</span>';
-    html += '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
-    html += '</button>';
-    if (state.seriesOpen) {
-      html += '<div class="eb-dd-panel" role="listbox" aria-multiselectable="true" aria-label="Grade" style="width:200px;">';
-      seriesList.forEach(function (s) {
-        var on = state.visible.has(s.id);
-        html += '<button type="button" class="eb-dd-row" role="option" aria-selected="' + on + '" data-action="toggle-series-item" data-id="' + s.id + '">';
-        html += '<span class="eb-swatch-box" style="border-color:' + s.color + '; background:' + (on ? s.color : '#fff') + ';"></span>';
-        html += '<span style="' + (on ? 'font-weight:600;' : 'color:#8a8a92; font-weight:500;') + '">' + esc(s.label) + '</span>';
-        html += '</button>';
-      });
-      html += '</div>';
-    }
-    html += '</div>';
-
-    html += '<div class="eb-dd-wrap">';
-    html += '<div class="eb-sub-label">Origin</div>';
-    html += '<button type="button" class="eb-dd-trigger" style="width:220px;" data-action="toggle-geo" aria-haspopup="listbox" aria-expanded="' + state.geoOpen + '">';
-    html += '<span>' + esc(geo.label) + '</span>';
-    html += '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
-    html += '</button>';
-    if (state.geoOpen) {
-      html += '<div class="eb-dd-panel" role="listbox" aria-label="Origin" style="width:240px;">';
-      html += '<div class="eb-sub-label" style="padding:6px 8px 2px;">Aggregate</div>';
-      AGGREGATES.forEach(function (g) {
-        var active = g.id === geo.id;
-        html += '<button type="button" class="eb-dd-row" role="option" aria-selected="' + active + '" data-action="pick-geo" data-id="' + esc(g.id) + '">' + esc(g.label) + '</button>';
-      });
-      html += '<div class="eb-sub-label" style="padding:6px 8px 2px;">Country</div>';
-      COUNTRIES.forEach(function (g) {
-        var active = g.id === geo.id;
-        html += '<button type="button" class="eb-dd-row" role="option" aria-selected="' + active + '" data-action="pick-geo" data-id="' + esc(g.id) + '">' + esc(g.label) + '</button>';
-      });
-      html += '</div>';
-    }
-    html += '</div>';
-
-    html += '<div>';
-    html += '<div class="eb-sub-label">Date range</div>';
-    html += '<div style="display:flex; align-items:center; gap:6px;">';
-    html += '<input type="text" id="eb-range-start" placeholder="' + esc(periodPlaceholder()) + '" value="' + esc(state.startInput) + '" style="width:88px; border:1.5px solid #d4d4d9; border-radius:6px; padding:8px 9px; font-size:13px;" aria-label="From period">';
-    html += '<span style="color:#8a8a92; font-size:12.5px;">to</span>';
-    html += '<input type="text" id="eb-range-end" placeholder="' + esc(periodPlaceholder()) + '" value="' + esc(state.endInput) + '" style="width:88px; border:1.5px solid #d4d4d9; border-radius:6px; padding:8px 9px; font-size:13px;" aria-label="To period">';
-    html += '<button type="button" class="eb-btn eb-btn-sm" data-action="apply-range">Apply</button>';
-    if (state.startPeriod || state.endPeriod) { html += '<button type="button" class="eb-link-btn" data-action="reset-range">Reset</button>'; }
-    html += '</div>';
-    if (state.rangeError) { html += '<div class="eb-notice">' + esc(state.rangeError) + '</div>'; }
-    html += '</div>';
-
-    html += '</div></div>';
-
-    html += '<div style="display:flex; align-items:center; gap:18px;">';
-    html += '<span class="eb-card-meta">Monthly</span>';
-    html += '<button type="button" class="eb-btn" data-action="toggle-api" aria-expanded="' + state.showApi + '">';
-    html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>';
-    html += (state.showApi ? 'Hide API request' : 'View API request') + '</button>';
-    html += '</div>';
-    html += '</section>';
-
-    if (state.showApi) {
-      html += '<section class="eb-api-panel">';
-      html += '<div class="eb-api-title">Live request &mdash; this is the exact call the page makes (key redacted)</div>';
-      html += '<div class="num eb-api-url">GET ' + esc(buildApiUrl(true)) + '</div>';
-      html += '</section>';
-    }
-
-    html += '<section class="eb-card">';
-    html += '<div class="eb-card-head">';
-    html += '<h2>' + esc(selectedItem.label) + ', ' + esc(geo.label) + '</h2>';
-    html += '<div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">';
-    html += '<span class="eb-card-meta">' + (state.unit ? esc(state.unit) : '') + '</span>';
-    html += '<button type="button" class="eb-btn eb-btn-sm" data-action="export-image"' + (state.rows.length ? '' : ' disabled') + '>Export image</button>';
-    html += '</div></div>';
-
-    if (state.loading) {
-      html += '<div class="eb-loading">Loading live data from EIA&hellip;</div>';
-    } else if (state.loadError) {
-      html += '<div class="eb-error">' + esc(state.loadError) + '</div>';
-    } else if (!state.rows.length) {
-      html += '<div class="eb-loading">No data returned for this selection.</div>';
-    } else {
-      var W = 900, H = 300, padL = 56, padT = 14, padB = 26;
-      var allVals = [];
-      state.rows.forEach(function (row) { visibleSeries.forEach(function (s) { var v = row.values[s.id]; if (v !== null && v !== undefined) { allVals.push(v); } }); });
-      var maxVal = Math.max.apply(null, allVals.concat([1]));
-      var lines = visibleSeries.map(function (s) {
-        var values = state.rows.map(function (row) { var v = row.values[s.id]; return v === undefined ? null : v; });
-        return { color: s.color, path: buildPath(values, maxVal, W, H, padL, padT, padB) };
-      });
-      var yTicks = [0, 0.25, 0.5, 0.75, 1].map(function (f) {
-        var val = maxVal * f;
-        var y = padT + (H - padT - padB) * (1 - f);
-        return { y: y.toFixed(1), yLabelPos: (y + 3.5).toFixed(1), label: Math.round(val).toLocaleString() };
-      });
-      var n = state.rows.length;
-      var showEvery = n > 8 ? 2 : 1;
-      var xTicks = state.rows.map(function (row, i) {
-        return { x: (padL + i * ((W - padL - 6) / Math.max(n - 1, 1))).toFixed(1), label: (i % showEvery === 0) ? row.period : '' };
-      });
-      var chartAriaLabel = 'Line chart: ' + visibleSeries.map(function (s) { return s.label; }).join(', ') + ' for ' + selectedItem.label + ', ' + geo.label + '. See the data table below for exact values.';
-
-      html += '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%; height:auto; display:block; margin-top:8px;" role="img" aria-label="' + esc(chartAriaLabel) + '">';
-      yTicks.forEach(function (yt) {
-        html += '<line x1="56" x2="' + W + '" y1="' + yt.y + '" y2="' + yt.y + '" stroke="#e9e9ea" stroke-width="1"/>';
-        html += '<text x="4" y="' + yt.yLabelPos + '" class="num" font-size="10.5" fill="#73737c">' + yt.label + '</text>';
-      });
-      xTicks.forEach(function (xt) {
-        if (xt.label) { html += '<text x="' + xt.x + '" y="' + (H - 6) + '" class="num" font-size="10.5" fill="#73737c" text-anchor="middle">' + xt.label + '</text>'; }
-      });
-      lines.forEach(function (line) {
-        if (line.path) { html += '<path d="' + line.path + '" fill="none" stroke="' + line.color + '" stroke-width="2.25" stroke-linejoin="round" stroke-linecap="round"/>'; }
-      });
-      html += '</svg>';
-    }
-    if (state.exportNotice) { html += '<div class="eb-notice" role="alert">' + esc(state.exportNotice) + '</div>'; }
-    html += '</section>';
-
-    if (!state.loading && !state.loadError && state.rows.length) {
-      var visibleCount = state.gridExpanded ? 12 : 4;
-      var shownRows = state.rows.slice(-visibleCount);
-      var rangeActive = !!(state.startPeriod || state.endPeriod);
-      var periodsHeading = rangeActive
-        ? (shownRows.length + ' of ' + state.rows.length + ' periods in range')
-        : ('last ' + shownRows.length + ' periods');
-      html += '<section class="eb-card eb-grid-card">';
-      html += '<div class="eb-grid-head">';
-      html += '<h2>Values, ' + periodsHeading + ' &mdash; ' + esc(geo.label) + (state.unit ? ' (' + esc(state.unit) + ')' : '') + '</h2>';
-      html += '<div style="display:flex; align-items:center; gap:14px;">';
-      html += '<button type="button" class="eb-link-btn" data-action="toggle-grid-expand">' + (state.gridExpanded ? 'Show fewer' : 'Show 8 more') + '</button>';
-      html += '<button type="button" class="eb-btn eb-btn-sm" data-action="export-csv">Export CSV</button>';
-      html += '</div></div>';
-      html += '<div class="eb-note" style="padding:0 0 10px;">CSV export includes every period this page has loaded, not just what&rsquo;s shown here</div>';
-      html += '<table><caption style="position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0);">' + esc(selectedItem.label) + ' by grade, ' + esc(geo.label) + '</caption>';
-      html += '<thead><tr><th scope="col">Grade</th>';
-      shownRows.forEach(function (row) { html += '<th scope="col" class="num">' + esc(row.period) + '</th>'; });
-      html += '</tr></thead><tbody>';
-      seriesList.forEach(function (s) {
-        var on = state.visible.has(s.id);
-        html += '<tr style="' + (on ? 'opacity:1;' : 'opacity:.32;') + '">';
-        html += '<th scope="row"><span class="eb-swatch-box" style="border-color:' + s.color + '; background:' + s.color + '; width:9px; height:9px; border-radius:2px;"></span>' + esc(s.label) + '</th>';
-        shownRows.forEach(function (row) {
-          var v = row.values[s.id];
-          html += '<td class="num">' + (v === null || v === undefined ? '&mdash;' : v.toLocaleString()) + '</td>';
-        });
-        html += '</tr>';
-      });
-      html += '</tbody></table>';
-      html += '</section>';
-    }
-
-    return html;
-  }
-
-  function render() {
-    document.getElementById('eb-app').innerHTML = renderApp();
-    var badge = document.getElementById('eb-live-badge');
-    if (state.apiKey) { badge.textContent = 'Live'; badge.className = 'eb-badge eb-badge-live'; }
-    else { badge.textContent = 'Sample data'; badge.className = 'eb-badge eb-badge-off'; }
-  }
-
-  document.addEventListener('click', function (event) {
-    var actionEl = event.target.closest('[data-action]');
-    if (!actionEl || !document.getElementById('eb-root').contains(actionEl)) {
-      closeAllDropdowns();
-      return;
-    }
-    var action = actionEl.getAttribute('data-action');
-    switch (action) {
-      case 'toggle-series': toggleDropdown('seriesOpen'); break;
-      case 'toggle-geo': toggleDropdown('geoOpen'); break;
-      case 'toggle-series-item': toggleSeriesItem(actionEl.getAttribute('data-id')); break;
-      case 'pick-geo': pickGeo(actionEl.getAttribute('data-id')); break;
-      case 'toggle-api': toggleApi(); break;
-      case 'toggle-grid-expand': toggleGridExpanded(); break;
-      case 'export-csv': exportCsv(); break;
-      case 'export-image': exportChartImage(); break;
-      case 'save-key': saveKey(); break;
-      case 'clear-key': clearKey(); break;
-      case 'apply-range': applyRange(); break;
-      case 'reset-range': resetRange(); break;
-    }
   });
-
-  document.addEventListener('input', function (event) {
-    if (!event.target) { return; }
-    if (event.target.id === 'eb-key-input') { state.keyInput = event.target.value; }
-    if (event.target.id === 'eb-range-start') { state.startInput = event.target.value; }
-    if (event.target.id === 'eb-range-end') { state.endInput = event.target.value; }
-  });
-
-  document.addEventListener('keydown', function (event) {
-    if (event.key === 'Escape') { closeAllDropdowns(); }
-    if (event.key === 'Enter' && event.target && event.target.id === 'eb-key-input') { saveKey(); }
-    if (event.key === 'Enter' && event.target && (event.target.id === 'eb-range-start' || event.target.id === 'eb-range-end')) { applyRange(); }
-  });
-
-  render();
-  if (state.apiKey) { loadData(); }
 })();
 </script>
-</body>
-</html>

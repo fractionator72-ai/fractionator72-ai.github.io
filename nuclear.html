@@ -23,8 +23,6 @@
     --prev-line: #9aa7b0;
     --row-hover: #f3f6f8;
     --shadow: 0 1px 2px rgba(20,30,40,0.06), 0 8px 24px rgba(20,30,40,0.06);
-    --input-border: #c7d0d7;
-    --error: #b3401f;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -49,8 +47,6 @@
       --prev-line: #56636c;
       --row-hover: #1b232a;
       --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35);
-      --input-border: #3a4148;
-      --error: #e8886a;
     }
   }
   :root[data-theme="dark"] {
@@ -75,8 +71,6 @@
     --prev-line: #56636c;
     --row-hover: #1b232a;
     --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35);
-    --input-border: #3a4148;
-    --error: #e8886a;
   }
 
   * { box-sizing: border-box; }
@@ -90,27 +84,6 @@
   .num { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
 
   .page { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
-
-  .key-bar {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow);
-    padding: 12px 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  }
-  .key-bar label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
-  .key-bar input[type="password"], .key-bar input[type="text"] {
-    flex: 1 1 260px; min-width: 200px; border: 1.5px solid var(--input-border); border-radius: 6px;
-    padding: 7px 10px; font-size: 13px; background: var(--surface); color: var(--text);
-  }
-  .key-bar button {
-    font-family: inherit; cursor: pointer; background: var(--surface); border: 1.5px solid var(--input-border);
-    border-radius: 6px; padding: 7px 13px; font-size: 12.5px; font-weight: 600; color: var(--text);
-  }
-  .key-bar button:hover { background: var(--surface-alt); }
-  .key-status { font-size: 12.5px; color: var(--text-muted); }
-  .key-status.ok { color: var(--status-full); font-weight: 600; }
-  .keyprompt {
-    background: var(--surface); border: 1.5px dashed var(--border); border-radius: 10px; padding: 40px 24px;
-    text-align: center; color: var(--text-muted); font-size: 14px; line-height: 1.6;
-  }
 
   header {
     display: flex;
@@ -130,19 +103,13 @@
     text-wrap: balance;
   }
   .subtitle { color: var(--text-muted); font-size: 0.9rem; margin: 0; }
-  .asof { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-  .asof-row { display: flex; align-items: center; gap: 6px; }
-  .asof label { font-size: 0.78rem; color: var(--text-muted); }
-  .asof input[type="date"] {
-    font-family: inherit; font-size: 0.8rem; border: 1.5px solid var(--input-border); border-radius: 6px;
-    padding: 4px 7px; background: var(--surface); color: var(--text);
+  .asof {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-align: right;
+    line-height: 1.5;
   }
-  .asof button {
-    font-family: inherit; cursor: pointer; background: var(--surface); border: 1.5px solid var(--input-border);
-    border-radius: 6px; padding: 4px 10px; font-size: 0.76rem; font-weight: 600; color: var(--text);
-  }
-  .asof button:hover { background: var(--surface-alt); }
-  .asof-note { font-size: 0.72rem; color: var(--text-muted); }
+  .asof .num { color: var(--text); font-weight: 500; }
   .live-tag {
     display: inline-block;
     font-size: 0.68rem;
@@ -156,7 +123,6 @@
     margin-left: 8px;
     vertical-align: middle;
   }
-  .live-tag.off { color: var(--text-muted); background: var(--surface-alt); }
 
   .layout {
     display: grid;
@@ -175,7 +141,7 @@
     box-shadow: var(--shadow);
   }
 
-  .map-panel { padding: 18px 18px 14px; position: relative; min-height: 200px; }
+  .map-panel { padding: 18px 18px 14px; }
   .map-panel svg { display: block; width: 100%; height: auto; }
   .land { fill: var(--map-land); }
   .state-line { fill: none; stroke: var(--map-border); stroke-width: 1; stroke-linejoin: round; }
@@ -258,7 +224,7 @@
     color: var(--text-muted);
     margin: 0;
   }
-  .trend-legend { display: flex; gap: 16px; font-size: 0.78rem; color: var(--text-muted); flex-wrap: wrap; align-items: center; }
+  .trend-legend { display: flex; gap: 16px; font-size: 0.78rem; color: var(--text-muted); flex-wrap: wrap; }
   .trend-legend span { display: inline-flex; align-items: center; gap: 6px; }
   .swatch-line { width: 16px; height: 2px; border-radius: 1px; flex: none; }
   .swatch-band { width: 16px; height: 9px; border-radius: 2px; flex: none; }
@@ -271,209 +237,77 @@
   .cur-dot { fill: var(--accent); }
   .cur-label { fill: var(--accent); font-size: 11px; font-weight: 600; font-family: "IBM Plex Mono", ui-monospace, monospace; }
 
-  .range-controls { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-  .range-controls input[type="date"] {
-    font-family: inherit; font-size: 0.78rem; border: 1.5px solid var(--input-border); border-radius: 6px;
-    padding: 4px 7px; background: var(--surface); color: var(--text);
-  }
-  .range-controls button {
-    font-family: inherit; cursor: pointer; background: var(--surface); border: 1.5px solid var(--input-border);
-    border-radius: 6px; padding: 4px 10px; font-size: 0.76rem; font-weight: 600; color: var(--text);
-  }
-  .range-controls button:hover { background: var(--surface-alt); }
-  .range-controls .link-btn { background: none; border: none; padding: 0; color: var(--accent); text-decoration: none; }
-  .range-controls .link-btn:hover { text-decoration: underline; }
-
   .note { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; }
-  .error-note { font-size: 0.78rem; color: var(--error); line-height: 1.5; }
-  .loading-note { font-size: 0.8rem; color: var(--text-muted); padding: 24px; text-align: center; }
 </style>
 
 <div class="page">
-  <div class="key-bar">
-    <label for="key-input">EIA API key</label>
-    <input type="password" id="key-input" placeholder="Paste your free api.eia.gov key">
-    <button type="button" id="key-save">Save</button>
-    <button type="button" id="key-clear" hidden>Clear</button>
-    <span class="key-status" id="key-status">Not set &mdash; register free at eia.gov/opendata/register.php</span>
-  </div>
-
   <header>
     <div class="titles">
-      <h1>Reactor Status Map<span class="live-tag" id="live-tag">Live EIA feed</span></h1>
+      <h1>Reactor Status Map<span class="live-tag">Live EIA feed</span></h1>
       <p class="subtitle">Operating U.S. commercial nuclear plant sites, current capacity vs. full power</p>
     </div>
-    <div class="asof">
-      <div class="asof-row">
-        <label for="asof-date">As of</label>
-        <input type="date" id="asof-date">
-        <button type="button" id="asof-apply">Apply</button>
-        <button type="button" id="asof-latest" class="link-btn" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:0.76rem;">Latest</button>
-      </div>
-      <span class="asof-note" id="asof-note"></span>
-    </div>
+    <div class="asof">Report date<br><span class="num" id="report-date">Sep 4, 2026</span></div>
   </header>
 
-  <div id="key-gate" class="keyprompt">
-    Paste your free EIA API key above to load live reactor status.<br>
-    Register at eia.gov/opendata/register.php &mdash; the key arrives by email in a minute or two.
-  </div>
-
-  <div id="app" hidden>
-    <div class="layout">
-      <div class="panel map-panel">
-        <svg id="map" viewBox="0 0 976 615" role="img" aria-label="Map of U.S. nuclear reactor sites colored by percent of capacity online">
-          <path class="land" d="M780.066,466.107L786.071,434.657L811.131,407.803L822.878,386.029L833.32,382.642L843.762,364.498L855.509,361.111L865.69,334.499L858.903,315.87L846.372,302.806L845.067,289.258L827.055,273.775L841.413,274.258L855.509,283.936L862.557,280.549L863.602,270.146L854.726,258.049L849.244,249.34L848.722,245.469L849.766,244.501L849.244,245.711L849.244,246.437L850.288,249.582L855.509,252.485L862.818,253.937L869.867,247.404L866.473,221.518L868.823,217.164L869.084,216.438L874.044,208.212L901.715,193.455L909.807,182.084L910.59,182.81L912.679,186.439L921.815,177.729L909.546,165.633L909.546,154.746L910.068,150.149L912.679,138.295L940.35,113.86L957.057,94.748L938.783,79.99L929.647,49.749L905.891,47.572L899.104,67.41L898.321,88.942L891.012,102.49L886.052,110.473L857.598,117.731L832.276,124.263L815.047,146.521L819.746,159.827L809.043,169.262L783.721,171.681L780.328,185.955L767.536,200.229L756.05,208.938L725.508,227.324L708.278,221.76L720.809,199.745L715.327,172.407L704.624,170.713L696.792,139.989L675.386,132.731L657.113,154.988L651.892,174.826L658.941,198.051L651.892,227.566L640.406,229.744L634.141,212.325L630.747,195.39L635.446,165.149L632.314,153.053L637.796,139.505L662.856,127.166L681.13,128.86L683.74,115.312L669.121,112.893L633.097,120.876L615.346,111.683L585.325,123.054L578.277,114.586L560.265,121.118L581.932,97.651L543.819,78.539L520.063,77.329L510.666,70.797L479.601,70.797L376.748,65.717L265.542,51.927L198.192,39.105L183.573,35.96L100.038,14.428L101.604,37.653L76.805,27.008L66.885,54.588L71.062,70.313L65.058,70.555L45.479,120.634L32.949,139.989L32.688,160.069L31.383,172.891L18.591,197.083L24.073,209.18L20.158,229.018L41.564,313.209L49.656,328.208L48.873,344.176L65.058,349.256L81.765,362.562L98.733,387.723L99.516,401.755L145.199,407.077L142.328,411.674L208.112,450.382L246.747,456.188L264.237,448.205L296.346,452.076L322.973,479.897L330.021,503.606L356.648,521.509L366.306,505.542L390.323,505.784L405.202,521.751L411.99,540.863L427.653,559.492L434.44,583.684L466.549,596.506L469.42,564.33L481.95,544.008L510.405,529.492L525.023,516.186L540.686,510.38L574.361,508.203L599.944,521.509L625.004,511.106L624.743,495.381L646.41,489.574L663.639,490.058L680.607,485.703L716.371,497.316L727.596,488.123L740.387,490.542L758.4,504.816L761.793,533.363L788.942,570.62L806.954,589.732L817.657,586.104L823.922,570.62L822.095,549.089L806.171,513.525L787.115,486.187ZM50.7,504.574L67.668,516.428L53.833,533.605L52.528,546.669L88.03,573.765L106.825,552.476L120.139,553.927L147.288,547.153L132.93,474.333L89.335,465.14L60.359,484.252L69.757,498.284ZM305.482,584.41L309.137,600.377L328.455,593.361L322.189,578.362Z"></path>
-          <path class="state-line" d="M663.639,490.058L660.768,473.849L710.889,468.769L702.535,426.915L689.222,379.739L641.711,384.094L643.8,386.271L642.233,454.979L646.41,489.574M246.747,456.188L264.759,327.966L176.003,313.209L172.609,331.353L159.818,331.112L156.946,356.272L162.69,373.691L153.814,380.465L145.199,407.077M369.178,155.714L257.711,141.924L256.144,153.778L247.269,209.664L243.614,232.163L277.028,237.244L264.759,327.966L372.572,339.337L389.54,340.789L393.977,271.839L395.283,249.098L361.347,246.437L277.028,237.244M780.066,466.107L765.709,471.43L714.283,475.059L710.889,468.769M786.071,434.657L767.014,412.641L731.773,381.433L734.905,373.691L712.716,376.836L689.222,379.739M640.406,229.744L646.671,298.451L639.362,319.741L663.378,316.112L692.094,291.435L692.616,284.178L685.828,225.389L651.892,227.566M389.54,340.789L432.612,342.724L522.935,343.934L522.413,295.306L509.882,275.226L464.721,274.984L393.977,271.839M891.012,102.49L904.586,145.069L910.068,150.149M909.546,154.746L883.963,164.907L870.911,167.568L871.172,184.019L898.843,177.971L909.807,182.084M479.601,70.797L488.999,139.989L490.565,195.148L576.45,193.213L572.273,182.084L549.301,165.875L560.265,121.118M869.084,216.438L854.987,204.099L850.027,220.792L860.73,230.711L850.81,241.356L849.766,244.501M858.903,315.87L812.175,325.547L755.528,334.015L721.07,362.562L712.716,376.836M734.905,373.691L749.524,366.917L771.974,364.74L777.717,371.514L798.079,368.368L822.878,386.029M376.748,65.717L371.005,134.182L412.512,137.327L488.999,139.989M372.572,339.337L371.527,350.708L425.825,353.853L423.998,398.368L463.155,415.786L492.914,417.964L517.192,415.786L526.328,420.625L526.851,380.465L522.935,355.304L522.935,343.934M756.05,208.938L761.01,239.179L764.404,259.985L782.155,256.84L844.806,244.501L850.81,241.356M854.987,204.099L840.891,192.245L768.58,206.277L767.536,200.229M371.005,134.182L369.178,155.714L365.262,200.954L456.89,206.277L476.468,209.422L490.565,218.373L490.565,195.148M371.527,350.708L362.913,453.285L295.041,446.995L296.346,452.076M540.686,510.38L545.385,476.268L535.465,457.882L534.943,434.657L526.328,420.625M361.347,246.437L365.262,200.954M871.172,184.019L874.044,208.212M901.715,193.455L898.843,177.971M615.607,351.433L616.912,351.433L621.089,340.063L613.257,324.338L597.594,313.209L600.988,298.451L578.016,279.581L576.45,264.823L570.968,259.501L502.051,261.92L509.882,275.226M522.935,355.304L603.598,352.159L611.952,363.046L614.562,351.433M761.01,239.179L757.877,263.372L740.126,281.032L733.339,294.822L747.175,313.209L761.271,318.047L776.673,309.338L783.721,286.597L802.778,266.033L814.003,260.227L804.605,253.453L782.155,256.84M621.089,340.063L639.362,319.741M634.141,212.325L586.891,215.47L593.157,236.034L576.45,264.823M534.943,434.657L589.502,433.205L588.98,415.544L602.815,386.755L611.952,363.046M156.946,356.272L83.331,245.469L100.56,179.181L32.688,160.069M844.806,244.501L852.638,272.565L863.602,270.146M814.003,260.227L826.011,267.001L827.838,269.904L826.011,267.001M490.565,218.373L502.051,261.92M586.891,215.47L576.45,193.213M616.912,351.433L644.844,346.111L719.765,338.611L747.175,313.209M733.339,294.822L692.616,284.178M827.838,269.904L827.055,273.775M685.828,225.389L708.278,221.76M585.325,123.054L590.285,127.892L622.655,134.908L632.314,153.053M589.502,433.205L593.94,449.898L582.715,479.171L619,476.994L624.743,495.381M641.711,384.094L602.815,386.755M198.192,39.105L193.232,61.604L196.365,73.458L213.333,96.2L214.638,118.215L225.08,147.488L256.144,153.778M886.052,110.473L880.57,145.795L883.963,164.907M870.911,167.568L857.598,117.731M100.56,179.181L148.854,190.793L157.991,150.391L157.469,136.602L175.742,112.409L170.521,102.248L138.673,94.748L86.203,91.361L71.062,70.313M755.528,334.015L719.765,338.611M247.269,209.664L197.67,200.954L176.003,313.209M170.521,102.248L170.782,92.329L183.573,35.96M148.854,190.793L197.67,200.954"></path>
-          <path class="nation-line" d="M780.066,466.107L786.071,434.657L811.131,407.803L822.878,386.029L833.32,382.642L843.762,364.498L855.509,361.111L865.69,334.499L858.903,315.87L846.372,302.806L845.067,289.258L827.055,273.775L841.413,274.258L855.509,283.936L862.557,280.549L863.602,270.146L854.726,258.049L849.244,249.34L848.722,245.469L849.766,244.501L849.244,245.711L849.244,246.437L850.288,249.582L855.509,252.485L862.818,253.937L869.867,247.404L866.473,221.518L868.823,217.164L869.084,216.438L874.044,208.212L901.715,193.455L909.807,182.084L910.59,182.81L912.679,186.439L921.815,177.729L909.546,165.633L909.546,154.746L910.068,150.149L912.679,138.295L940.35,113.86L957.057,94.748L938.783,79.99L929.647,49.749L905.891,47.572L899.104,67.41L898.321,88.942L891.012,102.49L886.052,110.473L857.598,117.731L832.276,124.263L815.047,146.521L819.746,159.827L809.043,169.262L783.721,171.681L780.328,185.955L767.536,200.229L756.05,208.938L725.508,227.324L708.278,221.76L720.809,199.745L715.327,172.407L704.624,170.713L696.792,139.989L675.386,132.731L657.113,154.988L651.892,174.826L658.941,198.051L651.892,227.566L640.406,229.744L634.141,212.325L630.747,195.39L635.446,165.149L632.314,153.053L637.796,139.505L662.856,127.166L681.13,128.86L683.74,115.312L669.121,112.893L633.097,120.876L615.346,111.683L585.325,123.054L578.277,114.586L560.265,121.118L581.932,97.651L543.819,78.539L520.063,77.329L510.666,70.797L479.601,70.797L376.748,65.717L265.542,51.927L198.192,39.105L183.573,35.96L100.038,14.428L101.604,37.653L76.805,27.008L66.885,54.588L71.062,70.313L65.058,70.555L45.479,120.634L32.949,139.989L32.688,160.069L31.383,172.891L18.591,197.083L24.073,209.18L20.158,229.018L41.564,313.209L49.656,328.208L48.873,344.176L65.058,349.256L81.765,362.562L98.733,387.723L99.516,401.755L145.199,407.077L142.328,411.674L208.112,450.382L246.747,456.188L264.237,448.205L296.346,452.076L322.973,479.897L330.021,503.606L356.648,521.509L366.306,505.542L390.323,505.784L405.202,521.751L411.99,540.863L427.653,559.492L434.44,583.684L466.549,596.506L469.42,564.33L481.95,544.008L510.405,529.492L525.023,516.186L540.686,510.38L574.361,508.203L599.944,521.509L625.004,511.106L624.743,495.381L646.41,489.574L663.639,490.058L680.607,485.703L716.371,497.316L727.596,488.123L740.387,490.542L758.4,504.816L761.793,533.363L788.942,570.62L806.954,589.732L817.657,586.104L823.922,570.62L822.095,549.089L806.171,513.525L787.115,486.187ZM50.7,504.574L67.668,516.428L53.833,533.605L52.528,546.669L88.03,573.765L106.825,552.476L120.139,553.927L147.288,547.153L132.93,474.333L89.335,465.14L60.359,484.252L69.757,498.284ZM305.482,584.41L309.137,600.377L328.455,593.361L322.189,578.362Z"></path>
-          <g id="dots"></g>
-        </svg>
-        <div id="map-loading" class="loading-note" hidden>Loading live status&hellip;</div>
-        <div class="legend-row">
-          <div class="legend-item"><span class="swatch" style="background:var(--status-full)"></span> 100% <strong>&nbsp;full power</strong></div>
-          <div class="legend-item"><span class="swatch" style="background:var(--status-reduced)"></span> 1&ndash;99% <strong>&nbsp;reduced</strong></div>
-          <div class="legend-item"><span class="swatch" style="background:var(--status-off)"></span> 0% <strong>&nbsp;offline</strong></div>
-          <div class="legend-item" style="margin-left:auto">One dot per site &middot; size is constant, only status varies</div>
-        </div>
-      </div>
-
-      <div class="panel roster-panel">
-        <div class="roster-head">
-          <h2>Roster</h2>
-          <span class="count num" id="roster-count"></span>
-        </div>
-        <div class="roster-scroll">
-          <table class="roster">
-            <thead>
-              <tr>
-                <th data-key="name" data-type="str">Plant<span class="arrow"></span></th>
-                <th data-key="id" data-type="num">Code<span class="arrow"></span></th>
-                <th data-key="cap" data-type="num">MW<span class="arrow"></span></th>
-                <th data-key="pct" data-type="num">Output<span class="arrow"></span></th>
-                <th data-key="units" data-type="num">Units<span class="arrow"></span></th>
-              </tr>
-            </thead>
-            <tbody id="roster-body"></tbody>
-          </table>
-        </div>
+  <div class="layout">
+    <div class="panel map-panel">
+      <svg id="map" viewBox="0 0 976 615" role="img" aria-label="Map of U.S. nuclear reactor sites colored by percent of capacity online">
+        <path class="land" d="M780.066,466.107L786.071,434.657L811.131,407.803L822.878,386.029L833.32,382.642L843.762,364.498L855.509,361.111L865.69,334.499L858.903,315.87L846.372,302.806L845.067,289.258L827.055,273.775L841.413,274.258L855.509,283.936L862.557,280.549L863.602,270.146L854.726,258.049L849.244,249.34L848.722,245.469L849.766,244.501L849.244,245.711L849.244,246.437L850.288,249.582L855.509,252.485L862.818,253.937L869.867,247.404L866.473,221.518L868.823,217.164L869.084,216.438L874.044,208.212L901.715,193.455L909.807,182.084L910.59,182.81L912.679,186.439L921.815,177.729L909.546,165.633L909.546,154.746L910.068,150.149L912.679,138.295L940.35,113.86L957.057,94.748L938.783,79.99L929.647,49.749L905.891,47.572L899.104,67.41L898.321,88.942L891.012,102.49L886.052,110.473L857.598,117.731L832.276,124.263L815.047,146.521L819.746,159.827L809.043,169.262L783.721,171.681L780.328,185.955L767.536,200.229L756.05,208.938L725.508,227.324L708.278,221.76L720.809,199.745L715.327,172.407L704.624,170.713L696.792,139.989L675.386,132.731L657.113,154.988L651.892,174.826L658.941,198.051L651.892,227.566L640.406,229.744L634.141,212.325L630.747,195.39L635.446,165.149L632.314,153.053L637.796,139.505L662.856,127.166L681.13,128.86L683.74,115.312L669.121,112.893L633.097,120.876L615.346,111.683L585.325,123.054L578.277,114.586L560.265,121.118L581.932,97.651L543.819,78.539L520.063,77.329L510.666,70.797L479.601,70.797L376.748,65.717L265.542,51.927L198.192,39.105L183.573,35.96L100.038,14.428L101.604,37.653L76.805,27.008L66.885,54.588L71.062,70.313L65.058,70.555L45.479,120.634L32.949,139.989L32.688,160.069L31.383,172.891L18.591,197.083L24.073,209.18L20.158,229.018L41.564,313.209L49.656,328.208L48.873,344.176L65.058,349.256L81.765,362.562L98.733,387.723L99.516,401.755L145.199,407.077L142.328,411.674L208.112,450.382L246.747,456.188L264.237,448.205L296.346,452.076L322.973,479.897L330.021,503.606L356.648,521.509L366.306,505.542L390.323,505.784L405.202,521.751L411.99,540.863L427.653,559.492L434.44,583.684L466.549,596.506L469.42,564.33L481.95,544.008L510.405,529.492L525.023,516.186L540.686,510.38L574.361,508.203L599.944,521.509L625.004,511.106L624.743,495.381L646.41,489.574L663.639,490.058L680.607,485.703L716.371,497.316L727.596,488.123L740.387,490.542L758.4,504.816L761.793,533.363L788.942,570.62L806.954,589.732L817.657,586.104L823.922,570.62L822.095,549.089L806.171,513.525L787.115,486.187ZM50.7,504.574L67.668,516.428L53.833,533.605L52.528,546.669L88.03,573.765L106.825,552.476L120.139,553.927L147.288,547.153L132.93,474.333L89.335,465.14L60.359,484.252L69.757,498.284ZM305.482,584.41L309.137,600.377L328.455,593.361L322.189,578.362Z"></path>
+        <path class="state-line" d="M663.639,490.058L660.768,473.849L710.889,468.769L702.535,426.915L689.222,379.739L641.711,384.094L643.8,386.271L642.233,454.979L646.41,489.574M246.747,456.188L264.759,327.966L176.003,313.209L172.609,331.353L159.818,331.112L156.946,356.272L162.69,373.691L153.814,380.465L145.199,407.077M369.178,155.714L257.711,141.924L256.144,153.778L247.269,209.664L243.614,232.163L277.028,237.244L264.759,327.966L372.572,339.337L389.54,340.789L393.977,271.839L395.283,249.098L361.347,246.437L277.028,237.244M780.066,466.107L765.709,471.43L714.283,475.059L710.889,468.769M786.071,434.657L767.014,412.641L731.773,381.433L734.905,373.691L712.716,376.836L689.222,379.739M640.406,229.744L646.671,298.451L639.362,319.741L663.378,316.112L692.094,291.435L692.616,284.178L685.828,225.389L651.892,227.566M389.54,340.789L432.612,342.724L522.935,343.934L522.413,295.306L509.882,275.226L464.721,274.984L393.977,271.839M891.012,102.49L904.586,145.069L910.068,150.149M909.546,154.746L883.963,164.907L870.911,167.568L871.172,184.019L898.843,177.971L909.807,182.084M479.601,70.797L488.999,139.989L490.565,195.148L576.45,193.213L572.273,182.084L549.301,165.875L560.265,121.118M869.084,216.438L854.987,204.099L850.027,220.792L860.73,230.711L850.81,241.356L849.766,244.501M858.903,315.87L812.175,325.547L755.528,334.015L721.07,362.562L712.716,376.836M734.905,373.691L749.524,366.917L771.974,364.74L777.717,371.514L798.079,368.368L822.878,386.029M376.748,65.717L371.005,134.182L412.512,137.327L488.999,139.989M372.572,339.337L371.527,350.708L425.825,353.853L423.998,398.368L463.155,415.786L492.914,417.964L517.192,415.786L526.328,420.625L526.851,380.465L522.935,355.304L522.935,343.934M756.05,208.938L761.01,239.179L764.404,259.985L782.155,256.84L844.806,244.501L850.81,241.356M854.987,204.099L840.891,192.245L768.58,206.277L767.536,200.229M371.005,134.182L369.178,155.714L365.262,200.954L456.89,206.277L476.468,209.422L490.565,218.373L490.565,195.148M371.527,350.708L362.913,453.285L295.041,446.995L296.346,452.076M540.686,510.38L545.385,476.268L535.465,457.882L534.943,434.657L526.328,420.625M361.347,246.437L365.262,200.954M871.172,184.019L874.044,208.212M901.715,193.455L898.843,177.971M615.607,351.433L616.912,351.433L621.089,340.063L613.257,324.338L597.594,313.209L600.988,298.451L578.016,279.581L576.45,264.823L570.968,259.501L502.051,261.92L509.882,275.226M522.935,355.304L603.598,352.159L611.952,363.046L614.562,351.433M761.01,239.179L757.877,263.372L740.126,281.032L733.339,294.822L747.175,313.209L761.271,318.047L776.673,309.338L783.721,286.597L802.778,266.033L814.003,260.227L804.605,253.453L782.155,256.84M621.089,340.063L639.362,319.741M634.141,212.325L586.891,215.47L593.157,236.034L576.45,264.823M534.943,434.657L589.502,433.205L588.98,415.544L602.815,386.755L611.952,363.046M156.946,356.272L83.331,245.469L100.56,179.181L32.688,160.069M844.806,244.501L852.638,272.565L863.602,270.146M814.003,260.227L826.011,267.001L827.838,269.904L826.011,267.001M490.565,218.373L502.051,261.92M586.891,215.47L576.45,193.213M616.912,351.433L644.844,346.111L719.765,338.611L747.175,313.209M733.339,294.822L692.616,284.178M827.838,269.904L827.055,273.775M685.828,225.389L708.278,221.76M585.325,123.054L590.285,127.892L622.655,134.908L632.314,153.053M589.502,433.205L593.94,449.898L582.715,479.171L619,476.994L624.743,495.381M641.711,384.094L602.815,386.755M198.192,39.105L193.232,61.604L196.365,73.458L213.333,96.2L214.638,118.215L225.08,147.488L256.144,153.778M886.052,110.473L880.57,145.795L883.963,164.907M870.911,167.568L857.598,117.731M100.56,179.181L148.854,190.793L157.991,150.391L157.469,136.602L175.742,112.409L170.521,102.248L138.673,94.748L86.203,91.361L71.062,70.313M755.528,334.015L719.765,338.611M247.269,209.664L197.67,200.954L176.003,313.209M170.521,102.248L170.782,92.329L183.573,35.96M148.854,190.793L197.67,200.954"></path>
+        <path class="nation-line" d="M780.066,466.107L786.071,434.657L811.131,407.803L822.878,386.029L833.32,382.642L843.762,364.498L855.509,361.111L865.69,334.499L858.903,315.87L846.372,302.806L845.067,289.258L827.055,273.775L841.413,274.258L855.509,283.936L862.557,280.549L863.602,270.146L854.726,258.049L849.244,249.34L848.722,245.469L849.766,244.501L849.244,245.711L849.244,246.437L850.288,249.582L855.509,252.485L862.818,253.937L869.867,247.404L866.473,221.518L868.823,217.164L869.084,216.438L874.044,208.212L901.715,193.455L909.807,182.084L910.59,182.81L912.679,186.439L921.815,177.729L909.546,165.633L909.546,154.746L910.068,150.149L912.679,138.295L940.35,113.86L957.057,94.748L938.783,79.99L929.647,49.749L905.891,47.572L899.104,67.41L898.321,88.942L891.012,102.49L886.052,110.473L857.598,117.731L832.276,124.263L815.047,146.521L819.746,159.827L809.043,169.262L783.721,171.681L780.328,185.955L767.536,200.229L756.05,208.938L725.508,227.324L708.278,221.76L720.809,199.745L715.327,172.407L704.624,170.713L696.792,139.989L675.386,132.731L657.113,154.988L651.892,174.826L658.941,198.051L651.892,227.566L640.406,229.744L634.141,212.325L630.747,195.39L635.446,165.149L632.314,153.053L637.796,139.505L662.856,127.166L681.13,128.86L683.74,115.312L669.121,112.893L633.097,120.876L615.346,111.683L585.325,123.054L578.277,114.586L560.265,121.118L581.932,97.651L543.819,78.539L520.063,77.329L510.666,70.797L479.601,70.797L376.748,65.717L265.542,51.927L198.192,39.105L183.573,35.96L100.038,14.428L101.604,37.653L76.805,27.008L66.885,54.588L71.062,70.313L65.058,70.555L45.479,120.634L32.949,139.989L32.688,160.069L31.383,172.891L18.591,197.083L24.073,209.18L20.158,229.018L41.564,313.209L49.656,328.208L48.873,344.176L65.058,349.256L81.765,362.562L98.733,387.723L99.516,401.755L145.199,407.077L142.328,411.674L208.112,450.382L246.747,456.188L264.237,448.205L296.346,452.076L322.973,479.897L330.021,503.606L356.648,521.509L366.306,505.542L390.323,505.784L405.202,521.751L411.99,540.863L427.653,559.492L434.44,583.684L466.549,596.506L469.42,564.33L481.95,544.008L510.405,529.492L525.023,516.186L540.686,510.38L574.361,508.203L599.944,521.509L625.004,511.106L624.743,495.381L646.41,489.574L663.639,490.058L680.607,485.703L716.371,497.316L727.596,488.123L740.387,490.542L758.4,504.816L761.793,533.363L788.942,570.62L806.954,589.732L817.657,586.104L823.922,570.62L822.095,549.089L806.171,513.525L787.115,486.187ZM50.7,504.574L67.668,516.428L53.833,533.605L52.528,546.669L88.03,573.765L106.825,552.476L120.139,553.927L147.288,547.153L132.93,474.333L89.335,465.14L60.359,484.252L69.757,498.284ZM305.482,584.41L309.137,600.377L328.455,593.361L322.189,578.362Z"></path>
+        <g id="dots"></g>
+      </svg>
+      <div class="legend-row">
+        <div class="legend-item"><span class="swatch" style="background:var(--status-full)"></span> 100% <strong>&nbsp;full power</strong></div>
+        <div class="legend-item"><span class="swatch" style="background:var(--status-reduced)"></span> 1&ndash;99% <strong>&nbsp;reduced</strong></div>
+        <div class="legend-item"><span class="swatch" style="background:var(--status-off)"></span> 0% <strong>&nbsp;offline</strong></div>
+        <div class="legend-item" style="margin-left:auto">One dot per site &middot; size is constant, only status varies</div>
       </div>
     </div>
 
-    <div class="panel trend-panel">
-      <div class="trend-head">
-        <h2 id="trend-title">Nationwide capacity offline</h2>
-        <div class="trend-legend">
-          <span><span class="swatch-line" style="background:var(--accent)"></span>Selected range</span>
-          <span><span class="swatch-line" style="background:var(--prev-line);border-top:1px dashed var(--prev-line)"></span>Same days, 1 year earlier</span>
-          <span><span class="swatch-band" style="background:var(--band-fill)"></span>5&#8209;year range</span>
-        </div>
-        <div class="range-controls">
-          <label for="trend-start" class="asof-note">From</label>
-          <input type="date" id="trend-start">
-          <label for="trend-end" class="asof-note">To</label>
-          <input type="date" id="trend-end">
-          <button type="button" id="trend-apply">Apply</button>
-          <button type="button" id="trend-reset" class="link-btn">Reset to trailing year</button>
-        </div>
+    <div class="panel roster-panel">
+      <div class="roster-head">
+        <h2>Roster</h2>
+        <span class="count num" id="roster-count"></span>
       </div>
-      <div id="trend-loading" class="loading-note" hidden>Loading trend&hellip;</div>
-      <div id="trend-error" class="error-note" hidden></div>
-      <svg id="trend" viewBox="0 0 900 280" role="img" aria-label="Percent of total U.S. nuclear capacity offline over the selected range, compared with the same days one year earlier and the five-year range"></svg>
-      <p class="note">Percent of total U.S. nuclear generating capacity offline, all reactors combined.</p>
+      <div class="roster-scroll">
+        <table class="roster">
+          <thead>
+            <tr>
+              <th data-key="name" data-type="str">Plant<span class="arrow"></span></th>
+              <th data-key="id" data-type="num">Code<span class="arrow"></span></th>
+              <th data-key="cap" data-type="num">MW<span class="arrow"></span></th>
+              <th data-key="pct" data-type="num">Output<span class="arrow"></span></th>
+              <th data-key="units" data-type="num">Units<span class="arrow"></span></th>
+            </tr>
+          </thead>
+          <tbody id="roster-body"></tbody>
+        </table>
+      </div>
     </div>
-
-    <p class="note">Source: EIA, Status of U.S. Nuclear Outages (<code>nuclear-outages</code> API route, live). Site positions are static coordinates projected from each plant's published location; status colors and roster values are live. Sites permanently retired before this build's site list was compiled are not shown on the map.</p>
   </div>
+
+  <div class="panel trend-panel">
+    <div class="trend-head">
+      <h2>Nationwide capacity offline &mdash; trailing year</h2>
+      <div class="trend-legend">
+        <span><span class="swatch-line" style="background:var(--accent)"></span>Current year</span>
+        <span><span class="swatch-line" style="background:var(--prev-line);border-top:1px dashed var(--prev-line)"></span>Previous year</span>
+        <span><span class="swatch-band" style="background:var(--band-fill)"></span>5&#8209;year range</span>
+      </div>
+    </div>
+    <svg id="trend" viewBox="0 0 900 280" role="img" aria-label="Percent of total U.S. nuclear capacity offline over the trailing year, compared with the previous year and the five-year range"></svg>
+    <p class="note">Percent of total U.S. nuclear generating capacity offline, all reactors combined.</p>
+  </div>
+
+  <p class="note">Source: EIA, Status of U.S. Nuclear Outages (live data, report date shown above). Positions are projected from each site's published coordinates; dot size does not encode capacity, only status does.</p>
 </div>
 
 <div id="tooltip" style="position:fixed;pointer-events:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);padding:8px 11px;font-size:0.8rem;line-height:1.45;max-width:220px;opacity:0;transform:translate(-50%, -100%);transition:opacity 0.08s ease;z-index:10;"></div>
 
 <script>
-(function () {
-  "use strict";
-
-  // Static site geography (coordinates projected for the map above) + unit
-  // count per site — neither changes day to day, so these stay hardcoded
-  // rather than round-tripping through the API. Everything else (status,
-  // capacity, MW, the trend) is fetched live from api.eia.gov's
-  // nuclear-outages route, confirmed against a live response before this
-  // page was written:
-  //   nuclear-outages/facility-nuclear-outages  -> per-site capacity/percentOutage, facet "facility"
-  //   nuclear-outages/us-nuclear-outages         -> national capacity/percentOutage, no facets
-  // Sites retired before this list was compiled (e.g. Indian Point, San
-  // Onofre, Vermont Yankee, Kewaunee, Crystal River) aren't in this table
-  // and so are silently skipped if the API still reports them.
-  var PLANT_GEO = {};
-  [{"id":649,"name":"Vogtle","x":765.8,"y":412.2,"units":4},{"id":6008,"name":"Palo Verde","x":182.4,"y":398.6,"units":3},{"id":46,"name":"Browns Ferry","x":662.1,"y":388.9,"units":3},{"id":3265,"name":"Oconee","x":739.3,"y":377.8,"units":3},{"id":6251,"name":"South Texas Project","x":497.1,"y":531.2,"units":2},{"id":3166,"name":"Peach Bottom","x":836.6,"y":245.5,"units":2},{"id":6103,"name":"PPL Susquehanna","x":832.3,"y":215.2,"units":2},{"id":6145,"name":"Comanche Peak","x":464,"y":451.2,"units":2},{"id":6022,"name":"Braidwood Generation Station","x":629.4,"y":241.4,"units":2},{"id":6036,"name":"Catawba","x":771.9,"y":367.1,"units":2},{"id":6023,"name":"Byron Generating Station","x":610.3,"y":223.8,"units":2},{"id":2410,"name":"PSEG Salem Generating Station","x":850.4,"y":249.5,"units":2},{"id":6152,"name":"Sequoyah","x":698,"y":373.1,"units":2},{"id":6026,"name":"LaSalle Generating Station","x":622,"y":242,"units":2},{"id":7722,"name":"Watts Bar Nuclear Plant","x":702.5,"y":363.9,"units":2},{"id":6105,"name":"Limerick","x":845.8,"y":232.6,"units":2},{"id":6099,"name":"Diablo Canyon","x":46.4,"y":325.6,"units":2},{"id":6038,"name":"McGuire","x":772.7,"y":358.1,"units":2},{"id":6000,"name":"Donald C Cook","x":655.8,"y":222.2,"units":2},{"id":566,"name":"Millstone","x":896.8,"y":195,"units":2},{"id":6045,"name":"St Lucie","x":815.7,"y":537.5,"units":2},{"id":2589,"name":"Nine Mile Point Nuclear Station","x":816.6,"y":161.8,"units":2},{"id":6014,"name":"Brunswick","x":832,"y":381.9,"units":2},{"id":880,"name":"Quad Cities Generating Station","x":593.6,"y":232.9,"units":2},{"id":6040,"name":"Beaver Valley","x":762.6,"y":239.3,"units":2},{"id":8055,"name":"Arkansas Nuclear One","x":548.8,"y":381.9,"units":2},{"id":6001,"name":"Joseph M Farley","x":708.1,"y":464,"units":2},{"id":6168,"name":"North Anna","x":818.2,"y":288.9,"units":2},{"id":6051,"name":"Edwin I Hatch","x":758.8,"y":441,"units":2},{"id":6011,"name":"Calvert Cliffs Nuclear Power Plant","x":839.8,"y":275.8,"units":2},{"id":621,"name":"Turkey Point","x":821.1,"y":580.2,"units":2},{"id":3806,"name":"Surry","x":841.3,"y":305.2,"units":2},{"id":6072,"name":"Grand Gulf","x":592.8,"y":455.7,"units":1},{"id":6115,"name":"Seabrook","x":908.8,"y":154.3,"units":1},{"id":6020,"name":"Perry","x":746.4,"y":214.6,"units":1},{"id":6153,"name":"Callaway","x":572,"y":302,"units":1},{"id":4046,"name":"Point Beach","x":634.9,"y":171.4,"units":2},{"id":210,"name":"Wolf Creek Generating Station","x":503.5,"y":315.6,"units":1},{"id":6118,"name":"PSEG Hope Creek Generating Station","x":850.3,"y":249.4,"units":1},{"id":371,"name":"Columbia Generating Station","x":136,"y":83.1,"units":1},{"id":1729,"name":"Fermi","x":710.8,"y":216.1,"units":1},{"id":204,"name":"Clinton Power Station","x":621,"y":266.7,"units":1},{"id":4270,"name":"Waterford 3","x":606.5,"y":500.8,"units":1},{"id":1925,"name":"Prairie Island","x":552.3,"y":168.8,"units":2},{"id":6127,"name":"V C Summer","x":770,"y":384.8,"units":1},{"id":6462,"name":"River Bend Station","x":588.8,"y":484.4,"units":1},{"id":6015,"name":"Harris","x":807.9,"y":347.4,"units":1},{"id":869,"name":"Dresden Generating Station","x":628.4,"y":238.1,"units":2},{"id":6149,"name":"Davis Besse","x":714.8,"y":224,"units":1},{"id":3251,"name":"H B Robinson","x":790.9,"y":379,"units":1},{"id":6110,"name":"James A Fitzpatrick","x":814,"y":164.7,"units":1},{"id":8036,"name":"Cooper","x":504.2,"y":266.9,"units":1},{"id":1922,"name":"Monticello","x":532.3,"y":153.2,"units":1},{"id":6122,"name":"R. E. Ginna Nuclear Power Plant","x":803.2,"y":170.2,"units":1},{"id":1715,"name":"Palisades","x":659.1,"y":213.9,"units":1}].forEach(function (p) { PLANT_GEO[p.id] = p; });
-
-  var FACILITY_ROUTE = 'https://api.eia.gov/v2/nuclear-outages/facility-nuclear-outages/data/';
-  var US_ROUTE = 'https://api.eia.gov/v2/nuclear-outages/us-nuclear-outages/data/';
-
-  var state = { apiKey: '', keyInput: '', asOf: '', trendStart: '', trendEnd: '' };
-  try { state.apiKey = window.localStorage.getItem('nuclearApiKey') || ''; } catch (e) { /* storage unavailable */ }
-  state.keyInput = state.apiKey;
-
-  function todayStr() {
-    var d = new Date();
-    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
-  }
-  function pad(n) { return n < 10 ? '0' + n : '' + n; }
-  function toDate(str) { var p = str.split('-').map(Number); return new Date(Date.UTC(p[0], p[1] - 1, p[2])); }
-  function toStr(d) { return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate()); }
-  function addDays(str, n) { var d = toDate(str); d.setUTCDate(d.getUTCDate() + n); return toStr(d); }
-  function addYears(str, n) { var d = toDate(str); d.setUTCFullYear(d.getUTCFullYear() + n); return toStr(d); }
-
-  state.asOf = todayStr();
-  state.trendEnd = todayStr();
-  state.trendStart = addYears(state.trendEnd, -1);
-
-  async function apiGet(url) {
-    var res = await fetch(url);
-    var json = await res.json().catch(function () { return null; });
-    if (!res.ok || !json || json.error) {
-      throw new Error((json && json.error) || ('HTTP ' + res.status));
-    }
-    return json.response && json.response.data || [];
-  }
-
-  function buildFacilityUrl(dataKey, start, end) {
-    var p = ['frequency=daily', 'data[]=' + dataKey, 'start=' + start, 'end=' + end,
-      'sort[0][column]=period', 'sort[0][direction]=desc', 'length=500', 'api_key=' + encodeURIComponent(state.apiKey)];
-    return FACILITY_ROUTE + '?' + p.join('&');
-  }
-  function buildUsUrl(start, end) {
-    var p = ['frequency=daily', 'data[]=percentOutage', 'start=' + start, 'end=' + end,
-      'sort[0][column]=period', 'sort[0][direction]=asc', 'length=5000', 'api_key=' + encodeURIComponent(state.apiKey)];
-    return US_ROUTE + '?' + p.join('&');
-  }
-
-  // ---------- Map + roster (single as-of date, walked back to the nearest
-  // date that actually has data — the feed can lag a day or two) ----------
-  async function loadRoster() {
-    document.getElementById('map-loading').hidden = false;
-    var windowStart = addDays(state.asOf, -10);
-    try {
-      var pctRows = await apiGet(buildFacilityUrl('percentOutage', windowStart, state.asOf));
-      var capRows = await apiGet(buildFacilityUrl('capacity', windowStart, state.asOf));
-      var latestPeriod = pctRows.length ? pctRows[0].period : null;
-      if (!latestPeriod) { throw new Error('No data returned for this date range.'); }
-      var capByFacility = {};
-      capRows.filter(function (r) { return r.period === latestPeriod; })
-        .forEach(function (r) { capByFacility[r.facility] = parseFloat(r.capacity); });
-      var plants = pctRows.filter(function (r) { return r.period === latestPeriod; })
-        .map(function (r) {
-          var geo = PLANT_GEO[r.facility];
-          if (!geo) { return null; }
-          var pct = 100 - parseFloat(r.percentOutage);
-          return { id: r.facility, name: geo.name, x: geo.x, y: geo.y, units: geo.units, pct: Math.round(pct * 10) / 10, cap: capByFacility[r.facility] || 0 };
-        }).filter(Boolean);
-      renderMapAndRoster(plants, latestPeriod);
-      document.getElementById('asof-note').textContent = latestPeriod === state.asOf ? '' : ('Showing ' + latestPeriod + ' — the most recent date with reported data at or before your chosen date.');
-    } catch (e) {
-      document.getElementById('asof-note').textContent = "Couldn't load roster (" + e.message + ').';
-    }
-    document.getElementById('map-loading').hidden = true;
-  }
+  var PLANTS = [{"id": 649, "name": "Vogtle", "x": 765.8, "y": 412.2, "pct": 95.9, "cap": 4530, "units": 4}, {"id": 6008, "name": "Palo Verde", "x": 182.4, "y": 398.6, "pct": 100, "cap": 3937, "units": 3}, {"id": 46, "name": "Browns Ferry", "x": 662.1, "y": 388.9, "pct": 99.3, "cap": 3662, "units": 3}, {"id": 3265, "name": "Oconee", "x": 739.3, "y": 377.8, "pct": 100, "cap": 2600, "units": 3}, {"id": 6251, "name": "South Texas Project", "x": 497.1, "y": 531.2, "pct": 100, "cap": 2580, "units": 2}, {"id": 3166, "name": "Peach Bottom", "x": 836.6, "y": 245.5, "pct": 99.5, "cap": 2549, "units": 2}, {"id": 6103, "name": "PPL Susquehanna", "x": 832.3, "y": 215.2, "pct": 100, "cap": 2494, "units": 2}, {"id": 6145, "name": "Comanche Peak", "x": 464, "y": 451.2, "pct": 100, "cap": 2400, "units": 2}, {"id": 6022, "name": "Braidwood Generation Station", "x": 629.4, "y": 241.4, "pct": 100, "cap": 2332, "units": 2}, {"id": 6036, "name": "Catawba", "x": 771.9, "y": 367.1, "pct": 100, "cap": 2310, "units": 2}, {"id": 6023, "name": "Byron Generating Station", "x": 610.3, "y": 223.8, "pct": 100, "cap": 2300, "units": 2}, {"id": 2410, "name": "PSEG Salem Generating Station", "x": 850.4, "y": 249.5, "pct": 100, "cap": 2285, "units": 2}, {"id": 6152, "name": "Sequoyah", "x": 698, "y": 373.1, "pct": 100, "cap": 2278, "units": 2}, {"id": 6026, "name": "LaSalle Generating Station", "x": 622, "y": 242, "pct": 100, "cap": 2264, "units": 2}, {"id": 7722, "name": "Watts Bar Nuclear Plant", "x": 702.5, "y": 363.9, "pct": 100, "cap": 2245, "units": 2}, {"id": 6105, "name": "Limerick", "x": 845.8, "y": 232.6, "pct": 100, "cap": 2242, "units": 2}, {"id": 6099, "name": "Diablo Canyon", "x": 46.4, "y": 325.6, "pct": 100, "cap": 2240, "units": 2}, {"id": 6038, "name": "McGuire", "x": 772.7, "y": 358.1, "pct": 96, "cap": 2316, "units": 2}, {"id": 6000, "name": "Donald C Cook", "x": 655.8, "y": 222.2, "pct": 100, "cap": 2177, "units": 2}, {"id": 566, "name": "Millstone", "x": 896.8, "y": 195, "pct": 100, "cap": 2108, "units": 2}, {"id": 6045, "name": "St Lucie", "x": 815.7, "y": 537.5, "pct": 100, "cap": 1968, "units": 2}, {"id": 2589, "name": "Nine Mile Point Nuclear Station", "x": 816.6, "y": 161.8, "pct": 100, "cap": 1903, "units": 2}, {"id": 6014, "name": "Brunswick", "x": 832, "y": 381.9, "pct": 100, "cap": 1870, "units": 2}, {"id": 880, "name": "Quad Cities Generating Station", "x": 593.6, "y": 232.9, "pct": 100, "cap": 1819, "units": 2}, {"id": 6040, "name": "Beaver Valley", "x": 762.6, "y": 239.3, "pct": 100, "cap": 1808, "units": 2}, {"id": 8055, "name": "Arkansas Nuclear One", "x": 548.8, "y": 381.9, "pct": 100, "cap": 1807, "units": 2}, {"id": 6001, "name": "Joseph M Farley", "x": 708.1, "y": 464, "pct": 100, "cap": 1791, "units": 2}, {"id": 6168, "name": "North Anna", "x": 818.2, "y": 288.9, "pct": 94, "cap": 1892, "units": 2}, {"id": 6051, "name": "Edwin I Hatch", "x": 758.8, "y": 441, "pct": 100, "cap": 1759, "units": 2}, {"id": 6011, "name": "Calvert Cliffs Nuclear Power Plant", "x": 839.8, "y": 275.8, "pct": 100, "cap": 1745, "units": 2}, {"id": 621, "name": "Turkey Point", "x": 821.1, "y": 580.2, "pct": 100, "cap": 1681, "units": 2}, {"id": 3806, "name": "Surry", "x": 841.3, "y": 305.2, "pct": 100, "cap": 1676, "units": 2}, {"id": 6072, "name": "Grand Gulf", "x": 592.8, "y": 455.7, "pct": 100, "cap": 1397, "units": 1}, {"id": 6115, "name": "Seabrook", "x": 908.8, "y": 154.3, "pct": 100, "cap": 1247, "units": 1}, {"id": 6020, "name": "Perry", "x": 746.4, "y": 214.6, "pct": 97, "cap": 1240, "units": 1}, {"id": 6153, "name": "Callaway", "x": 572, "y": 302, "pct": 100, "cap": 1190, "units": 1}, {"id": 4046, "name": "Point Beach", "x": 634.9, "y": 171.4, "pct": 100, "cap": 1190, "units": 2}, {"id": 210, "name": "Wolf Creek Generating Station", "x": 503.5, "y": 315.6, "pct": 100, "cap": 1177, "units": 1}, {"id": 6118, "name": "PSEG Hope Creek Generating Station", "x": 850.3, "y": 249.4, "pct": 100, "cap": 1174, "units": 1}, {"id": 371, "name": "Columbia Generating Station", "x": 136, "y": 83.1, "pct": 100, "cap": 1151, "units": 1}, {"id": 1729, "name": "Fermi", "x": 710.8, "y": 216.1, "pct": 100, "cap": 1141, "units": 1}, {"id": 204, "name": "Clinton Power Station", "x": 621, "y": 266.7, "pct": 100, "cap": 1083, "units": 1}, {"id": 4270, "name": "Waterford 3", "x": 606.5, "y": 500.8, "pct": 97, "cap": 1087, "units": 1}, {"id": 1925, "name": "Prairie Island", "x": 552.3, "y": 168.8, "pct": 100, "cap": 1040, "units": 2}, {"id": 6127, "name": "V C Summer", "x": 770, "y": 384.8, "pct": 100, "cap": 977, "units": 1}, {"id": 6462, "name": "River Bend Station", "x": 588.8, "y": 484.4, "pct": 100, "cap": 968, "units": 1}, {"id": 6015, "name": "Harris", "x": 807.9, "y": 347.4, "pct": 100, "cap": 964, "units": 1}, {"id": 869, "name": "Dresden Generating Station", "x": 628.4, "y": 238.1, "pct": 49.8, "cap": 1797, "units": 2}, {"id": 6149, "name": "Davis Besse", "x": 714.8, "y": 224, "pct": 100, "cap": 894, "units": 1}, {"id": 3251, "name": "H B Robinson", "x": 790.9, "y": 379, "pct": 100, "cap": 759, "units": 1}, {"id": 6110, "name": "James A Fitzpatrick", "x": 814, "y": 164.7, "pct": 85, "cap": 844, "units": 1}, {"id": 8036, "name": "Cooper", "x": 504.2, "y": 266.9, "pct": 89, "cap": 769, "units": 1}, {"id": 1922, "name": "Monticello", "x": 532.3, "y": 153.2, "pct": 100, "cap": 617, "units": 1}, {"id": 6122, "name": "R. E. Ginna Nuclear Power Plant", "x": 803.2, "y": 170.2, "pct": 100, "cap": 579, "units": 1}, {"id": 1715, "name": "Palisades", "x": 659.1, "y": 213.9, "pct": 0, "cap": 769, "units": 1}];
+  var TREND = {"current": [[1767225600000, 2.9], [1767312000000, 2.3], [1767398400000, 2.3], [1767484800000, 2.1], [1767571200000, 1.5], [1767657600000, 1.1], [1767744000000, 1.4], [1767830400000, 1.4], [1767916800000, 1.4], [1768003200000, 1.7], [1768089600000, 1.2], [1768176000000, 1.2], [1768262400000, 1.9], [1768348800000, 1.8], [1768435200000, 1.8], [1768521600000, 2.1], [1768608000000, 1.9], [1768694400000, 3.2], [1768780800000, 3.2], [1768867200000, 3.2], [1768953600000, 2.8], [1769040000000, 2.1], [1769126400000, 2], [1769212800000, 2.1], [1769299200000, 2.1], [1769385600000, 2.1], [1769472000000, 2.2], [1769558400000, 2.2], [1769644800000, 2.2], [1769731200000, 2.2], [1769817600000, 3.2], [1769904000000, 3.3], [1769990400000, 3.2], [1770076800000, 3.7], [1770163200000, 4.1], [1770249600000, 5.1], [1770336000000, 5.3], [1770422400000, 5.4], [1770508800000, 5.1], [1770595200000, 5.1], [1770681600000, 5.1], [1770768000000, 5.2], [1770854400000, 5.2], [1770940800000, 5.8], [1771027200000, 7.9], [1771113600000, 7.2], [1771200000000, 8], [1771286400000, 7.8], [1771372800000, 7.3], [1771459200000, 6.8], [1771545600000, 6.8], [1771632000000, 9.4], [1771718400000, 10.4], [1771804800000, 11.8], [1771891200000, 11.1], [1771977600000, 11.3], [1772064000000, 12.2], [1772150400000, 12.2], [1772236800000, 13.4], [1772323200000, 13.7], [1772409600000, 14.7], [1772496000000, 14.5], [1772582400000, 13.2], [1772668800000, 13.3], [1772755200000, 13.1], [1772841600000, 14], [1772928000000, 13.4], [1773014400000, 14.1], [1773100800000, 13.8], [1773187200000, 13.2], [1773273600000, 13.2], [1773360000000, 13.2], [1773446400000, 16.3], [1773532800000, 15.8], [1773619200000, 14.9], [1773705600000, 14.5], [1773792000000, 14.6], [1773878400000, 14.6], [1773964800000, 15.9], [1774051200000, 18.2], [1774137600000, 18.4], [1774224000000, 20.5], [1774310400000, 19.8], [1774396800000, 19.8], [1774483200000, 19.7], [1774569600000, 19.4], [1774656000000, 19.2], [1774742400000, 18.7], [1774828800000, 18.4], [1774915200000, 19.1], [1775001600000, 18.7], [1775088000000, 17.7], [1775174400000, 17.5], [1775260800000, 16.8], [1775347200000, 18.9], [1775433600000, 18], [1775520000000, 18.4], [1775606400000, 18.8], [1775692800000, 18.6], [1775779200000, 18.4], [1775865600000, 18.8], [1775952000000, 19.1], [1776038400000, 19.6], [1776124800000, 19.2], [1776211200000, 19.3], [1776297600000, 17.4], [1776384000000, 18.4], [1776470400000, 21.7], [1776556800000, 21.3], [1776643200000, 22.2], [1776729600000, 21.8], [1776816000000, 22.1], [1776902400000, 21.9], [1776988800000, 21.2], [1777075200000, 19.8], [1777161600000, 18.9], [1777248000000, 19.6], [1777334400000, 20], [1777420800000, 19.5], [1777507200000, 19.4], [1777593600000, 17.9], [1777680000000, 18.2], [1777766400000, 17.8], [1777852800000, 18.2], [1777939200000, 18], [1778025600000, 18.1], [1778112000000, 17], [1778198400000, 14.8], [1778284800000, 14.5], [1778371200000, 13.6], [1778457600000, 14.1], [1778544000000, 14.1], [1778630400000, 14.7], [1778716800000, 13.8], [1778803200000, 12.4], [1778889600000, 12.4], [1778976000000, 10.5], [1779062400000, 9.2], [1779148800000, 9.4], [1779235200000, 8.6], [1779321600000, 7], [1779408000000, 5.9], [1779494400000, 5.5], [1779580800000, 5.4], [1779667200000, 5.2], [1779753600000, 5.9], [1779840000000, 6.2], [1779926400000, 6.2], [1780012800000, 6.6], [1780099200000, 6.1], [1780185600000, 5.1], [1780272000000, 3.2], [1780358400000, 3.5], [1780444800000, 3.2], [1780531200000, 2.9], [1780617600000, 3.4], [1780704000000, 3.7], [1780790400000, 3.4], [1780876800000, 3.5], [1780963200000, 3.7], [1781049600000, 3.5], [1781136000000, 3.5], [1781222400000, 2.8], [1781308800000, 2.9], [1781395200000, 2.2], [1781481600000, 2], [1781568000000, 1.2], [1781654400000, 1.1], [1781740800000, 2.5], [1781827200000, 2.4], [1781913600000, 3.1], [1782000000000, 3.4], [1782086400000, 2.9], [1782172800000, 2.5], [1782259200000, 2.5], [1782345600000, 2.7], [1782432000000, 3.1], [1782518400000, 2.9], [1782604800000, 1.9], [1782691200000, 1.2], [1782777600000, 1.3], [1782864000000, 2.3], [1782950400000, 1.8], [1783036800000, 1.7], [1783123200000, 2.3], [1783209600000, 2.2], [1783296000000, 2.3], [1783382400000, 2.1], [1783468800000, 2.2], [1783555200000, 2.1], [1783641600000, 2.1], [1783728000000, 2.2], [1783814400000, 2.1], [1783900800000, 1.5], [1783987200000, 1], [1784073600000, 1], [1784160000000, 1.2], [1784246400000, 1.1], [1784332800000, 2.1], [1784419200000, 2.1], [1784505600000, 1.4], [1784592000000, 1], [1784678400000, 1], [1784764800000, 1], [1784851200000, 0.9], [1784937600000, 1.1], [1785024000000, 0.9], [1785110400000, 1], [1785196800000, 1.1], [1785283200000, 1.3], [1785369600000, 1.2], [1785456000000, 1.2], [1785542400000, 2.2], [1785628800000, 2.2], [1785715200000, 2.1], [1785801600000, 3], [1785888000000, 3.1], [1785974400000, 3.3], [1786060800000, 2.8], [1786147200000, 3.2], [1786233600000, 2.3], [1786320000000, 2.8], [1786406400000, 2.6], [1786492800000, 3.2], [1786579200000, 1.9], [1786665600000, 2.9], [1786752000000, 2.6], [1786838400000, 2], [1786924800000, 1.8], [1787011200000, 1.7], [1787097600000, 1.9], [1787184000000, 1.8], [1787270400000, 2], [1787356800000, 2.1], [1787443200000, 2.2], [1787529600000, 2.2], [1787616000000, 2.1], [1787702400000, 2], [1787788800000, 3.1], [1787875200000, 3], [1787961600000, 2.9], [1788048000000, 2.5], [1788134400000, 2.6], [1788220800000, 2.7], [1788307200000, 1.9], [1788393600000, 1.5], [1788480000000, 2.4]], "previous": [[1767225600000, 2.2], [1767312000000, 2.2], [1767398400000, 2], [1767484800000, 2], [1767571200000, 2.1], [1767657600000, 2.1], [1767744000000, 2.4], [1767830400000, 2.1], [1767916800000, 2.1], [1768003200000, 2.1], [1768089600000, 2.5], [1768176000000, 2.1], [1768262400000, 2.1], [1768348800000, 2.1], [1768435200000, 2.1], [1768521600000, 2.4], [1768608000000, 4.5], [1768694400000, 4.3], [1768780800000, 3.7], [1768867200000, 3], [1768953600000, 2.9], [1769040000000, 2.9], [1769126400000, 2.9], [1769212800000, 2.9], [1769299200000, 3], [1769385600000, 3], [1769472000000, 3], [1769558400000, 3], [1769644800000, 4.3], [1769731200000, 4.4], [1769817600000, 4.3], [1769904000000, 3.2], [1769990400000, 3.1], [1770076800000, 3.1], [1770163200000, 3.1], [1770249600000, 3.2], [1770336000000, 4.6], [1770422400000, 4.6], [1770508800000, 5.3], [1770595200000, 5.7], [1770681600000, 6.3], [1770768000000, 8.5], [1770854400000, 8.3], [1770940800000, 7.9], [1771027200000, 8], [1771113600000, 7.7], [1771200000000, 8.9], [1771286400000, 8.7], [1771372800000, 8.8], [1771459200000, 8.8], [1771545600000, 8.9], [1771632000000, 8.8], [1771718400000, 8.8], [1771804800000, 8.8], [1771891200000, 10.2], [1771977600000, 9.8], [1772064000000, 10], [1772150400000, 10.2], [1772236800000, 11], [1772323200000, 11.4], [1772409600000, 12.7], [1772496000000, 11.4], [1772582400000, 11.7], [1772668800000, 12.4], [1772755200000, 13.1], [1772841600000, 12.5], [1772928000000, 13], [1773014400000, 12.6], [1773100800000, 13.1], [1773187200000, 13.2], [1773273600000, 12.5], [1773360000000, 12.5], [1773446400000, 12.6], [1773532800000, 13.2], [1773619200000, 12.9], [1773705600000, 14.4], [1773792000000, 14.1], [1773878400000, 14], [1773964800000, 14.9], [1774051200000, 15.1], [1774137600000, 17.5], [1774224000000, 16.6], [1774310400000, 18.1], [1774396800000, 18.1], [1774483200000, 18.5], [1774569600000, 18.9], [1774656000000, 18.8], [1774742400000, 21.4], [1774828800000, 20.8], [1774915200000, 19.7], [1775001600000, 18.9], [1775088000000, 18.8], [1775174400000, 18], [1775260800000, 17.1], [1775347200000, 16.1], [1775433600000, 15.7], [1775520000000, 14.6], [1775606400000, 14], [1775692800000, 14.3], [1775779200000, 14.6], [1775865600000, 15.9], [1775952000000, 18], [1776038400000, 18.2], [1776124800000, 19.3], [1776211200000, 19.4], [1776297600000, 19.1], [1776384000000, 18.8], [1776470400000, 18.2], [1776556800000, 18.5], [1776643200000, 18.4], [1776729600000, 19.3], [1776816000000, 18.2], [1776902400000, 18.3], [1776988800000, 18.3], [1777075200000, 17.3], [1777161600000, 19.6], [1777248000000, 19], [1777334400000, 19.2], [1777420800000, 19.2], [1777507200000, 19.1], [1777593600000, 19], [1777680000000, 18.4], [1777766400000, 17.9], [1777852800000, 17.4], [1777939200000, 17.1], [1778025600000, 16.9], [1778112000000, 16.9], [1778198400000, 16.9], [1778284800000, 16.9], [1778371200000, 17.5], [1778457600000, 16.7], [1778544000000, 16.1], [1778630400000, 16.6], [1778716800000, 16.2], [1778803200000, 14.9], [1778889600000, 14.2], [1778976000000, 14.8], [1779062400000, 13.7], [1779148800000, 11.7], [1779235200000, 13], [1779321600000, 12.8], [1779408000000, 13.7], [1779494400000, 13.3], [1779580800000, 13.4], [1779667200000, 12.8], [1779753600000, 12.5], [1779840000000, 11.6], [1779926400000, 10.8], [1780012800000, 12.3], [1780099200000, 11.4], [1780185600000, 11.4], [1780272000000, 9.7], [1780358400000, 8.7], [1780444800000, 9.7], [1780531200000, 8.8], [1780617600000, 7.9], [1780704000000, 7.8], [1780790400000, 6], [1780876800000, 7], [1780963200000, 6.2], [1781049600000, 4.9], [1781136000000, 4.8], [1781222400000, 4.5], [1781308800000, 3.8], [1781395200000, 4], [1781481600000, 3.7], [1781568000000, 3.5], [1781654400000, 3.6], [1781740800000, 4.6], [1781827200000, 4.3], [1781913600000, 4.7], [1782000000000, 3.4], [1782086400000, 3.5], [1782172800000, 4.2], [1782259200000, 6.5], [1782345600000, 5.7], [1782432000000, 5.5], [1782518400000, 3.8], [1782604800000, 5], [1782691200000, 4.2], [1782777600000, 3.2], [1782864000000, 2.2], [1782950400000, 1.8], [1783036800000, 1.5], [1783123200000, 1.4], [1783209600000, 2], [1783296000000, 1.9], [1783382400000, 1.3], [1783468800000, 1.3], [1783555200000, 0.7], [1783641600000, 0.4], [1783728000000, 1.9], [1783814400000, 2.2], [1783900800000, 1.7], [1783987200000, 2.6], [1784073600000, 2.3], [1784160000000, 1.9], [1784246400000, 1.6], [1784332800000, 0.7], [1784419200000, 1], [1784505600000, 0.8], [1784592000000, 0.7], [1784678400000, 1], [1784764800000, 2.1], [1784851200000, 1.4], [1784937600000, 1.3], [1785024000000, 0.8], [1785110400000, 0.3], [1785196800000, 0.3], [1785283200000, 0.9], [1785369600000, 0.9], [1785456000000, 2], [1785542400000, 2.7], [1785628800000, 3.3], [1785715200000, 2.8], [1785801600000, 2.3], [1785888000000, 2.6], [1785974400000, 2.1], [1786060800000, 3], [1786147200000, 2.9], [1786233600000, 3.4], [1786320000000, 3.4], [1786406400000, 2.9], [1786492800000, 1.6], [1786579200000, 2.7], [1786665600000, 2.4], [1786752000000, 3.3], [1786838400000, 2.1], [1786924800000, 2.1], [1787011200000, 1.8], [1787097600000, 1.2], [1787184000000, 0.5], [1787270400000, 0.6], [1787356800000, 0.6], [1787443200000, 0.6], [1787529600000, 1.1], [1787616000000, 0.5], [1787702400000, 0.4], [1787788800000, 0.5], [1787875200000, 0.7], [1787961600000, 0.5], [1788048000000, 0.6], [1788134400000, 1.5], [1788220800000, 1.1], [1788307200000, 1.1], [1788393600000, 2.9], [1788480000000, 3.7], [1788566400000, 2.9], [1788652800000, 3.8], [1788739200000, 6], [1788825600000, 5.4], [1788912000000, 6], [1788998400000, 5.3], [1789084800000, 5.3], [1789171200000, 5.4], [1789257600000, 5.5], [1789344000000, 6.3], [1789430400000, 7.5], [1789516800000, 7.6], [1789603200000, 8], [1789689600000, 7.8], [1789776000000, 7.4], [1789862400000, 8.5], [1789948800000, 7.8], [1790035200000, 7.8], [1790121600000, 8.5], [1790208000000, 8.4], [1790294400000, 10.5], [1790380800000, 11.2], [1790467200000, 11.5], [1790553600000, 10.8], [1790640000000, 10.4], [1790726400000, 10.1], [1790812800000, 10.3], [1790899200000, 11.5], [1790985600000, 11.5], [1791072000000, 18.1], [1791158400000, 18.6], [1791244800000, 18.8], [1791331200000, 18.5], [1791417600000, 17.8], [1791504000000, 18.2], [1791590400000, 18.9], [1791676800000, 19.9], [1791763200000, 20.7], [1791849600000, 21.2], [1791936000000, 20.9], [1792022400000, 21.7], [1792108800000, 21.7], [1792195200000, 22.8], [1792281600000, 22.4], [1792368000000, 21.6], [1792454400000, 21.3], [1792540800000, 21.1], [1792627200000, 21.8], [1792713600000, 22.8], [1792800000000, 22.3], [1792886400000, 20.8], [1792972800000, 19.8], [1793059200000, 19.4], [1793145600000, 19.1], [1793232000000, 19.9], [1793318400000, 19.7], [1793404800000, 19], [1793491200000, 17], [1793577600000, 17.4], [1793664000000, 17.8], [1793750400000, 16.7], [1793836800000, 14.8], [1793923200000, 13.1], [1794009600000, 11.6], [1794096000000, 11.5], [1794182400000, 10.8], [1794268800000, 9.8], [1794355200000, 10], [1794441600000, 11], [1794528000000, 13.3], [1794614400000, 14.2], [1794700800000, 13.6], [1794787200000, 13.3], [1794873600000, 13.3], [1794960000000, 11.5], [1795046400000, 11], [1795132800000, 9.5], [1795219200000, 8.9], [1795305600000, 10.2], [1795392000000, 9.7], [1795478400000, 9.7], [1795564800000, 8.9], [1795651200000, 8.2], [1795737600000, 7.4], [1795824000000, 7.1], [1795910400000, 6.7], [1795996800000, 6.6], [1796083200000, 5.1], [1796169600000, 4.9], [1796256000000, 4.6], [1796342400000, 4.7], [1796428800000, 3.9], [1796515200000, 4], [1796601600000, 2.9], [1796688000000, 2], [1796774400000, 1.9], [1796860800000, 1.9], [1796947200000, 2], [1797033600000, 2.8], [1797120000000, 3.7], [1797206400000, 2.8], [1797292800000, 2.7], [1797379200000, 2.1], [1797465600000, 3.3], [1797552000000, 3.1], [1797638400000, 2.5], [1797724800000, 2], [1797811200000, 2], [1797897600000, 2.1], [1797984000000, 2], [1798070400000, 1.9], [1798156800000, 1.9], [1798243200000, 1.9], [1798329600000, 1.9], [1798416000000, 1.9], [1798502400000, 3], [1798588800000, 4.1], [1798675200000, 3.7]], "range": [[1767225600000, 1.4, 4.4], [1767312000000, 1.1, 5.4], [1767398400000, 0.5, 4.7], [1767484800000, 0.4, 5.8], [1767571200000, 0.4, 4.9], [1767657600000, 2, 4], [1767744000000, 2.4, 4.2], [1767830400000, 2.1, 3.5], [1767916800000, 1.5, 4.9], [1768003200000, 1.3, 5.8], [1768089600000, 2.5, 5.8], [1768176000000, 1.8, 3.9], [1768262400000, 2, 3.7], [1768348800000, 1.8, 3.7], [1768435200000, 2.1, 4.4], [1768521600000, 2.1, 4.1], [1768608000000, 1.9, 4.5], [1768694400000, 1.7, 4.4], [1768780800000, 1.6, 4.1], [1768867200000, 1.4, 3.6], [1768953600000, 1.5, 3.7], [1769040000000, 1.4, 4.7], [1769126400000, 1.1, 4.6], [1769212800000, 1.2, 4.3], [1769299200000, 1.2, 5.4], [1769385600000, 1.2, 5.8], [1769472000000, 1.2, 5.9], [1769558400000, 1.9, 8.1], [1769644800000, 2.3, 7.3], [1769731200000, 2, 8.3], [1769817600000, 2.2, 7.2], [1769904000000, 2.2, 4.7], [1769990400000, 2.2, 5.3], [1770076800000, 2.6, 4.8], [1770163200000, 3.1, 4.2], [1770249600000, 2.7, 5.9], [1770336000000, 2.8, 6.5], [1770422400000, 2.4, 7], [1770508800000, 2.3, 5.9], [1770595200000, 2.5, 5.7], [1770681600000, 2.4, 6.3], [1770768000000, 2.9, 8.5], [1770854400000, 4, 8.3], [1770940800000, 4, 7.9], [1771027200000, 4.3, 8], [1771113600000, 4.3, 7.7], [1771200000000, 5.2, 8.9], [1771286400000, 4.8, 8.7], [1771372800000, 4.8, 9.1], [1771459200000, 4.5, 8.8], [1771545600000, 4.7, 9.2], [1771632000000, 6.8, 9.3], [1771718400000, 6.7, 9.6], [1771804800000, 5.8, 9.6], [1771891200000, 5.9, 10.2], [1771977600000, 6.8, 9.8], [1772064000000, 6.7, 10.1], [1772150400000, 6.8, 10.4], [1772236800000, 6.3, 11], [1772323200000, 7.3, 11.4], [1772409600000, 8.2, 12.7], [1772496000000, 9.5, 11.4], [1772582400000, 9, 11.7], [1772668800000, 9, 12.4], [1772755200000, 10.1, 13.1], [1772841600000, 10.9, 12.5], [1772928000000, 10.4, 13], [1773014400000, 10.6, 12.9], [1773100800000, 10.4, 13.1], [1773187200000, 10.3, 13.3], [1773273600000, 9.9, 13.9], [1773360000000, 10.6, 13.1], [1773446400000, 10.6, 13.1], [1773532800000, 10.8, 13.2], [1773619200000, 11.3, 13.3], [1773705600000, 11.3, 14.4], [1773792000000, 13.8, 14.1], [1773878400000, 12.9, 14.1], [1773964800000, 13, 14.9], [1774051200000, 12.4, 15.1], [1774137600000, 12.7, 17.5], [1774224000000, 13, 16.6], [1774310400000, 12.6, 18.1], [1774396800000, 12, 18.1], [1774483200000, 11.6, 18.5], [1774569600000, 11.9, 18.9], [1774656000000, 11.7, 18.8], [1774742400000, 12, 21.4], [1774828800000, 12.6, 20.8], [1774915200000, 11.6, 19.7], [1775001600000, 13.6, 18.9], [1775088000000, 13.4, 18.8], [1775174400000, 13, 18.2], [1775260800000, 12.6, 20], [1775347200000, 12.1, 20.4], [1775433600000, 12.2, 20.3], [1775520000000, 13.7, 19.7], [1775606400000, 14, 20.2], [1775692800000, 14.3, 22], [1775779200000, 14.6, 21.2], [1775865600000, 15.9, 23.2], [1775952000000, 18, 22.4], [1776038400000, 18.1, 21.5], [1776124800000, 18.1, 21], [1776211200000, 19.4, 21.6], [1776297600000, 19.1, 21.5], [1776384000000, 18.8, 21.4], [1776470400000, 18.2, 21.1], [1776556800000, 18.5, 21.3], [1776643200000, 18.4, 20.6], [1776729600000, 18.9, 20.4], [1776816000000, 18.2, 20.3], [1776902400000, 18.3, 21.7], [1776988800000, 18.3, 20.7], [1777075200000, 17.3, 19.7], [1777161600000, 18.5, 19.6], [1777248000000, 17.8, 19.1], [1777334400000, 17.1, 20.1], [1777420800000, 16.8, 19.2], [1777507200000, 16.7, 19.1], [1777593600000, 17.2, 19], [1777680000000, 16, 18.4], [1777766400000, 15.1, 18.1], [1777852800000, 15.4, 18], [1777939200000, 15.4, 18.6], [1778025600000, 15.1, 18.7], [1778112000000, 14.7, 18], [1778198400000, 14.3, 17.5], [1778284800000, 14, 17.6], [1778371200000, 13.3, 17.5], [1778457600000, 12.8, 17.2], [1778544000000, 12.2, 16.8], [1778630400000, 11.9, 16.6], [1778716800000, 11.7, 16.2], [1778803200000, 12.1, 14.9], [1778889600000, 10.8, 14.2], [1778976000000, 8.6, 14.8], [1779062400000, 7.9, 13.7], [1779148800000, 6.8, 12.3], [1779235200000, 6.6, 13.3], [1779321600000, 4.7, 12.8], [1779408000000, 4.2, 13.7], [1779494400000, 4.5, 13.3], [1779580800000, 4.3, 13.4], [1779667200000, 5.7, 12.8], [1779753600000, 6, 12.5], [1779840000000, 3.3, 11.6], [1779926400000, 3.5, 10.8], [1780012800000, 2.9, 12.3], [1780099200000, 2.7, 11.4], [1780185600000, 3.8, 11.4], [1780272000000, 3.3, 9.7], [1780358400000, 1.7, 8.7], [1780444800000, 2.4, 9.7], [1780531200000, 2.6, 8.8], [1780617600000, 3.4, 7.9], [1780704000000, 3.5, 7.8], [1780790400000, 3.5, 6.2], [1780876800000, 3.5, 7], [1780963200000, 3.2, 6.2], [1781049600000, 2.9, 6.7], [1781136000000, 2.4, 6.4], [1781222400000, 2, 8.2], [1781308800000, 2.5, 7.8], [1781395200000, 1.8, 6.7], [1781481600000, 2.6, 6.3], [1781568000000, 1.4, 6], [1781654400000, 2.3, 6.6], [1781740800000, 4.3, 6], [1781827200000, 3.7, 5], [1781913600000, 1.7, 4.7], [1782000000000, 2.3, 3.4], [1782086400000, 2.3, 3.5], [1782172800000, 2.3, 4.2], [1782259200000, 1.1, 6.5], [1782345600000, 0.8, 5.7], [1782432000000, 0.3, 5.5], [1782518400000, 0.7, 5], [1782604800000, 1.5, 5], [1782691200000, 1.8, 4.2], [1782777600000, 1.6, 3.7], [1782864000000, 1.2, 4.3], [1782950400000, 1.2, 3.7], [1783036800000, 1, 3.9], [1783123200000, 0.3, 3.9], [1783209600000, 0.2, 4], [1783296000000, 1.2, 4], [1783382400000, 1.1, 3.9], [1783468800000, 0.6, 3.5], [1783555200000, 0.5, 4], [1783641600000, 0.4, 4.3], [1783728000000, 0.6, 3.6], [1783814400000, 0.8, 3], [1783900800000, 1.4, 2.7], [1783987200000, 1.4, 2.8], [1784073600000, 1.4, 2.9], [1784160000000, 1.4, 3.6], [1784246400000, 1.4, 3.1], [1784332800000, 0.7, 2.1], [1784419200000, 1, 2.8], [1784505600000, 0.8, 2.9], [1784592000000, 0.7, 3.1], [1784678400000, 1, 5], [1784764800000, 1.6, 5.1], [1784851200000, 1.4, 5], [1784937600000, 1.3, 3.5], [1785024000000, 0.8, 3], [1785110400000, 0.3, 2.6], [1785196800000, 0.3, 3.2], [1785283200000, 0.9, 3.4], [1785369600000, 0.6, 2.9], [1785456000000, 1.7, 4.5], [1785542400000, 2, 4.6], [1785628800000, 1.9, 3.5], [1785715200000, 1.6, 3.4], [1785801600000, 1.6, 3.1], [1785888000000, 1.5, 2.9], [1785974400000, 1.4, 3.4], [1786060800000, 0.5, 3], [1786147200000, 0.4, 2.9], [1786233600000, 0.3, 3.4], [1786320000000, 0.6, 3.4], [1786406400000, 0.4, 2.9], [1786492800000, 0.3, 2.2], [1786579200000, 0.3, 2.7], [1786665600000, 1, 2.5], [1786752000000, 1, 3.3], [1786838400000, 1, 2.1], [1786924800000, 0.2, 2.6], [1787011200000, 0.2, 2.4], [1787097600000, 0.9, 1.8], [1787184000000, 0.5, 3.4], [1787270400000, 0.6, 3.2], [1787356800000, 0.6, 2.3], [1787443200000, 0.4, 3.5], [1787529600000, 0.9, 5.4], [1787616000000, 0.5, 5], [1787702400000, 0.4, 5], [1787788800000, 0.5, 5], [1787875200000, 0.7, 3.8], [1787961600000, 0.5, 3.5], [1788048000000, 0.6, 4], [1788134400000, 1.5, 5.7], [1788220800000, 1.1, 6.8], [1788307200000, 1.1, 6.4], [1788393600000, 2.9, 5.9], [1788480000000, 2.8, 7], [1788566400000, 2.9, 7.5], [1788652800000, 3.2, 7.1], [1788739200000, 2.9, 8.5], [1788825600000, 3.2, 9.9], [1788912000000, 2.6, 10.7], [1788998400000, 2.9, 10.4], [1789084800000, 5.3, 10.4], [1789171200000, 5.3, 10.7], [1789257600000, 5, 10.5], [1789344000000, 5, 10.5], [1789430400000, 5, 10.3], [1789516800000, 5.6, 9.6], [1789603200000, 6.2, 10.3], [1789689600000, 6.4, 9.9], [1789776000000, 6, 9.1], [1789862400000, 5.5, 8.8], [1789948800000, 5.5, 10.9], [1790035200000, 5.5, 10.4], [1790121600000, 5.2, 9.2], [1790208000000, 6.3, 11.1], [1790294400000, 6.7, 10.5], [1790380800000, 7.5, 11.2], [1790467200000, 7, 12.1], [1790553600000, 7.1, 15.1], [1790640000000, 7.7, 13.3], [1790726400000, 8.9, 13.8], [1790812800000, 8.6, 13.2], [1790899200000, 10.7, 13.3], [1790985600000, 10.2, 13.4], [1791072000000, 9.7, 18.1], [1791158400000, 9.5, 19], [1791244800000, 9.4, 18.9], [1791331200000, 11.9, 18.5], [1791417600000, 12.5, 17.8], [1791504000000, 14.5, 19], [1791590400000, 13.9, 18.9], [1791676800000, 13.6, 19.9], [1791763200000, 14.1, 20.7], [1791849600000, 14.8, 21.2], [1791936000000, 16, 20.9], [1792022400000, 15.4, 21.7], [1792108800000, 17, 21.7], [1792195200000, 16.8, 22.8], [1792281600000, 17.4, 22.4], [1792368000000, 16.9, 21.8], [1792454400000, 18.6, 21.6], [1792540800000, 19.1, 21.7], [1792627200000, 20.6, 22.1], [1792713600000, 20.2, 22.8], [1792800000000, 20.2, 22.3], [1792886400000, 20.2, 22.2], [1792972800000, 19.5, 23.5], [1793059200000, 17.5, 23.4], [1793145600000, 17.7, 22.6], [1793232000000, 18.1, 23], [1793318400000, 18.2, 23.1], [1793404800000, 17.5, 23], [1793491200000, 17, 22.5], [1793577600000, 17.4, 22], [1793664000000, 17.6, 20.6], [1793750400000, 16.7, 19.6], [1793836800000, 14.8, 20], [1793923200000, 13.1, 18.5], [1794009600000, 11.6, 17.9], [1794096000000, 11.5, 18.3], [1794182400000, 10.8, 17.9], [1794268800000, 9.8, 17.9], [1794355200000, 10, 19.4], [1794441600000, 11, 18], [1794528000000, 10.9, 17.2], [1794614400000, 10, 15.3], [1794700800000, 9.8, 13.6], [1794787200000, 9.5, 13.5], [1794873600000, 8.3, 13.3], [1794960000000, 8.8, 11.5], [1795046400000, 9.3, 11.1], [1795132800000, 8.7, 11.3], [1795219200000, 7.6, 10.3], [1795305600000, 7, 10.2], [1795392000000, 5.9, 9.8], [1795478400000, 5.4, 10], [1795564800000, 5.4, 8.9], [1795651200000, 5, 8.2], [1795737600000, 5.1, 7.4], [1795824000000, 5, 7.1], [1795910400000, 4.8, 6.7], [1795996800000, 5, 6.6], [1796083200000, 4.9, 6.5], [1796169600000, 4.6, 6.8], [1796256000000, 4.6, 6], [1796342400000, 4.7, 6.1], [1796428800000, 3.9, 8], [1796515200000, 4, 7.6], [1796601600000, 2.9, 7.7], [1796688000000, 2, 7.7], [1796774400000, 1.9, 7], [1796860800000, 1.9, 7.5], [1796947200000, 2, 7.3], [1797033600000, 2.8, 7.1], [1797120000000, 2.9, 7.4], [1797206400000, 1.8, 7], [1797292800000, 1.2, 7.9], [1797379200000, 1.3, 9.4], [1797465600000, 0.8, 9], [1797552000000, 0.8, 6.7], [1797638400000, 2.2, 8.2], [1797724800000, 1.6, 7], [1797811200000, 0.7, 6.4], [1797897600000, 1.1, 6.3], [1797984000000, 0.6, 6.5], [1798070400000, 1.1, 7.3], [1798156800000, 1, 7], [1798243200000, 1.2, 6.8], [1798329600000, 1.1, 7], [1798416000000, 0.9, 6.9], [1798502400000, 0.9, 6], [1798588800000, 1.7, 7.2], [1798675200000, 1.8, 6.7]]};
 
   function statusOf(pct) {
     if (pct >= 100) return 'full';
@@ -484,52 +318,50 @@
     return status === 'full' ? 'var(--status-full)' : status === 'off' ? 'var(--status-off)' : 'var(--status-reduced)';
   }
 
-  var sortState = { key: 'pct', dir: 1 };
-  var currentPlants = [];
+  // ---------- Map ----------
+  var dotsGroup = document.getElementById('dots');
+  var tooltip = document.getElementById('tooltip');
 
-  function renderMapAndRoster(plants, period) {
-    currentPlants = plants;
-    document.getElementById('report-date-value') && (document.getElementById('report-date-value').textContent = period);
-    var dotsGroup = document.getElementById('dots');
-    var tooltip = document.getElementById('tooltip');
-    dotsGroup.innerHTML = '';
-    plants.forEach(function (p) {
-      var status = statusOf(p.pct);
-      var c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      c.setAttribute('cx', p.x);
-      c.setAttribute('cy', p.y);
-      c.setAttribute('r', 5.5);
-      c.setAttribute('fill', colorVar(status));
-      c.setAttribute('class', 'dot');
-      c.setAttribute('tabindex', '0');
-      c.setAttribute('role', 'img');
-      c.setAttribute('aria-label', p.name + ', ' + p.pct + ' percent of capacity');
-      function showTip(evt) {
-        tooltip.innerHTML = '<div style="font-weight:600;margin-bottom:2px">' + p.name + '</div>' +
-          '<span style="font-weight:600;color:' + colorVar(status) + '">' + p.pct + '% capacity</span>';
-        var pt = evt.touches ? evt.touches[0] : evt;
-        tooltip.style.left = pt.clientX + 'px';
-        tooltip.style.top = (pt.clientY - 12) + 'px';
-        tooltip.style.opacity = 1;
-      }
-      c.addEventListener('mousemove', showTip);
-      c.addEventListener('mouseenter', showTip);
-      c.addEventListener('mouseleave', function () { tooltip.style.opacity = 0; });
-      c.addEventListener('focus', function () {
-        var r = c.getBoundingClientRect();
-        showTip({ clientX: r.left + r.width / 2, clientY: r.top });
-      });
-      c.addEventListener('blur', function () { tooltip.style.opacity = 0; });
-      dotsGroup.appendChild(c);
+  PLANTS.forEach(function (p) {
+    var status = statusOf(p.pct);
+    var c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', p.x);
+    c.setAttribute('cy', p.y);
+    c.setAttribute('r', 5.5);
+    c.setAttribute('fill', colorVar(status));
+    c.setAttribute('class', 'dot');
+    c.setAttribute('tabindex', '0');
+    c.setAttribute('role', 'img');
+    c.setAttribute('aria-label', p.name + ', ' + p.pct + ' percent of capacity');
+
+    function showTip(evt) {
+      tooltip.innerHTML = '<div style="font-weight:600;margin-bottom:2px">' + p.name + '</div>' +
+        '<span style="font-weight:600;color:' + colorVar(status) + '">' + p.pct + '% capacity</span>';
+      var pt = evt.touches ? evt.touches[0] : evt;
+      tooltip.style.left = pt.clientX + 'px';
+      tooltip.style.top = (pt.clientY - 12) + 'px';
+      tooltip.classList.add('show');
+      tooltip.style.opacity = 1;
+    }
+    c.addEventListener('mousemove', showTip);
+    c.addEventListener('mouseenter', showTip);
+    c.addEventListener('mouseleave', function () { tooltip.style.opacity = 0; });
+    c.addEventListener('focus', function () {
+      var r = c.getBoundingClientRect();
+      showTip({ clientX: r.left + r.width / 2, clientY: r.top });
     });
+    c.addEventListener('blur', function () { tooltip.style.opacity = 0; });
 
-    document.getElementById('roster-count').textContent = plants.length + ' sites';
-    renderRoster();
-  }
+    dotsGroup.appendChild(c);
+  });
+
+  // ---------- Roster ----------
+  var rosterBody = document.getElementById('roster-body');
+  document.getElementById('roster-count').textContent = PLANTS.length + ' sites';
+  var sortState = { key: 'pct', dir: 1 };
 
   function renderRoster() {
-    var rosterBody = document.getElementById('roster-body');
-    var rows = currentPlants.slice().sort(function (a, b) {
+    var rows = PLANTS.slice().sort(function (a, b) {
       var av = a[sortState.key], bv = b[sortState.key];
       if (typeof av === 'string') return av.localeCompare(bv) * sortState.dir;
       return (av - bv) * sortState.dir;
@@ -548,72 +380,38 @@
     });
     document.querySelectorAll('table.roster thead th').forEach(function (th) {
       th.classList.toggle('sorted', th.dataset.key === sortState.key);
-      th.querySelector('.arrow').textContent = th.dataset.key === sortState.key ? (sortState.dir === 1 ? '↑' : '↓') : '';
+      th.querySelector('.arrow').textContent = th.dataset.key === sortState.key ? (sortState.dir === 1 ? '\u2191' : '\u2193') : '';
     });
   }
   document.querySelectorAll('table.roster thead th').forEach(function (th) {
     th.addEventListener('click', function () {
-      if (sortState.key === th.dataset.key) { sortState.dir *= -1; }
-      else { sortState.key = th.dataset.key; sortState.dir = th.dataset.type === 'str' ? 1 : -1; }
+      if (sortState.key === th.dataset.key) {
+        sortState.dir *= -1;
+      } else {
+        sortState.key = th.dataset.key;
+        sortState.dir = th.dataset.type === 'str' ? 1 : -1;
+      }
       renderRoster();
     });
   });
+  renderRoster();
 
-  // ---------- Trend chart: current range, same days one year earlier, and
-  // the 5-year min/max band for each calendar day in the range ----------
-  async function loadTrend() {
-    var loadingEl = document.getElementById('trend-loading');
-    var errEl = document.getElementById('trend-error');
-    loadingEl.hidden = false; errEl.hidden = true;
-    document.getElementById('trend-title').textContent = 'Nationwide capacity offline, ' + state.trendStart + ' to ' + state.trendEnd;
-    try {
-      var fetchStart = addYears(state.trendStart, -5);
-      var rows = await apiGet(buildUsUrl(fetchStart, state.trendEnd));
-      var valueByDate = {};
-      rows.forEach(function (r) { valueByDate[r.period] = parseFloat(r.percentOutage); });
-
-      var days = [];
-      var d = state.trendStart;
-      while (d <= state.trendEnd) { days.push(d); d = addDays(d, 1); }
-
-      var current = [], previous = [], range = [];
-      days.forEach(function (day) {
-        var t = toDate(day).getTime();
-        if (valueByDate[day] !== undefined) { current.push([t, valueByDate[day]]); }
-        var prevDay = addYears(day, -1);
-        if (valueByDate[prevDay] !== undefined) { previous.push([t, valueByDate[prevDay]]); }
-        var histVals = [];
-        for (var y = 1; y <= 5; y++) {
-          var hd = addYears(day, -y);
-          if (valueByDate[hd] !== undefined) { histVals.push(valueByDate[hd]); }
-        }
-        if (histVals.length) { range.push([t, Math.min.apply(null, histVals), Math.max.apply(null, histVals)]); }
-      });
-
-      if (!current.length) { throw new Error('No data returned for this range.'); }
-      renderTrend(current, previous, range);
-    } catch (e) {
-      errEl.textContent = "Couldn't load trend (" + e.message + ').';
-      errEl.hidden = false;
-    }
-    loadingEl.hidden = true;
-  }
-
-  function renderTrend(current, previous, range) {
+  // ---------- Trend chart ----------
+  (function () {
     var svg = document.getElementById('trend');
-    svg.innerHTML = '';
     var W = 900, H = 280, M = { top: 14, right: 14, bottom: 26, left: 34 };
     var plotW = W - M.left - M.right, plotH = H - M.top - M.bottom;
 
-    var t0 = current[0][0], t1 = current[current.length - 1][0];
+    var allT = TREND.range.map(function (d) { return d[0]; });
+    var t0 = Math.min.apply(null, allT), t1 = Math.max.apply(null, allT);
     var allVals = [].concat(
-      current.map(function (p) { return p[1]; }),
-      previous.map(function (p) { return p[1]; }),
-      range.map(function (p) { return p[2]; })
+      TREND.current.map(function (d) { return d[1]; }),
+      TREND.previous.map(function (d) { return d[1]; }),
+      TREND.range.map(function (d) { return d[2]; })
     );
-    var vMax = Math.max(5, Math.ceil(Math.max.apply(null, allVals.concat([0])) / 5) * 5);
+    var vMax = Math.ceil(Math.max.apply(null, allVals) / 5) * 5;
 
-    function x(t) { return t1 === t0 ? M.left : M.left + (t - t0) / (t1 - t0) * plotW; }
+    function x(t) { return M.left + (t - t0) / (t1 - t0) * plotW; }
     function y(v) { return M.top + plotH - (v / vMax) * plotH; }
 
     var svgns = 'http://www.w3.org/2000/svg';
@@ -623,104 +421,46 @@
       return e;
     }
 
+    // gridlines + y labels
     var steps = 5;
     for (var i = 0; i <= steps; i++) {
       var v = (vMax / steps) * i;
       var gy = y(v);
       svg.appendChild(el('line', { x1: M.left, x2: W - M.right, y1: gy, y2: gy, class: 'grid-line' }));
       var lbl = el('text', { x: M.left - 8, y: gy + 3, class: 'axis-label', 'text-anchor': 'end' });
-      lbl.textContent = Math.round(v) + '%';
+      lbl.textContent = v + '%';
       svg.appendChild(lbl);
     }
 
-    var totalDays = Math.max(1, Math.round((t1 - t0) / 86400000));
-    var labelEvery = totalDays > 400 ? 60 : totalDays > 120 ? 30 : totalDays > 40 ? 7 : 1;
-    var monthFmt = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    for (var di = 0; di < current.length; di += labelEvery) {
-      var dt = new Date(current[di][0]);
-      var tx = x(current[di][0]);
-      var tlbl = el('text', { x: tx, y: H - 6, class: 'axis-label', 'text-anchor': 'start' });
-      tlbl.textContent = monthFmt[dt.getUTCMonth()] + ' ' + dt.getUTCDate();
-      svg.appendChild(tlbl);
+    // month labels
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    for (var m = 0; m < 12; m++) {
+      var mt = t0 + (t1 - t0) * (m / 12);
+      var mx = x(mt);
+      var mlbl = el('text', { x: mx, y: H - 6, class: 'axis-label', 'text-anchor': 'start' });
+      mlbl.textContent = months[m];
+      svg.appendChild(mlbl);
     }
 
-    if (range.length > 1) {
-      var top = range.map(function (d) { return x(d[0]) + ',' + y(d[2]); });
-      var bot = range.slice().reverse().map(function (d) { return x(d[0]) + ',' + y(d[1]); });
-      svg.appendChild(el('path', { d: 'M' + top.join('L') + 'L' + bot.join('L') + 'Z', class: 'band-area' }));
-    }
-    if (previous.length > 1) {
-      var prevD = 'M' + previous.map(function (d) { return x(d[0]) + ',' + y(d[1]); }).join('L');
-      svg.appendChild(el('path', { d: prevD, class: 'prev-line' }));
-    }
-    var curD = 'M' + current.map(function (d) { return x(d[0]) + ',' + y(d[1]); }).join('L');
+    // 5-year band
+    var top = TREND.range.map(function (d) { return x(d[0]) + ',' + y(d[2]); });
+    var bot = TREND.range.slice().reverse().map(function (d) { return x(d[0]) + ',' + y(d[1]); });
+    svg.appendChild(el('path', { d: 'M' + top.join('L') + 'L' + bot.join('L') + 'Z', class: 'band-area' }));
+
+    // previous year line
+    var prevD = 'M' + TREND.previous.map(function (d) { return x(d[0]) + ',' + y(d[1]); }).join('L');
+    svg.appendChild(el('path', { d: prevD, class: 'prev-line' }));
+
+    // current year line
+    var curD = 'M' + TREND.current.map(function (d) { return x(d[0]) + ',' + y(d[1]); }).join('L');
     svg.appendChild(el('path', { d: curD, class: 'cur-line' }));
 
-    var last = current[current.length - 1];
+    // endpoint dot + label
+    var last = TREND.current[TREND.current.length - 1];
     var lx = x(last[0]), ly = y(last[1]);
     svg.appendChild(el('circle', { cx: lx, cy: ly, r: 3.5, class: 'cur-dot' }));
-    var endLbl = el('text', { x: Math.min(lx + 8, W - 60), y: ly - 8, class: 'cur-label' });
+    var endLbl = el('text', { x: lx + 8, y: ly - 8, class: 'cur-label' });
     endLbl.textContent = last[1] + '%';
     svg.appendChild(endLbl);
-  }
-
-  // ---------- Wiring ----------
-  function refreshKeyUi() {
-    document.getElementById('key-status').textContent = state.apiKey ? 'Saved in this browser' : 'Not set — register free at eia.gov/opendata/register.php';
-    document.getElementById('key-status').classList.toggle('ok', !!state.apiKey);
-    document.getElementById('key-clear').hidden = !state.apiKey;
-    document.getElementById('key-gate').hidden = !!state.apiKey;
-    document.getElementById('app').hidden = !state.apiKey;
-    var tag = document.getElementById('live-tag');
-    tag.textContent = state.apiKey ? 'Live EIA feed' : 'No key set';
-    tag.classList.toggle('off', !state.apiKey);
-  }
-
-  document.getElementById('key-input').value = state.keyInput;
-  document.getElementById('key-input').addEventListener('input', function (e) { state.keyInput = e.target.value; });
-  document.getElementById('key-input').addEventListener('keydown', function (e) { if (e.key === 'Enter') { saveKey(); } });
-  document.getElementById('key-save').addEventListener('click', saveKey);
-  document.getElementById('key-clear').addEventListener('click', function () {
-    state.apiKey = ''; state.keyInput = '';
-    try { window.localStorage.removeItem('nuclearApiKey'); } catch (e) { /* unavailable */ }
-    document.getElementById('key-input').value = '';
-    refreshKeyUi();
-  });
-  function saveKey() {
-    state.apiKey = (state.keyInput || '').trim();
-    try { window.localStorage.setItem('nuclearApiKey', state.apiKey); } catch (e) { /* unavailable */ }
-    refreshKeyUi();
-    if (state.apiKey) { loadAll(); }
-  }
-
-  document.getElementById('asof-date').value = state.asOf;
-  document.getElementById('asof-apply').addEventListener('click', function () {
-    var v = document.getElementById('asof-date').value;
-    if (v) { state.asOf = v; loadRoster(); }
-  });
-  document.getElementById('asof-latest').addEventListener('click', function () {
-    state.asOf = todayStr();
-    document.getElementById('asof-date').value = state.asOf;
-    loadRoster();
-  });
-
-  document.getElementById('trend-start').value = state.trendStart;
-  document.getElementById('trend-end').value = state.trendEnd;
-  document.getElementById('trend-apply').addEventListener('click', function () {
-    var s = document.getElementById('trend-start').value;
-    var e = document.getElementById('trend-end').value;
-    if (s && e && s <= e) { state.trendStart = s; state.trendEnd = e; loadTrend(); }
-  });
-  document.getElementById('trend-reset').addEventListener('click', function () {
-    state.trendEnd = todayStr();
-    state.trendStart = addYears(state.trendEnd, -1);
-    document.getElementById('trend-start').value = state.trendStart;
-    document.getElementById('trend-end').value = state.trendEnd;
-    loadTrend();
-  });
-
-  function loadAll() { loadRoster(); loadTrend(); }
-  refreshKeyUi();
-  if (state.apiKey) { loadAll(); }
-})();
+  })();
 </script>
