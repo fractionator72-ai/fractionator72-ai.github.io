@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Energy Conversion Table</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F6F2E9;
+    --surface: #FFFFFF;
+    --surface-alt: #EFE7D6;
+    --text: #211D17;
+    --text-muted: #6F6656;
+    --border: #E1D6BE;
+    --border-strong: #C9BB9C;
+    --accent: #1B6B79;
+    --accent-strong: #124D57;
+    --accent-tint: #E3EFEE;
+    --cat-petroleum: #A6531B;
+    --cat-coal: #4A4038;
+    --cat-gas: #1B6B79;
+    --cat-electricity: #9C7412;
+    --shadow: 0 1px 2px rgba(33, 29, 23, 0.06), 0 8px 24px rgba(33, 29, 23, 0.05);
+    --focus: #1B6B79;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #16130E;
+      --surface: #1E1A13;
+      --surface-alt: #262019;
+      --text: #EDE6D6;
+      --text-muted: #A99C82;
+      --border: #383026;
+      --border-strong: #4A4032;
+      --accent: #58B9C4;
+      --accent-strong: #86D2DA;
+      --accent-tint: #223034;
+      --cat-petroleum: #DE8A4E;
+      --cat-coal: #B9AC98;
+      --cat-gas: #58B9C4;
+      --cat-electricity: #D8AE4C;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+      --focus: #58B9C4;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #16130E;
+    --surface: #1E1A13;
+    --surface-alt: #262019;
+    --text: #EDE6D6;
+    --text-muted: #A99C82;
+    --border: #383026;
+    --border-strong: #4A4032;
+    --accent: #58B9C4;
+    --accent-strong: #86D2DA;
+    --accent-tint: #223034;
+    --cat-petroleum: #DE8A4E;
+    --cat-coal: #B9AC98;
+    --cat-gas: #58B9C4;
+    --cat-electricity: #D8AE4C;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+    --focus: #58B9C4;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  ::selection { background: var(--accent-tint); color: var(--accent-strong); }
+
+  a { color: var(--accent-strong); }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 40px 28px 72px;
+  }
+
+  header.page {
+    padding-bottom: 28px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    padding: 5px 10px 5px 8px;
+    border-radius: 100px;
+    margin-bottom: 16px;
+  }
+  .eyebrow svg { width: 13px; height: 13px; flex: none; }
+  h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-size: clamp(30px, 4vw, 42px);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    margin: 0 0 12px;
+    text-wrap: balance;
+    color: var(--text);
+  }
+  .dek {
+    max-width: 62ch;
+    color: var(--text-muted);
+    font-size: 15.5px;
+    margin: 0 0 4px;
+  }
+  .dek strong { color: var(--text); font-weight: 600; }
+  .source-line {
+    margin-top: 14px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* toolbar */
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: var(--bg);
+    padding: 14px 0 14px;
+    margin-bottom: 4px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .search-box {
+    position: relative;
+    flex: 1 1 240px;
+    max-width: 340px;
+  }
+  .search-box svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 15px;
+    height: 15px;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+  .search-box input {
+    width: 100%;
+    font: inherit;
+    font-size: 14px;
+    padding: 9px 12px 9px 34px;
+    border-radius: 8px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text);
+  }
+  .search-box input:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .chip {
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: 100px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .chip:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+  .chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dot, var(--text-muted)); flex: none; }
+  .chip[aria-pressed="true"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .chip[aria-pressed="true"] .dot { background: #fff; }
+
+  .count {
+    margin-left: auto;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* table */
+  .table-shell {
+    margin-top: 18px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+  .table-scroll {
+    overflow: auto;
+    max-height: 68vh;
+  }
+  table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    min-width: 1400px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--surface-alt);
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 11.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    text-align: right;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border-strong);
+    white-space: nowrap;
+  }
+  thead th span.unit-hint {
+    display: block;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text-muted);
+    opacity: 0.75;
+    margin-top: 2px;
+  }
+  thead th.col-name, thead th.col-unit { text-align: left; }
+
+  th.col-name, td.col-name {
+    position: sticky;
+    left: 0;
+    z-index: 4;
+    background: var(--surface);
+    text-align: left;
+    font-family: "IBM Plex Sans", sans-serif;
+    width: 300px;
+    min-width: 300px;
+    max-width: 300px;
+    white-space: normal;
+  }
+  th.col-unit, td.col-unit {
+    position: sticky;
+    left: 300px;
+    z-index: 4;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    width: 108px;
+    min-width: 108px;
+    max-width: 108px;
+    white-space: nowrap;
+  }
+  thead th.col-name, thead th.col-unit { z-index: 6; background: var(--surface-alt); }
+
+  tbody tr td { border-bottom: 1px solid var(--border); }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--accent-tint); }
+  tbody tr:hover td.col-name, tbody tr:hover td.col-unit { background: var(--accent-tint); }
+
+  td { padding: 10px 14px; text-align: right; font-size: 13px; white-space: nowrap; }
+  td.col-name {
+    font-size: 13.5px;
+    padding-left: 16px;
+    border-left: 3px solid var(--row-accent, transparent);
+  }
+  td.col-unit { color: var(--text-muted); font-size: 12.5px; }
+  td.num-na { color: var(--text-muted); opacity: 0.55; }
+  .fuel-name { color: var(--text); }
+  .fuel-note {
+    display: block;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+
+  .group-row td {
+    background: var(--surface-alt);
+    font-family: "IBM Plex Sans", sans-serif;
+    font-weight: 600;
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    text-align: left;
+    padding: 8px 14px 8px 16px;
+    position: sticky;
+    left: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .group-row .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 8px; background: var(--row-accent); vertical-align: middle; }
+
+  .no-results { padding: 40px 16px; text-align: center; color: var(--text-muted); font-size: 14px; }
+  .no-results[hidden] { display: none; }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 28px 16px 56px; }
+    .toolbar { top: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="page">
+    <span class="eyebrow">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="7.2"/><path d="M10 6v4l2.6 2.2"/></svg>
+      Thermal Conversion Reference
+    </span>
+    <h1>Energy Conversion Table</h1>
+  </header>
+
+  <div class="toolbar">
+    <label class="search-box">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="9" r="6"/><path d="M17 17l-4-4"/></svg>
+      <input id="search" type="text" placeholder="Find a fuel or product…" autocomplete="off">
+    </label>
+    <div class="chips" id="chips" role="group" aria-label="Filter by category">
+      <button class="chip" data-cat="all" aria-pressed="true"><span class="dot"></span>All</button>
+      <button class="chip" data-cat="petroleum" aria-pressed="false" style="--dot: var(--cat-petroleum)"><span class="dot"></span>Petroleum &amp; biofuels</button>
+      <button class="chip" data-cat="coal" aria-pressed="false" style="--dot: var(--cat-coal)"><span class="dot"></span>Coal</button>
+      <button class="chip" data-cat="gas" aria-pressed="false" style="--dot: var(--cat-gas)"><span class="dot"></span>Natural gas</button>
+      <button class="chip" data-cat="electricity" aria-pressed="false" style="--dot: var(--cat-electricity)"><span class="dot"></span>Electricity</button>
+    </div>
+    <span class="count" id="rowCount"></span>
+  </div>
+
+  <div class="table-shell">
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-name">Commodity</th>
+            <th class="col-unit">Native unit</th>
+            <th>Million Btu<span class="unit-hint">per unit</span></th>
+            <th>Megajoules<span class="unit-hint">MJ</span></th>
+            <th>Kilowatthours<span class="unit-hint">kWh</span></th>
+            <th>Therms<span class="unit-hint">100k Btu</span></th>
+            <th>U.S. Gallons<span class="unit-hint">gal</span></th>
+            <th>Liters<span class="unit-hint">L</span></th>
+            <th>Cubic Feet<span class="unit-hint">ft³</span></th>
+            <th>Cubic Meters<span class="unit-hint">m³</span></th>
+            <th>Short Tons<span class="unit-hint">2,000 lb</span></th>
+            <th>Metric Tons<span class="unit-hint">1,000 kg</span></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <p class="no-results" id="noResults" hidden>No commodities match your search.</p>
+  </div>
+</div>
+
+<script>
+  const ROWS = [{"category":"petroleum","name":"Asphalt and Road Oil","unit":"barrel","mbtu":"6.636","mj":"7001.4","kwh":"1944.900","therms":"66.36","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Aviation Gasoline (Finished)","unit":"barrel","mbtu":"5.048","mj":"5325.9","kwh":"1479.484","therms":"50.48","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Aviation Gasoline Blending Components","unit":"barrel","mbtu":"5.048","mj":"5325.9","kwh":"1479.484","therms":"50.48","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Crude Oil (domestic production, 2026 est.)","unit":"barrel","mbtu":"5.689","mj":"6002.2","kwh":"1667.351","therms":"56.89","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":"Table A2"},{"category":"petroleum","name":"Distillate Fuel Oil, 15 ppm Sulfur and Under","unit":"barrel","mbtu":"5.770","mj":"6087.7","kwh":"1691.090","therms":"57.70","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Distillate Fuel Oil, Greater Than 15 to 500 ppm Sulfur","unit":"barrel","mbtu":"5.817","mj":"6137.3","kwh":"1704.865","therms":"58.17","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Distillate Fuel Oil, Greater Than 500 ppm Sulfur","unit":"barrel","mbtu":"5.825","mj":"6145.7","kwh":"1707.210","therms":"58.25","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Ethane (Natural Gas Liquid)","unit":"barrel","mbtu":"2.783","mj":"2936.2","kwh":"815.651","therms":"27.83","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Propane (Natural Gas Liquid)","unit":"barrel","mbtu":"3.841","mj":"4052.5","kwh":"1125.733","therms":"38.41","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Normal Butane (Natural Gas Liquid)","unit":"barrel","mbtu":"4.353","mj":"4592.7","kwh":"1275.791","therms":"43.53","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Isobutane (Natural Gas Liquid)","unit":"barrel","mbtu":"4.183","mj":"4413.3","kwh":"1225.967","therms":"41.83","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Natural Gasoline / Pentanes Plus (NGL)","unit":"barrel","mbtu":"4.638","mj":"4893.3","kwh":"1359.320","therms":"46.38","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Ethylene (Refinery Olefin)","unit":"barrel","mbtu":"2.436","mj":"2570.1","kwh":"713.951","therms":"24.36","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Propylene (Refinery Olefin)","unit":"barrel","mbtu":"3.835","mj":"4046.1","kwh":"1123.974","therms":"38.35","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Butylene (Refinery Olefin)","unit":"barrel","mbtu":"4.377","mj":"4618.0","kwh":"1282.825","therms":"43.77","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Isobutylene (Refinery Olefin)","unit":"barrel","mbtu":"4.355","mj":"4594.8","kwh":"1276.377","therms":"43.55","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Hydrogen","unit":"barrel","mbtu":"6.287","mj":"6633.1","kwh":"1842.614","therms":"62.87","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":"res. fuel oil equiv. bbl"},{"category":"petroleum","name":"Jet Fuel, Kerosene Type","unit":"barrel","mbtu":"5.670","mj":"5982.2","kwh":"1661.782","therms":"56.70","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Jet Fuel, Naphtha Type","unit":"barrel","mbtu":"5.355","mj":"5649.8","kwh":"1569.461","therms":"53.55","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Kerosene","unit":"barrel","mbtu":"5.670","mj":"5982.2","kwh":"1661.782","therms":"56.70","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Lubricants","unit":"barrel","mbtu":"6.065","mj":"6398.9","kwh":"1777.550","therms":"60.65","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Motor Gasoline (Finished) (2026 est. avg.)","unit":"barrel","mbtu":"5.001","mj":"5276.3","kwh":"1465.709","therms":"50.01","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":"Table A3"},{"category":"petroleum","name":"Motor Gasoline Blending Components, Through 2006","unit":"barrel","mbtu":"5.253","mj":"5542.2","kwh":"1539.566","therms":"52.53","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Motor Gasoline Blending Components, Beginning 2007","unit":"barrel","mbtu":"5.222","mj":"5509.5","kwh":"1530.481","therms":"52.22","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Oxygenates, Excluding Fuel Ethanol (e.g., MTBE)","unit":"barrel","mbtu":"4.247","mj":"4480.8","kwh":"1244.725","therms":"42.47","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Petrochemical Feedstocks, Naphtha Less Than 401\u00b0F","unit":"barrel","mbtu":"5.248","mj":"5536.9","kwh":"1538.101","therms":"52.48","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Petrochemical Feedstocks, Other Oils \u2265401\u00b0F","unit":"barrel","mbtu":"5.825","mj":"6145.7","kwh":"1707.210","therms":"58.25","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Petroleum Coke, Total Through 2003","unit":"barrel","mbtu":"6.024","mj":"6355.7","kwh":"1765.533","therms":"60.24","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Petroleum Coke, Catalyst, Beginning 2004","unit":"barrel","mbtu":"6.287","mj":"6633.1","kwh":"1842.614","therms":"62.87","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":"res. fuel oil equiv. bbl"},{"category":"petroleum","name":"Petroleum Coke, Marketable, Beginning 2004","unit":"barrel","mbtu":"5.719","mj":"6033.9","kwh":"1676.143","therms":"57.19","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Residual Fuel Oil","unit":"barrel","mbtu":"6.287","mj":"6633.1","kwh":"1842.614","therms":"62.87","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Special Naphthas","unit":"barrel","mbtu":"5.248","mj":"5536.9","kwh":"1538.101","therms":"52.48","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Still Gas, Through 2015","unit":"barrel","mbtu":"6.000","mj":"6330.3","kwh":"1758.499","therms":"60.00","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":"fuel oil equiv. bbl"},{"category":"petroleum","name":"Still Gas, Beginning 2016","unit":"barrel","mbtu":"6.287","mj":"6633.1","kwh":"1842.614","therms":"62.87","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":"res. fuel oil equiv. bbl"},{"category":"petroleum","name":"Unfinished Oils","unit":"barrel","mbtu":"5.825","mj":"6145.7","kwh":"1707.210","therms":"58.25","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Waxes","unit":"barrel","mbtu":"5.537","mj":"5841.8","kwh":"1622.802","therms":"55.37","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Miscellaneous Products","unit":"barrel","mbtu":"5.796","mj":"6115.1","kwh":"1698.710","therms":"57.96","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Other Hydrocarbons","unit":"barrel","mbtu":"5.825","mj":"6145.7","kwh":"1707.210","therms":"58.25","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Fuel Ethanol (Biofuel, 2026 est. avg.)","unit":"barrel","mbtu":"3.554","mj":"3749.7","kwh":"1041.618","therms":"35.54","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":"Table A3"},{"category":"petroleum","name":"Biodiesel","unit":"barrel","mbtu":"5.359","mj":"5654.0","kwh":"1570.633","therms":"53.59","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Renewable Diesel Fuel","unit":"barrel","mbtu":"5.494","mj":"5796.5","kwh":"1610.199","therms":"54.94","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"petroleum","name":"Biofuels, Other","unit":"barrel","mbtu":"5.359","mj":"5654.0","kwh":"1570.633","therms":"53.59","gal":"42.00","liters":"158.99","cf":"5.615","m3":"0.1590","st":null,"mt":null,"note":null},{"category":"coal","name":"Coal (total consumption, 2026 est.)","unit":"short ton","mbtu":"19.167","mj":"20222.3","kwh":"5617.526","therms":"191.67","gal":null,"liters":null,"cf":null,"m3":null,"st":"1.000","mt":"0.907","note":"Table A5"},{"category":"coal","name":"Coal Coke (imports/exports, 2026 est.)","unit":"short ton","mbtu":"24.800","mj":"26165.4","kwh":"7268.464","therms":"248.00","gal":null,"liters":null,"cf":null,"m3":null,"st":"1.000","mt":"0.907","note":"Table A5"},{"category":"gas","name":"Natural Gas (total consumption, 2026 est.)","unit":"cubic foot","mbtu":"0.001036","mj":"1.1","kwh":"0.30363","therms":"0.01036","gal":null,"liters":null,"cf":"1.000","m3":"0.0283","st":null,"mt":null,"note":"Table A4"},{"category":"electricity","name":"Electricity (heat content, constant)","unit":"kilowatthour","mbtu":"0.003412","mj":"3.6","kwh":"1.000","therms":"0.03412","gal":null,"liters":null,"cf":null,"m3":null,"st":null,"mt":null,"note":"Table A6"}];
+
+  const CAT_LABEL = {
+    petroleum: "Petroleum & Biofuels",
+    coal: "Coal",
+    gas: "Natural Gas",
+    electricity: "Electricity"
+  };
+  const CAT_VAR = {
+    petroleum: "--cat-petroleum",
+    coal: "--cat-coal",
+    gas: "--cat-gas",
+    electricity: "--cat-electricity"
+  };
+
+  const tbody = document.getElementById("tbody");
+  const searchInput = document.getElementById("search");
+  const chips = Array.from(document.querySelectorAll(".chip"));
+  const rowCountEl = document.getElementById("rowCount");
+  const noResultsEl = document.getElementById("noResults");
+
+  let activeCat = "all";
+
+  function cell(value, extraClass) {
+    if (value === null || value === undefined) {
+      return `<td class="num-na${extraClass ? " " + extraClass : ""}">—</td>`;
+    }
+    return `<td${extraClass ? ` class="${extraClass}"` : ""}>${value}</td>`;
+  }
+
+  function render() {
+    const q = searchInput.value.trim().toLowerCase();
+    const filtered = ROWS.filter(r => {
+      const matchesCat = activeCat === "all" || r.category === activeCat;
+      const matchesQ = !q || r.name.toLowerCase().includes(q) || r.unit.toLowerCase().includes(q);
+      return matchesCat && matchesQ;
+    });
+
+    tbody.innerHTML = "";
+    let lastCat = null;
+
+    if (filtered.length === 0) {
+      noResultsEl.hidden = false;
+    } else {
+      noResultsEl.hidden = true;
+      for (const r of filtered) {
+        if (r.category !== lastCat) {
+          const groupTr = document.createElement("tr");
+          groupTr.className = "group-row";
+          groupTr.style.setProperty("--row-accent", `var(${CAT_VAR[r.category]})`);
+          groupTr.innerHTML = `<td colspan="12"><span class="dot"></span>${CAT_LABEL[r.category]}</td>`;
+          tbody.appendChild(groupTr);
+          lastCat = r.category;
+        }
+        const tr = document.createElement("tr");
+        tr.style.setProperty("--row-accent", `var(${CAT_VAR[r.category]})`);
+        tr.innerHTML = [
+          `<td class="col-name"><span class="fuel-name">${r.name}</span>${r.note ? `<span class="fuel-note">${r.note}</span>` : ""}</td>`,
+          `<td class="col-unit">${r.unit}</td>`,
+          cell(r.mbtu),
+          cell(r.mj),
+          cell(r.kwh),
+          cell(r.therms),
+          cell(r.gal),
+          cell(r.liters),
+          cell(r.cf),
+          cell(r.m3),
+          cell(r.st),
+          cell(r.mt)
+        ].join("");
+        tbody.appendChild(tr);
+      }
+    }
+
+    rowCountEl.textContent = `${filtered.length} of ${ROWS.length} commodities`;
+  }
+
+  searchInput.addEventListener("input", render);
+  chips.forEach(chip => {
+    chip.addEventListener("click", () => {
+      activeCat = chip.dataset.cat;
+      chips.forEach(c => c.setAttribute("aria-pressed", String(c === chip)));
+      render();
+    });
+  });
+
+  render();
+</script>
+</body>
+</html>
