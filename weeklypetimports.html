@@ -1,0 +1,828 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weekly Petroleum Imports Browser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap">
+<style>
+  #eb-root, #eb-root * { box-sizing: border-box; }
+  #eb-root {
+    background: #fafaf9;
+    color: #242430;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    max-width: 1160px;
+    margin: 0 auto;
+    border: 1px solid #e2e2e6;
+    border-radius: 10px;
+  }
+  #eb-root h1, #eb-root h2, #eb-root h3 { font-family: "Jost", system-ui, sans-serif; margin: 0; }
+  #eb-root button { font-family: inherit; cursor: pointer; }
+  #eb-root input { font-family: inherit; }
+  #eb-root .num { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+
+  #eb-root .eb-header { background: #26445a; padding: 22px 32px; display: flex; flex-direction: column; gap: 4px; border-radius: 9px 9px 0 0; }
+  #eb-root .eb-header-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  #eb-root .eb-eyebrow { font-family: "Jost", sans-serif; font-size: 13px; font-weight: 600; letter-spacing: .12em; color: #a8c5da; text-transform: uppercase; }
+  #eb-root .eb-badge { font-size: 11px; font-weight: 700; letter-spacing: .06em; padding: 2px 8px; border-radius: 3px; text-transform: uppercase; }
+  #eb-root .eb-badge-live { color: #16311f; background: #8fe0a8; }
+  #eb-root .eb-badge-off { color: #26445a; background: #e8c25c; }
+  #eb-root .eb-title { font-size: 26px; font-weight: 600; color: #fff; }
+  #eb-root .eb-sub { margin: 0; font-size: 14px; color: #d5e3ec; max-width: 720px; }
+
+  #eb-root .eb-content { padding: 26px 32px 56px; display: flex; flex-direction: column; gap: 22px; }
+  #eb-root .eb-section-label { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #6f6f79; }
+  #eb-root .eb-sub-label { font-size: 10.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #8f8f97; margin-bottom: 4px; }
+
+  #eb-root .eb-key-bar { background: #fff; border: 1.5px solid #d4d4d9; border-radius: 8px; padding: 14px 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  #eb-root .eb-key-bar input[type="password"], #eb-root .eb-key-bar input[type="text"] {
+    flex: 1 1 260px; min-width: 200px; border: 1.5px solid #d4d4d9; border-radius: 6px; padding: 8px 10px; font-size: 13px;
+  }
+  #eb-root .eb-key-status { font-size: 12.5px; color: #6f6f79; }
+  #eb-root .eb-key-status.eb-key-ok { color: #1f7a3f; font-weight: 600; }
+
+  #eb-root .eb-tabs { display: flex; border: 1.5px solid #d4d4d9; border-radius: 6px; overflow: hidden; flex-wrap: wrap; }
+  #eb-root .eb-tabs button { border: none; padding: 9px 16px; font-size: 13px; font-weight: 600; background: #fff; color: #33333c; border-right: 1px solid #e2e2e6; }
+  #eb-root .eb-tabs button:last-child { border-right: none; }
+  #eb-root .eb-tabs button[aria-pressed="true"] { background: #26445a; color: #fff; }
+
+  #eb-root .eb-dd-trigger {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    background: #fff; border: 1.5px solid #d4d4d9; border-radius: 6px;
+    padding: 9px 11px 9px 13px; font-size: 13.5px; font-weight: 600; color: #33333c;
+  }
+  #eb-root .eb-dd-trigger:focus-visible, #eb-root button:focus-visible { outline: 2px solid #26445a; outline-offset: 1px; }
+  #eb-root .eb-dd-panel {
+    position: absolute; top: calc(100% + 4px); left: 0; background: #fff;
+    border: 1px solid #d4d4d9; border-radius: 6px; box-shadow: 0 8px 20px rgba(20,20,30,.14);
+    padding: 5px; z-index: 40; display: flex; flex-direction: column; gap: 1px;
+  }
+  #eb-root .eb-dd-row {
+    display: flex; align-items: center; gap: 9px; text-align: left; background: #fff;
+    border: none; border-radius: 4px; padding: 7px 8px; font-size: 13px; width: 100%; color: #2c2c34;
+  }
+  #eb-root .eb-dd-row:hover, #eb-root .eb-dd-row:focus-visible { background: #f1f1f4; }
+  #eb-root .eb-dd-row[aria-selected="true"] { background: #dbe7ee; font-weight: 600; }
+  #eb-root .eb-swatch-box { width: 14px; height: 14px; border-radius: 3px; flex: none; display: inline-block; border: 1.5px solid; }
+  #eb-root .eb-swatch-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; display: inline-block; background: #26445a; }
+
+  #eb-root .eb-nodata, #eb-root .eb-keyprompt {
+    background: #fff; border: 1.5px dashed #cfcfd4; border-radius: 8px; padding: 44px 24px;
+    text-align: center; color: #6f6f79; font-size: 14px; line-height: 1.6;
+  }
+
+  #eb-root .eb-toolbar {
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap;
+    border-top: 1px solid #e2e2e6; border-bottom: 1px solid #e2e2e6; padding: 16px 0;
+  }
+  #eb-root .eb-filters { display: flex; gap: 14px; flex-wrap: wrap; }
+  #eb-root .eb-dd-wrap { position: relative; }
+  #eb-root .eb-freq { display: flex; border: 1.5px solid #d4d4d9; border-radius: 6px; overflow: hidden; }
+  #eb-root .eb-freq button { border: none; padding: 8px 14px; font-size: 13px; font-weight: 600; background: #fff; color: #33333c; }
+  #eb-root .eb-freq button[aria-pressed="true"] { background: #26445a; color: #fff; }
+  #eb-root .eb-btn {
+    display: flex; align-items: center; gap: 7px; background: #fff; border: 1.5px solid #d4d4d9;
+    border-radius: 6px; padding: 8px 14px; font-size: 13px; font-weight: 600; color: #33333c;
+  }
+  #eb-root .eb-btn-sm { padding: 6px 11px; font-size: 12.5px; }
+  #eb-root .eb-btn:hover { background: #f5f5f7; }
+  #eb-root .eb-btn:disabled { opacity: .5; cursor: default; }
+  #eb-root .eb-link-btn { background: none; border: none; padding: 0; font-size: 12.5px; font-weight: 600; color: #26445a; }
+  #eb-root .eb-link-btn:hover { text-decoration: underline; }
+  #eb-root .eb-note { font-size: 10.5px; color: #8a8a92; font-style: italic; }
+
+  #eb-root .eb-api-panel { background: #28282f; border-radius: 8px; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; }
+  #eb-root .eb-api-title { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #a3a3ab; }
+  #eb-root .eb-api-url { color: #9dc3d8; font-size: 12.5px; line-height: 1.6; word-break: break-all; }
+  #eb-root .eb-api-body { color: #a8a8b0; font-size: 12.5px; line-height: 1.6; }
+
+  #eb-root .eb-card { background: #fff; border: 1px solid #e2e2e6; border-radius: 8px; padding: 20px 22px; position: relative; min-height: 120px; }
+  #eb-root .eb-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 10px; }
+  #eb-root .eb-card-head h2 { font-size: 17px; font-weight: 600; }
+  #eb-root .eb-card-meta { font-size: 12.5px; color: #6f6f79; }
+  #eb-root .eb-notice { font-size: 11.5px; color: #a4431f; margin-top: 8px; }
+  #eb-root .eb-loading, #eb-root .eb-error { padding: 30px 10px; text-align: center; color: #6f6f79; font-size: 13.5px; }
+  #eb-root .eb-error { color: #a4431f; }
+
+  #eb-root .eb-grid-card { padding: 4px 22px 18px; overflow-x: auto; }
+  #eb-root .eb-grid-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 0 2px; flex-wrap: wrap; gap: 10px; }
+  #eb-root .eb-grid-head h2 { font-size: 14px; font-weight: 600; color: #3d3d45; }
+  #eb-root table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  #eb-root th, #eb-root td { padding: 8px 10px; border-bottom: 1.5px solid #dcdce0; }
+  #eb-root thead th { text-align: right; color: #6f6f79; font-weight: 600; }
+  #eb-root thead th:first-child { text-align: left; padding-left: 0; }
+  #eb-root tbody th { text-align: left; font-weight: 400; padding-left: 0; border-bottom: 1px solid #e9e9ea; display: flex; align-items: center; gap: 8px; }
+  #eb-root tbody td { text-align: right; border-bottom: 1px solid #e9e9ea; }
+
+  #eb-root .eb-limits { background: #fbf3e6; border: 1px solid #e8c896; border-radius: 8px; padding: 12px 16px; font-size: 12.5px; color: #6b4e1e; line-height: 1.6; }
+
+  #eb-root .eb-footer { font-size: 12px; color: #8a8a92; padding: 16px 32px 22px; }
+</style>
+</head>
+<body>
+
+<div id="eb-root">
+  <div class="eb-header">
+    <div class="eb-header-top">
+      <span class="eb-eyebrow">EIA public data &middot; personal build</span>
+      <span class="eb-badge" id="eb-live-badge">Sample data</span>
+    </div>
+    <h1 class="eb-title">Weekly Petroleum Imports Browser</h1>
+    <p class="eb-sub">A live view of EIA&rsquo;s Weekly Petroleum Status Report &ldquo;Imports&rdquo; table (psw09-2.xls) &mdash; crude oil and refined product imports by grade and PADD, weekly and 4-week average, pulled from the public Open Data API using your own free key.</p>
+  </div>
+  <div class="eb-content" id="eb-app"></div>
+  <div class="eb-footer">Personal tool &middot; not an official EIA product &middot; built on EIA&rsquo;s public Open Data API &middot; fourth slice of the larger psw09-2 dataset (see project notes for the full 548-series assessment)</div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---- Route + facet ground truth, verified live against api.eia.gov -------
+  // Same route as the other psw09-2 browsers: petroleum/sum/sndw, one series
+  // per request via facets[series][]=<legacy sourcekey>. See those pages'
+  // comments for the fuller writeup and the known combined-facet bug (same
+  // workaround here: one series per request).
+  //
+  // Scope note: this covers the full "Imports" table (psw09-2.xls "Data 7",
+  // 172 series) -- a single clean worksheet, no sheet-split artifact like
+  // the Data 3/Data 4 quirk found in Refiner and Blender Net Production.
+  // Every series here is a genuinely different measure from anything else
+  // built so far: it's crude oil and refined-product imports (goods crossing
+  // the border), not production, refinery input, or the country-level crude
+  // import detail already covered by weekly-crude-imports-browser.html
+  // (psw08 -- a different table, PADD-level here vs. country-level there,
+  // confirmed no sourcekey overlap). It also does not overlap the smaller
+  // "Net Imports (incl. SPR)" category (3 series, already in the demand &
+  // trade browser) -- that's a distinct derived net-of-exports measure.
+  //
+  // Geography is not uniform across grades here, more so than any other
+  // psw09-2 category built so far -- most grades are the usual U.S.+5-PADD
+  // (6 series), but several Crude Oil grades (the top-line "Crude Oil"
+  // total, "SPR", and "SPR by Others" rows) are U.S.-only per EIA's own
+  // reporting, "Kerosene" (plain, distinct from Kerosene-Type Jet Fuel) and
+  // "LPG Less Propane/Propylene" are also U.S.-only, and Propane & Propylene
+  // again combines PADD 4+5 into one series (W_EPLLPZ_IM0_R45-Z00_MBBLD),
+  // same pattern already handled in the production browser's Propane tab.
+  // All of this was confirmed live against api.eia.gov before building
+  // rather than assumed from the sourcekey naming alone.
+  //
+  // UI shape note: 172 series needed the same two-level product-family ->
+  // grade -> PADD-series picker introduced for Refiner and Blender Net
+  // Production, just with more top-level families (9, vs. 3 there) to match
+  // how EIA's own Imports table is actually laid out: Crude Oil, Gasoline
+  // (which folds in its 5 blending-component grades alongside the 10
+  // finished-product grades -- both are "gasoline" from an imports
+  // standpoint), Fuel Ethanol, Jet Fuel, Distillate Fuel Oil, Residual Fuel
+  // Oil, Propane & Propylene, Other Products (a grab-bag: Other Oils,
+  // Kerosene, LPG less propane/propylene), and Totals & Aggregates (Total
+  // Petroleum Products; Crude Oil and Petroleum Products, the grand total).
+  var ROUTE_PATH = 'petroleum/sum/sndw';
+  var FREQS = [
+    { id: 'weekly', label: 'Weekly' },
+    { id: 'four-week-average', label: '4-Week Avg' },
+  ];
+
+  var PERIODS_WANTED = 13;
+  var PERIODS_BUFFER = 4;
+
+  var REGION_COLORS = ['#26445a', '#b5651d', '#7a8471', '#1f7a3f', '#6b6b76', '#5980a6'];
+  function padSeries(prefixLabel, ids) {
+    // ids: [usId, p1Id, p2Id, p3Id, p4Id, p5Id] -- p1..p5 may be omitted (undefined) for a national-only grade.
+    var labels = ['U.S. total', 'PADD 1 (East Coast)', 'PADD 2 (Midwest)', 'PADD 3 (Gulf Coast)', 'PADD 4 (Rocky Mountain)', 'PADD 5 (West Coast)'];
+    var out = [];
+    for (var i = 0; i < ids.length; i++) {
+      if (!ids[i]) { continue; }
+      out.push({ id: ids[i], label: labels[i], color: REGION_COLORS[i] });
+    }
+    return out;
+  }
+
+  var FAMILIES = [
+    {
+      id: 'crude',
+      label: 'Crude Oil',
+      grades: [
+        { id: 'total', label: 'Total crude oil imports', series: padSeries('', ['WCRIMUS2', undefined, undefined, undefined, undefined, undefined]) },
+        { id: 'commercial-ex-spr', label: 'Commercial, excluding SPR', series: padSeries('', ['WCEIMUS2', 'WCEIMP12', 'WCEIMP22', 'WCEIMP32', 'WCEIMP42', 'WCEIMP52']) },
+        { id: 'spr', label: 'Imports by SPR', series: padSeries('', ['WCSIMUS2', undefined, undefined, undefined, undefined, undefined]) },
+        { id: 'spr-by-others', label: 'Imports for SPR by others', series: padSeries('', ['W_EPC0_IMU_NUS-Z00_MBBLD', undefined, undefined, undefined, undefined, undefined]) },
+      ],
+    },
+    {
+      id: 'gasoline',
+      label: 'Gasoline',
+      grades: [
+        { id: 'total', label: 'Total Gasoline', series: padSeries('', ['WGTIMUS2', 'WGTIM_R10-Z00_2', 'WGTIM_R20-Z00_2', 'WGTIM_R30-Z00_2', 'WGTIM_R40-Z00_2', 'WGTIM_R50-Z00_2']) },
+        { id: 'finished', label: 'Finished Motor Gasoline', series: padSeries('', ['W_EPM0F_IM0_NUS-Z00_MBBLD', 'W_EPM0F_IM0_R10-Z00_MBBLD', 'W_EPM0F_IM0_R20-Z00_MBBLD', 'W_EPM0F_IM0_R30-Z00_MBBLD', 'W_EPM0F_IM0_R40-Z00_MBBLD', 'W_EPM0F_IM0_R50-Z00_MBBLD']) },
+        { id: 'reformulated', label: 'Reformulated', series: padSeries('', ['WGRIMUS2', 'WGRIM_R10-Z00_2', 'WGRIM_R20-Z00_2', 'WGRIM_R30-Z00_2', 'WGRIM_R40-Z00_2', 'WGRIM_R50-Z00_2']) },
+        { id: 'reformulated-ethanol', label: 'Reformulated with fuel alcohol', series: padSeries('', ['WG1IM_NUS-Z00_2', 'WG1IM_R10-Z00_2', 'WG1IM_R20-Z00_2', 'WG1IM_R30-Z00_2', 'WG1IM_R40-Z00_2', 'WG1IM_R50-Z00_2']) },
+        { id: 'reformulated-other', label: 'Other reformulated', series: padSeries('', ['W_EPM0RO_IM0_NUS-Z00_MBBLD', 'W_EPM0RO_IM0_R10-Z00_MBBLD', 'W_EPM0RO_IM0_R20-Z00_MBBLD', 'W_EPM0RO_IM0_R30-Z00_MBBLD', 'W_EPM0RO_IM0_R40-Z00_MBBLD', 'W_EPM0RO_IM0_R50-Z00_MBBLD']) },
+        { id: 'conventional', label: 'Conventional', series: padSeries('', ['WG4IM_NUS-Z00_2', 'WG4IM_R10-Z00_2', 'WG4IM_R20-Z00_2', 'WG4IM_R30-Z00_2', 'WG4IM_R40-Z00_2', 'WG4IM_R50-Z00_2']) },
+        { id: 'conventional-ethanol', label: 'Conventional with fuel ethanol', series: padSeries('', ['WG5IM_NUS-Z00_2', 'WG5IM_R10-Z00_2', 'WG5IM_R20-Z00_2', 'WG5IM_R30-Z00_2', 'WG5IM_R40-Z00_2', 'WG5IM_R50-Z00_2']) },
+        { id: 'conventional-ed55-lower', label: 'Conventional, Ed55 & lower', series: padSeries('', ['W_EPM0CAL55_IM0_NUS-Z00_MBBLD', 'W_EPM0CAL55_IM0_R10-Z00_MBBLD', 'W_EPM0CAL55_IM0_R20-Z00_MBBLD', 'W_EPM0CAL55_IM0_R30-Z00_MBBLD', 'W_EPM0CAL55_IM0_R40-Z00_MBBLD', 'W_EPM0CAL55_IM0_R50-Z00_MBBLD']) },
+        { id: 'conventional-ed55-greater', label: 'Conventional, greater than Ed55', series: padSeries('', ['W_EPM0CAG55_IM0_NUS-Z00_MBBLD', 'W_EPM0CAG55_IM0_R10-Z00_MBBLD', 'W_EPM0CAG55_IM0_R20-Z00_MBBLD', 'W_EPM0CAG55_IM0_R30-Z00_MBBLD', 'W_EPM0CAG55_IM0_R40-Z00_MBBLD', 'W_EPM0CAG55_IM0_R50-Z00_MBBLD']) },
+        { id: 'conventional-other', label: 'Other conventional', series: padSeries('', ['WG6IM_NUS-Z00_2', 'WG6IM_R10-Z00_2', 'WG6IM_R20-Z00_2', 'WG6IM_R30-Z00_2', 'WG6IM_R40-Z00_2', 'WG6IM_R50-Z00_2']) },
+        { id: 'blend-total', label: 'Blending components — total', series: padSeries('', ['WBCIMUS2', 'WBCIM_R10-Z00_2', 'WBCIM_R20-Z00_2', 'WBCIM_R30-Z00_2', 'WBCIM_R40-Z00_2', 'WBCIM_R50-Z00_2']) },
+        { id: 'blend-rbob', label: 'Blending components — RBOB', series: padSeries('', ['W_EPOBGRR_IM0_NUS-Z00_MBBLD', 'W_EPOBGRR_IM0_R10-Z00_MBBLD', 'W_EPOBGRR_IM0_R20-Z00_MBBLD', 'W_EPOBGRR_IM0_R30-Z00_MBBLD', 'W_EPOBGRR_IM0_R40-Z00_MBBLD', 'W_EPOBGRR_IM0_R50-Z00_MBBLD']) },
+        { id: 'blend-cbob', label: 'Blending components — conventional CBOB', series: padSeries('', ['WO6IM_NUS-Z00_2', 'WO6IM_R10-Z00_2', 'WO6IM_R20-Z00_2', 'WO6IM_R30-Z00_2', 'WO6IM_R40-Z00_2', 'WO6IM_R50-Z00_2']) },
+        { id: 'blend-gtab', label: 'Blending components — conventional GTAB', series: padSeries('', ['WO7IM_NUS-Z00_2', 'WO7IM_R10-Z00_2', 'WO7IM_R20-Z00_2', 'WO7IM_R30-Z00_2', 'WO7IM_R40-Z00_2', 'WO7IM_R50-Z00_2']) },
+        { id: 'blend-other', label: 'Blending components — other conventional', series: padSeries('', ['WO9IM_NUS-Z00_2', 'WO9IM_R10-Z00_2', 'WO9IM_R20-Z00_2', 'WO9IM_R30-Z00_2', 'WO9IM_R40-Z00_2', 'WO9IM_R50-Z00_2']) },
+      ],
+    },
+    {
+      id: 'fuel-ethanol',
+      label: 'Fuel Ethanol',
+      grades: [
+        { id: 'total', label: 'Fuel Ethanol', series: padSeries('', ['W_EPOOXE_IM0_NUS-Z00_MBBLD', 'W_EPOOXE_IM0_R10-Z00_MBBLD', 'W_EPOOXE_IM0_R20-Z00_MBBLD', 'W_EPOOXE_IM0_R30-Z00_MBBLD', 'W_EPOOXE_IM0_R40-Z00_MBBLD', 'W_EPOOXE_IM0_R50-Z00_MBBLD']) },
+      ],
+    },
+    {
+      id: 'jet-fuel',
+      label: 'Jet Fuel',
+      grades: [
+        { id: 'total', label: 'Kerosene-type jet fuel', series: padSeries('', ['WKJIMUS2', 'WKJIM_R10-Z00_2', 'WKJIM_R20-Z00_2', 'WKJIM_R30-Z00_2', 'WKJIM_R40-Z00_2', 'WKJIM_R50-Z00_2']) },
+      ],
+    },
+    {
+      id: 'distillate',
+      label: 'Distillate Fuel Oil',
+      grades: [
+        { id: 'total', label: 'Total', series: padSeries('', ['WDIIMUS2', 'WDIIM_R10-Z00_2', 'WDIIM_R20-Z00_2', 'WDIIM_R30-Z00_2', 'WDIIM_R40-Z00_2', 'WDIIM_R50-Z00_2']) },
+        { id: '0-15ppm', label: '0–15 ppm sulfur (ULSD)', series: padSeries('', ['WD0IM_NUS-Z00_2', 'WD0IM_R10-Z00_2', 'WD0IM_R20-Z00_2', 'WD0IM_R30-Z00_2', 'WD0IM_R40-Z00_2', 'WD0IM_R50-Z00_2']) },
+        { id: '15-500ppm', label: 'Greater than 15–500 ppm sulfur', series: padSeries('', ['WD1IM_NUS-Z00_2', 'WD1IM_R10-Z00_2', 'WD1IM_R20-Z00_2', 'WD1IM_R30-Z00_2', 'WD1IM_R40-Z00_2', 'WD1IM_R50-Z00_2']) },
+        { id: '500-2000ppm', label: 'Greater than 500–2000 ppm sulfur', series: padSeries('', ['WD2IM_NUS-Z00_2', 'WD2IM_R10-Z00_2', 'WD2IM_R20-Z00_2', 'WD2IM_R30-Z00_2', 'WD2IM_R40-Z00_2', 'WD2IM_R50-Z00_2']) },
+        { id: 'gt2000ppm', label: 'Greater than 2000 ppm sulfur', series: padSeries('', ['WD3IM_NUS-Z00_2', 'WD3IM_R10-Z00_2', 'WD3IM_R20-Z00_2', 'WD3IM_R30-Z00_2', 'WD3IM_R40-Z00_2', 'WD3IM_R50-Z00_2']) },
+      ],
+    },
+    {
+      id: 'residual',
+      label: 'Residual Fuel Oil',
+      grades: [
+        { id: 'total', label: 'Residual Fuel Oil', series: padSeries('', ['WREIMUS2', 'WREIM_R10-Z00_2', 'WREIM_R20-Z00_2', 'WREIM_R30-Z00_2', 'WREIM_R40-Z00_2', 'WREIM_R50-Z00_2']) },
+      ],
+    },
+    {
+      id: 'propane',
+      label: 'Propane & Propylene',
+      grades: [
+        { id: 'total', label: 'Propane & Propylene', series: [
+          { id: 'WPRIM_NUS-Z00_2', label: 'U.S. total', color: '#26445a' },
+          { id: 'WPRIMP12', label: 'PADD 1 (East Coast)', color: '#b5651d' },
+          { id: 'WPRIMP22', label: 'PADD 2 (Midwest)', color: '#7a8471' },
+          { id: 'WPRIMP32', label: 'PADD 3 (Gulf Coast)', color: '#1f7a3f' },
+          { id: 'W_EPLLPZ_IM0_R45-Z00_MBBLD', label: 'PADD 4 + 5 combined (Rocky Mountain / West Coast)', color: '#6b6b76' },
+        ] },
+      ],
+    },
+    {
+      id: 'other',
+      label: 'Other Products',
+      grades: [
+        { id: 'other-oils', label: 'Other oils (excluding fuel ethanol)', series: padSeries('', ['W_EPPO6_IM0_NUS-Z00_MBBLD', 'W_EPPO6_IM0_R10-Z00_MBBLD', 'W_EPPO6_IM0_R20-Z00_MBBLD', 'W_EPPO6_IM0_R30-Z00_MBBLD', 'W_EPPO6_IM0_R40-Z00_MBBLD', 'W_EPPO6_IM0_R50-Z00_MBBLD']) },
+        { id: 'kerosene', label: 'Kerosene', series: padSeries('', ['W_EPPK_IM0_NUS-Z00_MBBLD', undefined, undefined, undefined, undefined, undefined]) },
+        { id: 'lpg-less-propane', label: 'Liquefied petroleum gases, less propane/propylene', series: padSeries('', ['W_EPL0XP_IM0_NUS-Z00_MBBLD', undefined, undefined, undefined, undefined, undefined]) },
+      ],
+    },
+    {
+      id: 'totals',
+      label: 'Totals & Aggregates',
+      grades: [
+        { id: 'total-petroleum', label: 'Total petroleum products', series: padSeries('', ['WRPIMUS2', 'WTXIM_R10-Z00_2', 'WTXIM_R20-Z00_2', 'WTXIM_R30-Z00_2', 'WTXIM_R40-Z00_2', 'WTXIM_R50-Z00_2']) },
+        { id: 'crude-and-products', label: 'Crude oil and petroleum products', series: padSeries('', ['WTTIMUS2', 'WTTIM_R10-Z00_2', 'WTTIM_R20-Z00_2', 'WTTIM_R30-Z00_2', 'WTTIM_R40-Z00_2', 'WTTIM_R50-Z00_2']) },
+      ],
+    },
+  ];
+
+  var dataCache = {}; // keyed by family|grade|freq|start|end -> { rows, unitsBySeries }
+
+  var state = {
+    apiKey: '',
+    keyInput: '',
+    family: 'crude',
+    grade: 'total',
+    gradeOpen: false,
+    visibleByGrade: {},
+    freq: 'weekly',
+    showApi: false,
+    seriesOpen: false,
+    gridExpanded: false,
+    loading: false,
+    loadError: '',
+    rows: [],
+    unitsBySeries: {},
+    exportNotice: '',
+    startPeriod: '',
+    endPeriod: '',
+    startInput: '',
+    endInput: '',
+    rangeError: '',
+  };
+  FAMILIES.forEach(function (fam) {
+    fam.grades.forEach(function (g) {
+      state.visibleByGrade[fam.id + '|' + g.id] = new Set(g.series.map(function (s) { return s.id; }));
+    });
+  });
+  try { state.apiKey = window.localStorage.getItem('weeklyPetroleumImportsApiKey') || ''; } catch (e) { /* storage unavailable */ }
+  state.keyInput = state.apiKey;
+
+  function currentFamily() { return FAMILIES.filter(function (f) { return f.id === state.family; })[0]; }
+  function currentGrade() { return currentFamily().grades.filter(function (g) { return g.id === state.grade; })[0]; }
+  function gradeKey() { return state.family + '|' + state.grade; }
+  function currentSeriesList() { return currentGrade().series; }
+  function visibleSeries() {
+    var vis = state.visibleByGrade[gradeKey()];
+    return currentSeriesList().filter(function (s) { return vis.has(s.id); });
+  }
+
+  function periodPlaceholder() { return 'YYYY-MM-DD'; }
+  function validPeriod(v) { return /^\d{4}-\d{2}-\d{2}$/.test(v); }
+
+  function buildApiUrl(forDisplay, seriesId) {
+    var p = [];
+    p.push('frequency=' + state.freq);
+    p.push('data[]=value');
+    if (seriesId) { p.push('facets[series][]=' + encodeURIComponent(seriesId)); }
+    var hasRange = !!(state.startPeriod || state.endPeriod);
+    if (hasRange) {
+      if (state.startPeriod) { p.push('start=' + encodeURIComponent(state.startPeriod)); }
+      if (state.endPeriod) { p.push('end=' + encodeURIComponent(state.endPeriod)); }
+      p.push('sort[0][column]=period');
+      p.push('sort[0][direction]=asc');
+      p.push('length=5000');
+    } else {
+      p.push('sort[0][column]=period');
+      p.push('sort[0][direction]=desc');
+      p.push('length=' + (PERIODS_WANTED + PERIODS_BUFFER));
+    }
+    p.push('api_key=' + (forDisplay ? 'YOUR_KEY' : encodeURIComponent(state.apiKey)));
+    return 'https://api.eia.gov/v2/' + ROUTE_PATH + '/data/?' + p.join('&');
+  }
+
+  function cacheKeyFor() {
+    return gradeKey() + '|' + state.freq + '|' + (state.startPeriod || '') + '|' + (state.endPeriod || '');
+  }
+
+  async function loadData() {
+    if (!state.apiKey) { state.rows = []; state.loading = false; state.loadError = ''; render(); return; }
+    var key = cacheKeyFor();
+    if (dataCache[key]) {
+      state.rows = dataCache[key].rows; state.unitsBySeries = dataCache[key].unitsBySeries;
+      state.loading = false; state.loadError = ''; render();
+      return;
+    }
+    state.loading = true; state.loadError = ''; render();
+    try {
+      var seriesList = currentSeriesList();
+      var results = await Promise.all(seriesList.map(function (s) {
+        var url = buildApiUrl(false, s.id);
+        return fetch(url).then(function (res) {
+          return res.json().catch(function () { return null; }).then(function (json) {
+            if (!res.ok || !json || json.error) {
+              throw new Error((json && json.error) || ('HTTP ' + res.status));
+            }
+            return { seriesId: s.id, rows: (json.response && json.response.data) || [] };
+          });
+        });
+      }));
+
+      var byPeriod = {};
+      var unitsBySeries = {};
+      results.forEach(function (result) {
+        result.rows.forEach(function (r) {
+          var p = r.period;
+          if (!byPeriod[p]) { byPeriod[p] = {}; }
+          var raw = r.value;
+          var val = (raw === null || raw === undefined || raw === '') ? null : parseFloat(raw);
+          byPeriod[p][result.seriesId] = val;
+          if (r.units) { unitsBySeries[result.seriesId] = r.units; }
+        });
+      });
+      var periods = Object.keys(byPeriod).sort();
+      var hasRange = !!(state.startPeriod || state.endPeriod);
+      if (!hasRange && periods.length > PERIODS_WANTED) { periods = periods.slice(-PERIODS_WANTED); }
+      var rows = periods.map(function (p) { return { period: p, values: byPeriod[p] }; });
+      dataCache[key] = { rows: rows, unitsBySeries: unitsBySeries };
+      state.rows = rows; state.unitsBySeries = unitsBySeries; state.loading = false; state.loadError = '';
+    } catch (e) {
+      state.rows = []; state.unitsBySeries = {}; state.loading = false;
+      state.loadError = "Couldn't load live data (" + (e && e.message ? e.message : 'network error') + ').';
+    }
+    render();
+  }
+
+  function buildPath(values, minVal, maxVal, w, h, padL, padT, padB) {
+    var pts = values.map(function (v, i) { return { v: v, i: i }; }).filter(function (p) { return p.v !== null; });
+    if (!pts.length) { return ''; }
+    var n = values.length;
+    var stepX = (w - padL - 6) / Math.max(n - 1, 1);
+    var usableH = h - padT - padB;
+    var range = (maxVal - minVal) || 1;
+    var d = '';
+    pts.forEach(function (p, idx) {
+      var x = padL + p.i * stepX;
+      var y = padT + (usableH - ((p.v - minVal) / range) * usableH);
+      d += (idx === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1) + ' ';
+    });
+    return d.trim();
+  }
+
+  function csvField(v) {
+    var s = String(v);
+    if (s.indexOf(',') !== -1 || s.indexOf('"') !== -1 || s.indexOf('\n') !== -1) {
+      return '"' + s.replace(/"/g, '""') + '"';
+    }
+    return s;
+  }
+  function downloadFile(filename, content, mime) {
+    try {
+      var blob = new Blob([content], { type: mime });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      state.exportNotice = '';
+    } catch (e) {
+      state.exportNotice = 'Export failed in this browser (' + (e && e.message ? e.message : 'unknown error') + ').';
+    }
+    render();
+  }
+
+  function unitLabel(id) { return state.unitsBySeries[id] || 'MBBL/D'; }
+
+  function exportCsv() {
+    var seriesList = visibleSeries();
+    if (!seriesList.length || !state.rows.length) { return; }
+    var header = ['Period'].concat(seriesList.map(function (s) { return csvField(s.label + ' (' + unitLabel(s.id) + ')'); }));
+    var rows = state.rows.map(function (row) {
+      return [row.period].concat(seriesList.map(function (s) {
+        var v = row.values[s.id];
+        return v === null || v === undefined ? '' : String(v);
+      }));
+    });
+    var csv = [header.join(',')].concat(rows.map(function (r) { return r.join(','); })).join('\n');
+    downloadFile('weekly-petroleum-imports-' + state.family + '-' + state.grade + '-' + state.freq + '.csv', csv, 'text/csv;charset=utf-8');
+  }
+
+  function exportChartImage() {
+    var seriesList = visibleSeries();
+    if (!seriesList.length || !state.rows.length) { return; }
+    var allVals = [];
+    state.rows.forEach(function (row) { seriesList.forEach(function (s) { var v = row.values[s.id]; if (v !== null && v !== undefined) { allVals.push(v); } }); });
+    var minVal = Math.min.apply(null, allVals.concat([0]));
+    var maxVal = Math.max.apply(null, allVals.concat([1]));
+    var W = 900, H = 300, padL = 60, padT = 14, padB = 26;
+    var lines = seriesList.map(function (s) {
+      var values = state.rows.map(function (row) { var v = row.values[s.id]; return v === undefined ? null : v; });
+      return { color: s.color, path: buildPath(values, minVal, maxVal, W, H, padL, padT, padB) };
+    });
+    var parts = [];
+    parts.push('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '">');
+    parts.push('<rect x="0" y="0" width="' + W + '" height="' + H + '" fill="#ffffff"/>');
+    lines.forEach(function (line) { if (line.path) { parts.push('<path d="' + line.path + '" fill="none" stroke="' + line.color + '" stroke-width="2.25" stroke-linejoin="round" stroke-linecap="round"/>'); } });
+    parts.push('</svg>');
+    downloadFile('weekly-petroleum-imports-' + state.family + '-' + state.grade + '-' + state.freq + '-chart.svg', parts.join(''), 'image/svg+xml;charset=utf-8');
+  }
+
+  function toggleSeries(id) {
+    var key = gradeKey();
+    var next = new Set(state.visibleByGrade[key]);
+    if (next.has(id)) { if (next.size > 1) next.delete(id); }
+    else { next.add(id); }
+    state.visibleByGrade[key] = next;
+    render();
+  }
+
+  function setFamily(famId) {
+    if (famId !== state.family) {
+      state.family = famId;
+      state.grade = currentFamily().grades[0].id;
+      state.gradeOpen = false;
+      state.gridExpanded = false;
+      render();
+      loadData();
+    }
+  }
+
+  function setGrade(gradeId) {
+    if (gradeId !== state.grade) {
+      state.grade = gradeId;
+      state.gradeOpen = false;
+      state.gridExpanded = false;
+      render();
+      loadData();
+    }
+  }
+
+  function setFreq(f) {
+    if (f !== state.freq) {
+      state.freq = f;
+      render();
+      loadData();
+    }
+  }
+
+  function applyRange() {
+    var s = (state.startInput || '').trim();
+    var e = (state.endInput || '').trim();
+    state.rangeError = '';
+    if (s && !validPeriod(s)) { state.rangeError = 'From must look like ' + periodPlaceholder() + '.'; render(); return; }
+    if (e && !validPeriod(e)) { state.rangeError = 'To must look like ' + periodPlaceholder() + '.'; render(); return; }
+    if (s && e && s > e) { state.rangeError = 'From must come before To.'; render(); return; }
+    state.startPeriod = s; state.endPeriod = e;
+    render();
+    loadData();
+  }
+  function resetRange() {
+    state.startPeriod = ''; state.endPeriod = ''; state.startInput = ''; state.endInput = ''; state.rangeError = '';
+    render();
+    loadData();
+  }
+  function toggleApi() { state.showApi = !state.showApi; render(); }
+  function toggleGridExpanded() { state.gridExpanded = !state.gridExpanded; render(); }
+  function toggleSeriesDropdown() { state.seriesOpen = !state.seriesOpen; state.gradeOpen = false; render(); }
+  function toggleGradeDropdown() { state.gradeOpen = !state.gradeOpen; state.seriesOpen = false; render(); }
+  function closeAllDropdowns() {
+    if (!state.seriesOpen && !state.gradeOpen) { return; }
+    state.seriesOpen = false; state.gradeOpen = false;
+    render();
+  }
+
+  function saveKey() {
+    state.apiKey = (state.keyInput || '').trim();
+    try { window.localStorage.setItem('weeklyPetroleumImportsApiKey', state.apiKey); } catch (e) { /* unavailable */ }
+    dataCache = {};
+    render();
+    loadData();
+  }
+  function clearKey() {
+    state.apiKey = ''; state.keyInput = '';
+    try { window.localStorage.removeItem('weeklyPetroleumImportsApiKey'); } catch (e) { /* unavailable */ }
+    state.rows = []; state.unitsBySeries = {};
+    render();
+  }
+
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  function renderApp() {
+    var fam = currentFamily();
+    var grade = currentGrade();
+    var seriesList = currentSeriesList();
+    var visSeries = visibleSeries();
+
+    var html = '';
+
+    html += '<section class="eb-key-bar">';
+    html += '<span class="eb-sub-label" style="margin:0;">EIA API key</span>';
+    html += '<input type="password" id="eb-key-input" placeholder="Paste your free api.eia.gov key" value="' + esc(state.keyInput) + '">';
+    html += '<button type="button" class="eb-btn eb-btn-sm" data-action="save-key">Save</button>';
+    if (state.apiKey) {
+      html += '<button type="button" class="eb-btn eb-btn-sm" data-action="clear-key">Clear</button>';
+      html += '<span class="eb-key-status eb-key-ok">Saved in this browser</span>';
+    } else {
+      html += '<span class="eb-key-status">Not set &mdash; register free at eia.gov/opendata/register.php</span>';
+    }
+    html += '</section>';
+
+    html += '<div class="eb-limits">This table has 172 series across 9 product families (Crude Oil, Gasoline, Fuel Ethanol, Jet Fuel, Distillate, Residual Fuel Oil, Propane &amp; Propylene, Other Products, Totals &amp; Aggregates) &mdash; imports by grade and PADD, distinct from the country-level crude import detail on the separate Weekly Crude Imports Browser. Pick a product family, then a grade within it, then the U.S./PADD series to plot. Most grades are U.S.+5-PADD; a few (Crude Oil total, SPR, SPR by Others, Kerosene, LPG less propane) are U.S.-only, as EIA reports them. Stocks (177 series, weekly-only, the largest remaining category) is still unbuilt.</div>';
+
+    if (!state.apiKey) {
+      html += '<section class="eb-keyprompt">Paste your free EIA API key above to load live data.<br>Register at eia.gov/opendata/register.php &mdash; the key arrives by email in a minute or two.</section>';
+      return html;
+    }
+
+    html += '<section class="eb-toolbar">';
+    html += '<div style="display:flex; flex-direction:column; gap:8px;">';
+    html += '<div class="eb-section-label">Product / grade / series</div>';
+    html += '<div class="eb-filters">';
+
+    html += '<div>';
+    html += '<div class="eb-sub-label">Product</div>';
+    html += '<div class="eb-tabs">';
+    FAMILIES.forEach(function (f) {
+      html += '<button type="button" aria-pressed="' + (state.family === f.id) + '" data-action="set-family" data-family="' + f.id + '">' + esc(f.label) + '</button>';
+    });
+    html += '</div></div>';
+
+    html += '<div class="eb-dd-wrap">';
+    html += '<div class="eb-sub-label">Grade</div>';
+    html += '<button type="button" class="eb-dd-trigger" style="width:240px;" data-action="toggle-grade" aria-haspopup="listbox" aria-expanded="' + state.gradeOpen + '">';
+    html += '<span>' + esc(grade.label) + '</span>';
+    html += '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+    html += '</button>';
+    if (state.gradeOpen) {
+      html += '<div class="eb-dd-panel" role="listbox" aria-label="Grade" style="width:300px; max-height:380px; overflow-y:auto;">';
+      fam.grades.forEach(function (g) {
+        var on = g.id === state.grade;
+        html += '<button type="button" class="eb-dd-row" role="option" aria-selected="' + on + '" data-action="set-grade-item" data-id="' + esc(g.id) + '">';
+        html += '<span class="eb-swatch-dot" style="background:' + (on ? '#26445a' : '#d4d4d9') + ';"></span>';
+        html += '<span style="' + (on ? 'font-weight:600;' : '') + '">' + esc(g.label) + '</span>';
+        html += '</button>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+
+    var visCount = visSeries.length;
+    var seriesSummary = visCount === seriesList.length ? 'All' : (visCount === 1 ? visSeries[0].label : visCount + ' of ' + seriesList.length);
+    html += '<div class="eb-dd-wrap">';
+    html += '<div class="eb-sub-label">Series shown</div>';
+    html += '<button type="button" class="eb-dd-trigger" style="width:200px;" data-action="toggle-series" aria-haspopup="listbox" aria-expanded="' + state.seriesOpen + '"' + (seriesList.length < 2 ? ' disabled' : '') + '>';
+    html += '<span>' + esc(seriesSummary) + '</span>';
+    html += '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+    html += '</button>';
+    if (state.seriesOpen) {
+      html += '<div class="eb-dd-panel" role="listbox" aria-multiselectable="true" aria-label="Series" style="width:260px; max-height:380px; overflow-y:auto;">';
+      seriesList.forEach(function (s) {
+        var on = state.visibleByGrade[gradeKey()].has(s.id);
+        html += '<button type="button" class="eb-dd-row" role="option" aria-selected="' + on + '" data-action="toggle-series-item" data-id="' + esc(s.id) + '">';
+        html += '<span class="eb-swatch-box" style="border-color:' + s.color + '; background:' + (on ? s.color : '#fff') + ';"></span>';
+        html += '<span style="' + (on ? 'font-weight:600;' : 'color:#8a8a92; font-weight:500;') + '">' + esc(s.label) + '</span>';
+        html += '</button>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+
+    html += '<div>';
+    html += '<div class="eb-sub-label">Date range</div>';
+    html += '<div style="display:flex; align-items:center; gap:6px;">';
+    html += '<input type="text" id="eb-range-start" placeholder="' + esc(periodPlaceholder()) + '" value="' + esc(state.startInput) + '" style="width:104px; border:1.5px solid #d4d4d9; border-radius:6px; padding:8px 9px; font-size:13px;" aria-label="From period">';
+    html += '<span style="color:#8a8a92; font-size:12.5px;">to</span>';
+    html += '<input type="text" id="eb-range-end" placeholder="' + esc(periodPlaceholder()) + '" value="' + esc(state.endInput) + '" style="width:104px; border:1.5px solid #d4d4d9; border-radius:6px; padding:8px 9px; font-size:13px;" aria-label="To period">';
+    html += '<button type="button" class="eb-btn eb-btn-sm" data-action="apply-range">Apply</button>';
+    if (state.startPeriod || state.endPeriod) { html += '<button type="button" class="eb-link-btn" data-action="reset-range">Reset</button>'; }
+    html += '</div>';
+    if (state.rangeError) { html += '<div class="eb-notice">' + esc(state.rangeError) + '</div>'; }
+    html += '</div>';
+
+    html += '</div></div>';
+
+    html += '<div style="display:flex; align-items:center; gap:18px;">';
+    html += '<div class="eb-freq">';
+    FREQS.forEach(function (f) {
+      html += '<button type="button" aria-pressed="' + (state.freq === f.id) + '" data-action="set-freq" data-freq="' + f.id + '">' + f.label + '</button>';
+    });
+    html += '</div>';
+    html += '<button type="button" class="eb-btn" data-action="toggle-api" aria-expanded="' + state.showApi + '">';
+    html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>';
+    html += (state.showApi ? 'Hide API request' : 'View API request') + '</button>';
+    html += '</div>';
+    html += '</section>';
+
+    if (state.showApi) {
+      var exampleSeries = visSeries[0] || seriesList[0];
+      html += '<section class="eb-api-panel">';
+      html += '<div class="eb-api-title">Live requests &mdash; one call per visible series, this is the first (key redacted)</div>';
+      html += '<div class="num eb-api-url">GET ' + esc(buildApiUrl(true, exampleSeries.id)) + '</div>';
+      if (visSeries.length > 1) {
+        html += '<div class="eb-api-body">...and ' + (visSeries.length - 1) + ' more, identical except for the &ldquo;series&rdquo; facet value.</div>';
+      }
+      html += '</section>';
+    }
+    if (grade.note) {
+      html += '<div class="eb-note" style="padding:0 4px;">' + esc(grade.note) + '</div>';
+    }
+
+    html += '<section class="eb-card">';
+    html += '<div class="eb-card-head">';
+    html += '<h2>' + esc(fam.label) + ' &mdash; ' + esc(grade.label) + '</h2>';
+    html += '<div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">';
+    html += '<span class="eb-card-meta">' + (FREQS.filter(function (f) { return f.id === state.freq; })[0] || {}).label + ' &middot; Thousand barrels per day</span>';
+    html += '<button type="button" class="eb-btn eb-btn-sm" data-action="export-image"' + (state.rows.length ? '' : ' disabled') + '>Export image</button>';
+    html += '</div></div>';
+
+    if (state.loading) {
+      html += '<div class="eb-loading">Loading live data from EIA&hellip;</div>';
+    } else if (state.loadError) {
+      html += '<div class="eb-error">' + esc(state.loadError) + '</div>';
+    } else if (!state.rows.length) {
+      html += '<div class="eb-loading">No data returned for this selection.</div>';
+    } else {
+      var W = 900, H = 300, padL = 56, padT = 14, padB = 26;
+      var allVals = [];
+      state.rows.forEach(function (row) { visSeries.forEach(function (s) { var v = row.values[s.id]; if (v !== null && v !== undefined) { allVals.push(v); } }); });
+      var minVal = Math.min.apply(null, allVals.concat([0]));
+      var maxVal = Math.max.apply(null, allVals.concat([1]));
+      if (minVal > 0) { minVal = 0; }
+      var lines = visSeries.map(function (s) {
+        var values = state.rows.map(function (row) { var v = row.values[s.id]; return v === undefined ? null : v; });
+        return { color: s.color, path: buildPath(values, minVal, maxVal, W, H, padL, padT, padB) };
+      });
+      var yTicks = [0, 0.25, 0.5, 0.75, 1].map(function (f) {
+        var val = minVal + (maxVal - minVal) * f;
+        var y = padT + (H - padT - padB) * (1 - f);
+        return { y: y.toFixed(1), yLabelPos: (y + 3.5).toFixed(1), label: Math.round(val).toLocaleString() };
+      });
+      var n = state.rows.length;
+      var showEvery = n > 8 ? 2 : 1;
+      var xTicks = state.rows.map(function (row, i) {
+        return { x: (padL + i * ((W - padL - 6) / Math.max(n - 1, 1))).toFixed(1), label: (i % showEvery === 0) ? row.period.slice(5) : '' };
+      });
+      var chartAriaLabel = 'Line chart: ' + fam.label.toLowerCase() + ' — ' + grade.label.toLowerCase() + ' for the selected weeks. See the data table below for exact values.';
+
+      html += '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%; height:auto; display:block; margin-top:8px;" role="img" aria-label="' + esc(chartAriaLabel) + '">';
+      yTicks.forEach(function (yt) {
+        html += '<line x1="56" x2="' + W + '" y1="' + yt.y + '" y2="' + yt.y + '" stroke="#e9e9ea" stroke-width="1"/>';
+        html += '<text x="4" y="' + yt.yLabelPos + '" class="num" font-size="10.5" fill="#73737c">' + yt.label + '</text>';
+      });
+      xTicks.forEach(function (xt) {
+        if (xt.label) { html += '<text x="' + xt.x + '" y="' + (H - 6) + '" class="num" font-size="10.5" fill="#73737c" text-anchor="middle">' + xt.label + '</text>'; }
+      });
+      lines.forEach(function (line) {
+        if (line.path) { html += '<path d="' + line.path + '" fill="none" stroke="' + line.color + '" stroke-width="2.25" stroke-linejoin="round" stroke-linecap="round"/>'; }
+      });
+      html += '</svg>';
+    }
+    if (state.exportNotice) { html += '<div class="eb-notice" role="alert">' + esc(state.exportNotice) + '</div>'; }
+    html += '</section>';
+
+    if (!state.loading && !state.loadError && state.rows.length) {
+      var visibleCount = state.gridExpanded ? 12 : 4;
+      var shownRows = state.rows.slice(-visibleCount);
+      html += '<section class="eb-card eb-grid-card">';
+      html += '<div class="eb-grid-head">';
+      var rangeActive = !!(state.startPeriod || state.endPeriod);
+      var periodsHeading = rangeActive
+        ? (shownRows.length + ' of ' + state.rows.length + ' weeks in range')
+        : ('last ' + shownRows.length + ' weeks');
+      html += '<h2>Values, ' + periodsHeading + '</h2>';
+      html += '<div style="display:flex; align-items:center; gap:14px;">';
+      html += '<button type="button" class="eb-link-btn" data-action="toggle-grid-expand">' + (state.gridExpanded ? 'Show fewer' : 'Show 8 more') + '</button>';
+      html += '<button type="button" class="eb-btn eb-btn-sm" data-action="export-csv">Export CSV</button>';
+      html += '</div></div>';
+      html += '<div class="eb-note" style="padding:0 0 10px;">CSV export includes every week this page has loaded, not just what&rsquo;s shown here</div>';
+      html += '<table><caption style="position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0);">' + esc(fam.label) + ' — ' + esc(grade.label) + ' by series</caption>';
+      html += '<thead><tr><th scope="col">Series</th>';
+      shownRows.forEach(function (row) { html += '<th scope="col" class="num">' + esc(row.period) + '</th>'; });
+      html += '</tr></thead><tbody>';
+      seriesList.forEach(function (s) {
+        var on = state.visibleByGrade[gradeKey()].has(s.id);
+        html += '<tr style="' + (on ? 'opacity:1;' : 'opacity:.32;') + '">';
+        html += '<th scope="row"><span class="eb-swatch-box" style="border-color:' + s.color + '; background:' + s.color + '; width:9px; height:9px; border-radius:2px;"></span>' + esc(s.label) + '</th>';
+        shownRows.forEach(function (row) {
+          var v = row.values[s.id];
+          html += '<td class="num">' + (v === null || v === undefined ? '&mdash;' : v.toLocaleString()) + '</td>';
+        });
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      html += '</section>';
+    }
+
+    return html;
+  }
+
+  function render() {
+    document.getElementById('eb-app').innerHTML = renderApp();
+    var badge = document.getElementById('eb-live-badge');
+    if (state.apiKey) { badge.textContent = 'Live'; badge.className = 'eb-badge eb-badge-live'; }
+    else { badge.textContent = 'Sample data'; badge.className = 'eb-badge eb-badge-off'; }
+  }
+
+  document.addEventListener('click', function (event) {
+    var actionEl = event.target.closest('[data-action]');
+    if (!actionEl || !document.getElementById('eb-root').contains(actionEl)) {
+      closeAllDropdowns();
+      return;
+    }
+    var action = actionEl.getAttribute('data-action');
+    switch (action) {
+      case 'toggle-series': toggleSeriesDropdown(); break;
+      case 'toggle-series-item': toggleSeries(actionEl.getAttribute('data-id')); break;
+      case 'toggle-grade': toggleGradeDropdown(); break;
+      case 'set-grade-item': setGrade(actionEl.getAttribute('data-id')); break;
+      case 'set-family': setFamily(actionEl.getAttribute('data-family')); break;
+      case 'set-freq': setFreq(actionEl.getAttribute('data-freq')); break;
+      case 'toggle-api': toggleApi(); break;
+      case 'toggle-grid-expand': toggleGridExpanded(); break;
+      case 'export-csv': exportCsv(); break;
+      case 'export-image': exportChartImage(); break;
+      case 'save-key': saveKey(); break;
+      case 'clear-key': clearKey(); break;
+      case 'apply-range': applyRange(); break;
+      case 'reset-range': resetRange(); break;
+    }
+  });
+
+  document.addEventListener('input', function (event) {
+    if (!event.target) { return; }
+    if (event.target.id === 'eb-key-input') { state.keyInput = event.target.value; }
+    if (event.target.id === 'eb-range-start') { state.startInput = event.target.value; }
+    if (event.target.id === 'eb-range-end') { state.endInput = event.target.value; }
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') { closeAllDropdowns(); }
+    if (event.key === 'Enter' && event.target && event.target.id === 'eb-key-input') { saveKey(); }
+    if (event.key === 'Enter' && event.target && (event.target.id === 'eb-range-start' || event.target.id === 'eb-range-end')) { applyRange(); }
+  });
+
+  render();
+  if (state.apiKey) { loadData(); }
+})();
+</script>
+</body>
+</html>
