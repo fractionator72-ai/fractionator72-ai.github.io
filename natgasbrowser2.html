@@ -1,197 +1,1118 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>EIA Data Browsers</title>
+<title>Natural Gas Browser</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: #fafaf9;
-    color: #242430;
-    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 24px;
+/* Layout concept: fixed catalog rail on the left, one dense table on the right; the table is the product. */
+:root {
+  --bg: #eef2f4;
+  --panel: #ffffff;
+  --ink: #121f28;
+  --muted: #566772;
+  --rule: #cfd9df;
+  --rule-soft: #e4eaee;
+  --accent: #0a5c9e;
+  --accent-ink: #ffffff;
+  --accent-soft: #e0eef9;
+  --row-alt: #f6f9fa;
+  --hover: #e6f0f6;
+  --na: #8d9ca6;
+  --note-bg: #fff3d1;
+  --note-ink: #54400a;
+  --note-rule: #e6cf86;
+  --font-ui: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-num: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b1318; --panel: #121c23; --ink: #e3ebf0; --muted: #8fa1ad; --rule: #263742; --rule-soft: #1c2a33;
+    --accent: #5db1f2; --accent-ink: #06151f; --accent-soft: #14303f; --row-alt: #0f1920; --hover: #17303f;
+    --na: #5c6f7b; --note-bg: #2f2609; --note-ink: #efd98c; --note-rule: #5a4914; color-scheme: dark;
   }
-  main {
-    max-width: 560px;
-    width: 100%;
-    text-align: center;
-  }
-  h1 {
-    font-family: "Jost", system-ui, sans-serif;
-    font-weight: 600;
-    font-size: 26px;
-    margin: 0 0 8px;
-  }
-  p.sub {
-    margin: 0 0 32px;
-    font-size: 14px;
-    color: #6f6f79;
-  }
-  .links {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-  a.card {
-    display: block;
-    text-decoration: none;
-    border: 1.5px solid #d4d4d9;
-    border-radius: 10px;
-    padding: 20px 22px;
-    background: #fff;
-    transition: border-color .15s ease, transform .15s ease;
-  }
-  a.card:hover { border-color: #a6a6ae; transform: translateY(-1px); }
-  a.card:focus-visible { outline: 2px solid #3a6fd8; outline-offset: 2px; }
-  .card-title {
-    font-family: "Jost", system-ui, sans-serif;
-    font-weight: 600;
-    font-size: 17px;
-    color: #242430;
-    margin: 0 0 4px;
-  }
-  .card-desc {
-    font-size: 13px;
-    color: #6f6f79;
-    margin: 0;
-  }
-  .electricity .card-title { color: #232a4a; }
-  .coal .card-title { color: #2a2320; }
-  .nuclear .card-title { color: #1f4258; }
-  .import .card-title { color: #4a2320; }
-  .neab .card-title { color: #5c4413; }
-  .natgas .card-title { color: #1f5c4a; }
+}
+:root[data-theme="dark"] {
+  --bg: #0b1318; --panel: #121c23; --ink: #e3ebf0; --muted: #8fa1ad; --rule: #263742; --rule-soft: #1c2a33;
+  --accent: #5db1f2; --accent-ink: #06151f; --accent-soft: #14303f; --row-alt: #0f1920; --hover: #17303f;
+  --na: #5c6f7b; --note-bg: #2f2609; --note-ink: #efd98c; --note-rule: #5a4914; color-scheme: dark;
+}
 
-  .section-divider {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 26px 0 14px;
-  }
-  .section-divider::before, .section-divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: #dcdce2;
-  }
-  .section-divider span {
-    font-family: "Jost", system-ui, sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color: #9a9aa2;
-  }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-ui); font-size: 14px; line-height: 1.45; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-  .wpsr-group {
-    background: #eef2fa;
-    border: 1.5px solid #ccd6ec;
-    border-radius: 12px;
-    padding: 18px 18px 20px;
-    text-align: left;
-  }
-  .wpsr-banner {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    margin-bottom: 4px;
-  }
-  .wpsr-banner .wpsr-banner-title {
-    font-family: "Jost", system-ui, sans-serif;
-    font-weight: 700;
-    font-size: 13px;
-    letter-spacing: .08em;
-    color: #2f4a8a;
-    text-transform: uppercase;
-  }
-  .wpsr-banner .wpsr-banner-sub {
-    font-size: 12px;
-    color: #6b7aa0;
-  }
-  .wpsr-links {
-    margin-top: 12px;
-  }
-  .wpsr-links a.card {
-    border-color: #c4d0e8;
-  }
-  .wpsr-links a.card:hover { border-color: #8fa3d4; }
-  .weeklypetimports .card-title { color: #234a4a; }
-  .refinedproduct .card-title { color: #5c3a10; }
-  .stocks .card-title { color: #2a3d5c; }
+/* ---- top bar ---- */
+.bar { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 1rem; padding: 0.7rem 1rem;
+  background: var(--panel); border-bottom: 1px solid var(--rule); }
+.bar h1 { margin: 0; font-size: 1.05rem; font-weight: 600; letter-spacing: 0.01em; }
+.bar .tag { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.mock-note { margin: 0; padding: 0.45rem 1rem; background: var(--note-bg); color: var(--note-ink);
+  border-bottom: 1px solid var(--note-rule); font-size: 0.82rem; }
 
-  footer {
-    margin-top: 32px;
-    font-size: 11.5px;
-    color: #8a8a92;
-  }
+/* ---- shell ---- */
+.shell { display: grid; grid-template-columns: 19.5rem minmax(0, 1fr); align-items: start; }
+.rail { position: sticky; top: env(safe-area-inset-top, 0px); max-height: 100vh; overflow-y: auto; min-width: 0;
+  border-right: 1px solid var(--rule); background: var(--panel); }
+.rail summary { display: none; }
+.rail-inner { padding: 0.9rem 1rem 1.5rem; }
+.find { width: 100%; padding: 0.5rem 0.65rem; border: 1px solid var(--rule); border-radius: 4px; background: var(--bg);
+  color: var(--ink); font: inherit; }
+.rail h2 { margin: 1.1rem 0 0.3rem; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.rail ul { list-style: none; margin: 0; padding: 0; }
+.rail li a { display: flex; justify-content: space-between; align-items: baseline; gap: 0.6rem; padding: 0.32rem 0.5rem;
+  margin-inline: -0.5rem; border-radius: 3px; color: var(--ink); text-decoration: none; line-height: 1.3; }
+.rail li a:hover { background: var(--hover); }
+.rail li a[aria-current="page"] { background: var(--accent); color: var(--accent-ink); }
+.rail .f { flex: none; font-family: var(--font-num); font-size: 0.68rem; letter-spacing: 0.06em; opacity: 0.7; }
+.rail .none { color: var(--muted); font-size: 0.85rem; margin-top: 1rem; }
+
+/* ---- main ---- */
+main { min-width: 0; padding: 1.1rem 1.25rem 3rem; }
+.crumb { margin: 0 0 0.2rem; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+main h2.title { margin: 0; font-size: 1.5rem; font-weight: 600; line-height: 1.2; text-wrap: balance; max-width: 48rem; }
+.desc { margin: 0.45rem 0 0; max-width: 46rem; color: var(--muted); }
+.meta { display: flex; flex-wrap: wrap; gap: 0.35rem 1.4rem; margin: 0.8rem 0 0; padding: 0; font-size: 0.8rem; }
+.meta div { display: flex; gap: 0.4rem; }
+.meta dt { color: var(--muted); }
+.meta dd { margin: 0; font-family: var(--font-num); font-size: 0.78rem; }
+.meta a[aria-disabled="true"] { color: var(--muted); pointer-events: none; text-decoration: none; }
+.keybox { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 0.7rem; margin-top: 0.8rem; font-size: 0.8rem; }
+.keybox label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.keybox input { width: min(22rem, 100%); padding: 0.35rem 0.5rem; border: 1px solid var(--rule); border-radius: 4px; background: var(--bg); color: var(--ink); font-family: var(--font-num); font-size: 0.78rem; }
+.modebar { margin: 0.8rem 0 0; font-size: 0.8rem; padding: 0.3rem 0.6rem; border-radius: 4px; border: 1px solid var(--rule); color: var(--muted); }
+.modebar.live { color: var(--ink); font-weight: 600; }
+.keybox .hint { color: var(--muted); }
+
+/* ---- controls ---- */
+.controls { display: flex; flex-wrap: wrap; gap: 0.8rem 1.2rem; align-items: flex-end; margin: 1.1rem 0 0.8rem;
+  padding: 0.8rem 0.9rem; background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; }
+.ctl { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+.ctl > label, .ctl > .lbl { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.ctl select { max-width: 100%; padding: 0.4rem 0.5rem; border: 1px solid var(--rule); border-radius: 4px; background: var(--bg); color: var(--ink); font: inherit; }
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; }
+.seg label { display: block; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg span { display: block; padding: 0.4rem 0.75rem; cursor: pointer; background: var(--bg); border-right: 1px solid var(--rule); }
+.seg label:last-child span { border-right: 0; }
+.seg input:checked + span { background: var(--accent); color: var(--accent-ink); font-weight: 500; }
+.seg input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: -2px; }
+.btn { padding: 0.42rem 0.8rem; border: 1px solid var(--accent); border-radius: 4px; background: transparent; color: var(--accent); font: inherit; font-weight: 500; cursor: pointer; }
+.btn:hover { background: var(--accent-soft); }
+.spacer { flex: 1 1 0; }
+.copybox { margin: 0 0 0.8rem; }
+.copybox textarea { width: 100%; height: 7rem; font-family: var(--font-num); font-size: 0.75rem; background: var(--panel); color: var(--ink); border: 1px solid var(--rule); border-radius: 4px; }
+.status { margin: 0 0 0.5rem; min-height: 1.2em; font-size: 0.8rem; color: var(--muted); }
+
+/* ---- data table ---- */
+.sheet { overflow: auto; max-height: 72vh; border: 1px solid var(--rule); border-radius: 6px; background: var(--panel); }
+table.data { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; font-variant-numeric: tabular-nums; }
+.data th, .data td { padding: 0.32rem 0.7rem; border-bottom: 1px solid var(--rule-soft); border-right: 1px solid var(--rule-soft); background: var(--panel); }
+.data td.num { font-family: var(--font-num); font-size: 0.8rem; text-align: right; white-space: nowrap; }
+.data td.na { color: var(--na); }
+.data tbody tr:nth-child(even) td, .data tbody tr:nth-child(even) th { background: var(--row-alt); }
+.data tbody tr:hover td, .data tbody tr:hover th { background: var(--hover); }
+.data thead th { position: sticky; z-index: 2; font-weight: 600; text-align: right; vertical-align: bottom; background: var(--panel);
+  border-bottom: 2px solid var(--rule); }
+.data thead tr.g th { top: 0; height: 2.1rem; text-align: left; white-space: nowrap; font-size: 0.74rem; letter-spacing: 0.04em; color: var(--muted); }
+.data thead tr.g th b { color: var(--ink); font-weight: 600; letter-spacing: 0; margin-right: 0.4rem; }
+.data thead tr.l th { top: 2.1rem; min-width: 6.5rem; max-width: 11rem; font-size: 0.8rem; line-height: 1.25; }
+.data thead tr.only th { top: 0; min-width: 6.5rem; max-width: 11rem; font-size: 0.8rem; line-height: 1.25; }
+.data thead th.sub { font-weight: 400; }
+.data th.corner, .data tbody th { position: sticky; left: 0; z-index: 1; text-align: left; white-space: nowrap; font-weight: 500; background: var(--panel); border-right: 1px solid var(--rule); }
+.data thead th.corner { z-index: 3; }
+.data tbody th.series { white-space: normal; min-width: 14rem; max-width: 20rem; line-height: 1.3; }
+.data tbody th.series.sub { padding-left: 1.6rem; font-weight: 400; }
+.data tbody tr.gr th, .data tbody tr.gr td { background: var(--accent-soft); color: var(--ink); font-size: 0.74rem; font-weight: 600; letter-spacing: 0.04em; text-align: left; }
+.data tbody tr.gr th { white-space: normal; min-width: 14rem; }
+.data tbody tr.gr:hover th, .data tbody tr.gr:hover td { background: var(--accent-soft); }
+.foot { margin: 0.7rem 0 0; display: flex; flex-wrap: wrap; gap: 0.25rem 1.5rem; font-size: 0.78rem; color: var(--muted); }
+
+@media (max-width: 860px) {
+  .shell { grid-template-columns: minmax(0, 1fr); }
+  .rail { position: static; max-height: none; border-right: 0; border-bottom: 1px solid var(--rule); }
+  .rail summary { display: block; padding: 0.7rem 1rem; font-weight: 600; cursor: pointer; }
+  .rail[open] .rail-inner { max-height: 55vh; overflow-y: auto; }
+  main { padding-inline: 1rem; }
+  main h2.title { font-size: 1.25rem; }
+  .sheet { max-height: 65vh; }
+}
+@media (prefers-reduced-motion: no-preference) { .btn, .rail li a { transition: background-color 0.12s; } }
 </style>
-</head>
-<body>
-<main>
-  <h1>EIA Data Browsers</h1>
-  <p class="sub">Personal tools built on EIA&rsquo;s public Open Data API.</p>
-  <div class="links">
-    <a class="card electricity" href="electricity.html">
-      <p class="card-title">Electricity Browser</p>
-      <p class="card-desc">Generation, sales, and fuel receipts by state</p>
-    </a>
-    <a class="card coal" href="coal.html">
-      <p class="card-title">Coal Data Browser</p>
-      <p class="card-desc">Mine production, shipments, prices, and reserves</p>
-    </a>
-    <a class="card nuclear" href="nuclear.html">
-      <p class="card-title">Reactor Status Map</p>
-      <p class="card-desc">Plant-level output, roster, and nationwide outage trend</p>
-    </a>
-    <a class="card import" href="import.html">
-      <p class="card-title">Crude Import Ledger</p>
-      <p class="card-desc">Import volumes and quality by origin and district</p>
-    </a>
-    <a class="card neab" href="neab.html">
-      <p class="card-title">National Electricity Account Balance</p>
-      <p class="card-desc">Generation and imports reconciled against sales, direct use, and losses</p>
-    </a>
-    <a class="card natgas" href="natgas.html">
-      <p class="card-title">Natural Gas Browser</p>
-      <p class="card-desc">Summary, prices, production, storage, and consumption from the Natural Gas DNAV catalog</p>
-    </a>
-    <a class="card natgas" href="natgasbrowser2.html">
-      <p class="card-title">Natural Gas Browser 2</p>
-      <p class="card-desc">Time series history for 31 catalog tables, with state-by-state views. Live from the EIA API with your key</p>
-    </a>
-  </div>
 
-  <div class="section-divider"><span>Weekly Petroleum Status Report</span></div>
-  <div class="wpsr-group">
-    <div class="wpsr-banner">
-      <span class="wpsr-banner-title">WPSR</span>
-      <span class="wpsr-banner-sub">EIA&rsquo;s Weekly Petroleum Status Report (psw09-2.xls)</span>
-    </div>
-    <div class="links wpsr-links">
-      <a class="card weeklypetimports" href="weeklypetimports.html">
-        <p class="card-title">Weekly Petroleum Imports Browser</p>
-        <p class="card-desc">Crude oil and product imports by grade and PADD</p>
-      </a>
-      <a class="card refinedproduct" href="refinedproduct.html">
-        <p class="card-title">Weekly Refined Product Browser</p>
-        <p class="card-desc">Gasoline, jet fuel, and distillate net production by grade and PADD</p>
-      </a>
-      <a class="card stocks" href="stocks.html">
-        <p class="card-title">Weekly Stocks Browser</p>
-        <p class="card-desc">Crude oil and product inventory levels by grade and PADD</p>
-      </a>
-    </div>
-  </div>
+<header class="bar">
+  <h1>Natural Gas Browser</h1>
+  <span class="tag">Time series · historical record</span>
+</header>
+<p class="mock-note">Mockup. Table names, series, frequencies and release dates follow the real tables. Every number is a generated placeholder.</p>
 
-  <footer>Not an official EIA product</footer>
-</main>
-</body>
-</html>
+<div class="shell">
+  <details class="rail" id="rail" open>
+    <summary id="rail-summary">Tables</summary>
+    <div class="rail-inner">
+      <label class="sr-only" for="find">Filter tables</label>
+      <input class="find" id="find" type="search" placeholder="Filter 31 tables" autocomplete="off">
+      <nav id="nav" aria-label="Tables"></nav>
+    </div>
+  </details>
+
+  <main id="main">
+    <p class="crumb" id="crumb"></p>
+    <h2 class="title" id="title"></h2>
+    <p class="desc" id="desc"></p>
+    <dl class="meta" id="meta"></dl>
+    <p class="modebar demo" id="mode" role="status"></p>
+    <div class="keybox">
+      <label for="apikey">EIA API key</label>
+      <input id="apikey" type="password" autocomplete="off" spellcheck="false" placeholder="Paste your key, then press Enter">
+      <span class="hint">Kept in this tab's memory only. Not saved, not part of the file. Sent only to api.eia.gov.</span>
+    </div>
+
+    <form class="controls" id="controls" onsubmit="return false"></form>
+    <div class="copybox" id="copybox" hidden>
+      <label class="sr-only" for="csv">CSV text</label>
+      <textarea id="csv" readonly></textarea>
+    </div>
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+    <div class="sheet" id="sheet" tabindex="0" aria-label="Data table"></div>
+    <p class="foot" id="foot"></p>
+  </main>
+</div>
+<script>
+/* ------------------------------------------------------------------
+   geo.js  Area sets (states, countries, crossings, regions, storage types)
+   Each set: { label, areas: [{ id, label, weight, total? }] }
+   `weight` is the area's share of the U.S. total (dummy, deterministic).
+------------------------------------------------------------------- */
+
+/* Small deterministic hash -> [0,1). Used everywhere dummy numbers need to be stable. */
+function hash01(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return (h >>> 0) / 4294967296;
+}
+
+function slug(s) {
+  return String(s).toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+const GEO = (() => {
+  const STATE_NAMES = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut',
+    'Delaware', 'District of Columbia', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa',
+    'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota',
+    'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico',
+    'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island',
+    'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington',
+    'West Virginia', 'Wisconsin', 'Wyoming'];
+
+  const BOOST = { Texas: 9, Pennsylvania: 4, Louisiana: 3, Oklahoma: 2.5, 'West Virginia': 2.5, Colorado: 2,
+    'New Mexico': 2, Ohio: 2, California: 2, Wyoming: 1.5, 'New York': 1.5, Illinois: 1.5, Michigan: 1.5 };
+
+  /* Build an area list whose non-total weights sum to 1. */
+  function makeSet(label, totalLabel, names, opts = {}) {
+    const raw = names.map(n => (0.03 + Math.pow(hash01(n + label), 3)) * (opts.boost && opts.boost[n] || 1));
+    const sum = raw.reduce((a, b) => a + b, 0);
+    const areas = [{ id: 'total', label: totalLabel, weight: 1, total: true }];
+    names.forEach((n, i) => areas.push({ id: slug(n), label: n, weight: raw[i] / sum }));
+    return { label, areas };
+  }
+
+  const only = (label) => ({ label: 'Area', areas: [{ id: 'total', label, weight: 1, total: true }] });
+
+  return {
+    us:        only('U.S.'),
+    states:    makeSet('State', 'U.S.', STATE_NAMES, { boost: BOOST }),
+    statesGoa: makeSet('State', 'U.S.', ['Federal Offshore Gulf of America'].concat(STATE_NAMES), { boost: BOOST }),
+    offshore:  makeSet('Area', 'U.S.', ['Federal Offshore Gulf of America', 'Alabama', 'Alaska', 'California', 'Louisiana', 'Texas']),
+    importers: makeSet('Country', 'All countries',
+      ['Algeria', 'Canada', 'Egypt', 'Mexico', 'Nigeria', 'Norway', 'Qatar', 'Trinidad and Tobago', 'Other countries'],
+      { boost: { Canada: 12, Mexico: 1.5 } }),
+    exporters: makeSet('Country', 'All countries',
+      ['Brazil', 'Canada', 'China', 'France', 'India', 'Japan', 'Mexico', 'Netherlands', 'South Korea', 'Spain',
+       'United Kingdom', 'Other countries'], { boost: { Mexico: 6, Canada: 3 } }),
+    portsIn:   makeSet('Point of entry', 'All points',
+      ['Babb, MT', 'Calais, ME', 'Champlain, NY', 'Detroit, MI', 'Eastport, ID', 'Marysville, MI', 'Niagara Falls, NY',
+       'Noyes, MN', 'Pembina, ND', 'Port of Morgan, MT', 'Sault Ste. Marie, MI', 'Sumas, WA',
+       'Cove Point, MD (LNG)', 'Everett, MA (LNG)', 'Elba Island, GA (LNG)', 'Sabine Pass, LA (LNG)']),
+    portsOut:  makeSet('Point of exit', 'All points',
+      ['Douglas, AZ', 'Nogales, AZ', 'Ogilby, CA', 'Clint, TX', 'Del Rio, TX', 'Eagle Pass, TX', 'El Paso, TX',
+       'Hidalgo, TX', 'Rio Bravo, TX', 'Roma, TX', 'Cameron, LA (LNG)', 'Corpus Christi, TX (LNG)',
+       'Cove Point, MD (LNG)', 'Freeport, TX (LNG)', 'Plaquemines, LA (LNG)', 'Sabine Pass, LA (LNG)'],
+      { boost: { 'El Paso, TX': 3, 'Eagle Pass, TX': 2, 'Sabine Pass, LA (LNG)': 6, 'Freeport, TX (LNG)': 4 } }),
+    regions:   makeSet('Region', 'Lower 48 States', ['East', 'Midwest', 'Mountain', 'Pacific', 'South Central', 'Salt', 'Nonsalt']),
+    storageTypes: makeSet('Storage type', 'All operators', ['Salt cavern fields', 'Nonsalt cavern fields'])
+  };
+})();
+/* ------------------------------------------------------------------
+   catalog.js  The 31 tables. Pure data: no DOM, no rendering.
+   Series, frequencies, release dates and API routes follow the real tables.
+------------------------------------------------------------------- */
+
+const FREQ = { D: 'Daily', W: 'Weekly', M: 'Monthly', A: 'Annual' };
+
+const UNIT = {
+  mcf: 'Dollars per Thousand Cubic Feet', mmbtu: 'Dollars per Million Btu', mmcf: 'Million Cubic Feet',
+  bcf: 'Billion Cubic Feet', pct: 'Percent', btu: 'Btu per Cubic Foot', n: 'Number of Elements',
+  kbbl: 'Thousand Barrels', kusd: 'Thousand Dollars'
+};
+
+/* Behaviour defaults per series kind (read by data.js). */
+const KIND = {
+  flow:  { dec: 0, amp: 0.08, peak: 1,  trend: 0.012, noise: 0.04 },   // volumes over a period
+  stock: { dec: 0, amp: 0.35, peak: 11, trend: 0.004, noise: 0.015 },  // inventories / capacity
+  count: { dec: 0, amp: 0,    peak: 1,  trend: 0.004, noise: 0.01 },   // wells, consumers, fields
+  rate:  { dec: 2, amp: 0.10, peak: 1,  trend: 0,     noise: 0.05, curve: true }, // prices
+  pct:   { dec: 1, amp: 0.02, peak: 1,  trend: 0,     noise: 0.03 },   // percentages (do not scale by area)
+  btu:   { dec: 0, amp: 0.004, peak: 1, trend: 0.0001, noise: 0.002 }, // heat content
+  share: { dec: 1, amp: 0,    peak: 1,  trend: 0,     noise: 0.03 }    // state share of U.S. (area weight * 100)
+};
+
+/* R(group, unit, kind, rows) builds series specs.  row = [label, base, opts?] */
+function R(group, unit, kind, rows) {
+  return rows.map(([label, base, o]) => Object.assign(
+    { key: slug(group + ' ' + label), label, group, unit, kind, base }, KIND[kind], o || {}));
+}
+
+const TABLES = [];
+const add = (t) => TABLES.push(Object.assign({ id: slug(t.section + ' ' + t.title), geo: 'us' }, t));
+
+/* ---------------------------- SUMMARY ---------------------------- */
+add({
+  section: 'Summary', title: 'Summary: price, supply, disposition', route: 'natural-gas/sum',
+  desc: 'Key natural gas data for prices, production, imports, exports, storage and consumption by U.S. and state.',
+  freqs: ['M', 'A'], geo: 'statesGoa', areaLabel: 'Area', release: 'Sep 30, 2026',
+  series: [
+    ...R('Prices', UNIT.mcf, 'rate', [['Wellhead', 3.1, { end: 2012 }], ['Imports', 3.4, { start: 1989 }],
+      ['By pipeline', 3.3, { start: 1997, indent: 1 }], ['As liquefied natural gas', 4.6, { start: 1997, indent: 1 }],
+      ['Exports', 3.6, { start: 1989 }], ['Citygate', 4.8], ['Residential', 10.5], ['Commercial', 8.4],
+      ['Industrial', 4.9, { start: 2001 }], ['Electric power', 3.9, { start: 2002 }]]),
+    ...R('Production', UNIT.mmcf, 'flow', [['Gross withdrawals', 2.9e6], ['From gas wells', 1.3e6, { start: 1991, indent: 1 }],
+      ['From oil wells', 0.9e6, { start: 1991, indent: 1 }], ['From shale gas wells', 1.9e6, { start: 2007, indent: 1 }],
+      ['Marketed production', 2.6e6], ['Dry production', 2.4e6, { start: 1997 }]]),
+    ...R('Imports and exports', UNIT.mmcf, 'flow', [['Imports', 270e3], ['By pipeline', 262e3, { start: 1997, indent: 1 }],
+      ['As liquefied natural gas', 8e3, { start: 1997, indent: 1 }], ['Exports', 590e3], ['By pipeline', 270e3, { start: 1997, indent: 1 }],
+      ['As liquefied natural gas', 320e3, { start: 1997, indent: 1 }]]),
+    ...R('Underground storage', UNIT.mmcf, 'stock', [['Total capacity', 9.2e6, { amp: 0, start: 1989 }],
+      ['Gas in storage', 6.2e6, { amp: 0.2 }], ['Base gas', 4.4e6, { amp: 0.01 }], ['Working gas', 2.5e6, { amp: 0.7 }]]),
+    ...R('Storage activity', UNIT.mmcf, 'flow', [['Injections', 330e3, { amp: -0.5, peak: 7 }],
+      ['Withdrawals', 330e3, { amp: 0.6 }], ['Net withdrawals', 0, { amp: 0, spread: 300e3 }]]),
+    ...R('Consumption', UNIT.mmcf, 'flow', [['Total consumption', 2.6e6, { start: 2001 }], ['Lease and plant fuel', 175e3, { start: 1980 }],
+      ['Pipeline and distribution use', 100e3, { start: 2001 }], ['Delivered to consumers', 2.35e6, { start: 2001 }],
+      ['Residential', 470e3, { amp: 0.7, indent: 1 }], ['Commercial', 320e3, { amp: 0.5, indent: 1 }],
+      ['Industrial', 700e3, { amp: 0.05, start: 2001, indent: 1 }], ['Vehicle fuel', 4.3e3, { amp: 0, start: 1997, indent: 1 }],
+      ['Electric power', 1.0e6, { amp: -0.3, start: 2001, indent: 1 }]])
+  ]
+});
+
+add({
+  section: 'Summary', title: 'U.S. monthly supply and disposition', route: 'natural-gas/sum',
+  desc: 'Production, imports, withdrawals from storage and consumption, balanced.', freqs: ['M'], release: 'Sep 30, 2026',
+  series: [
+    ...R('Supply', UNIT.mmcf, 'flow', [['Dry production', 2.4e6], ['Supplemental gaseous fuels', 5e3, { amp: 0 }],
+      ['Net imports', -520e3, { amp: 0.05 }], ['Net withdrawals from storage', 0, { amp: 0, spread: 300e3 }],
+      ['Balancing item', 0, { amp: 0, spread: 40e3 }], ['Total supply', 2.45e6]]),
+    ...R('Disposition', UNIT.mmcf, 'flow', [['Lease and plant fuel', 175e3], ['Pipeline and distribution use', 100e3],
+      ['Delivered to consumers', 2.35e6, { amp: 0.25 }], ['Total consumption', 2.6e6, { amp: 0.2 }]])
+  ]
+});
+
+add({
+  section: 'Summary', title: 'Annual supply and disposition by state', route: 'natural-gas/sum',
+  desc: 'U.S. and state statistics for production, deliveries and receipts, storage injections and withdrawals.',
+  freqs: ['A'], geo: 'states', areaLabel: 'State', release: 'Sep 30, 2026',
+  series: R('Annual', UNIT.mmcf, 'flow', [['Gross withdrawals', 2.9e6], ['Marketed production', 2.6e6], ['Dry production', 2.4e6],
+    ['Interstate receipts', 1.4e6], ['Interstate deliveries', 1.4e6], ['Storage injections', 330e3, { amp: 0 }],
+    ['Storage withdrawals', 330e3, { amp: 0 }], ['Total consumption', 2.6e6]]).map(s => Object.assign(s, { amp: 0 }))
+});
+
+/* ----------------------------- PRICES ---------------------------- */
+add({
+  section: 'Prices', title: 'Prices', route: 'natural-gas/pri',
+  desc: 'U.S. and state prices for imports, exports, citygate and end-use sectors, wellhead (through 2012), and the share of volume delivered by sector.',
+  freqs: ['M', 'A'], geo: 'states', areaLabel: 'State', release: 'Sep 30, 2026',
+  series: [
+    ...R('Prices', UNIT.mcf, 'rate', [['Wellhead', 3.1, { end: 2012 }], ['Imports', 3.4, { start: 1989 }], ['Exports', 3.6, { start: 1989 }],
+      ['Citygate', 4.8], ['Residential', 10.5], ['Commercial', 8.4], ['Industrial', 4.9, { start: 2001 }],
+      ['Electric power', 3.9, { start: 2002 }]]),
+    ...R('Share of volume delivered', UNIT.pct, 'pct', [['Residential', 92, { start: 1989 }], ['Commercial', 88, { start: 1989 }],
+      ['Industrial', 74, { start: 2001 }], ['Electric power', 81, { start: 2002 }]])
+  ]
+});
+
+add({
+  section: 'Prices', title: 'Residential', route: 'natural-gas/pri',
+  desc: 'Average price of natural gas delivered to residential consumers by state.', freqs: ['M'], geo: 'states',
+  areaLabel: 'State', release: 'Sep 30, 2026',
+  series: [...R('Residential', UNIT.mcf, 'rate', [['Average price', 10.5]]),
+    ...R('Residential', UNIT.pct, 'pct', [['Share of sector volume in price', 92, { start: 1989 }]])]
+});
+
+add({
+  section: 'Prices', title: 'Commercial', route: 'natural-gas/pri',
+  desc: 'Average price of natural gas delivered to commercial consumers by state.', freqs: ['M'], geo: 'states',
+  areaLabel: 'State', release: 'Sep 30, 2026',
+  series: [...R('Commercial', UNIT.mcf, 'rate', [['Average price', 8.4]]),
+    ...R('Commercial', UNIT.pct, 'pct', [['Share of sector volume in price', 88, { start: 1989 }]])]
+});
+
+add({
+  section: 'Prices', title: 'Natural gas spot and futures prices', route: 'natural-gas/pri',
+  desc: 'NYMEX futures contracts for delivery at the Henry Hub in Louisiana. Futures after April 5, 2024 are not available.',
+  freqs: ['D', 'W', 'M', 'A'], release: 'Sep 30, 2026',
+  series: [
+    ...R('Spot', UNIT.mmbtu, 'rate', [['Henry Hub spot price', 3.4, { start: 1997 }]]),
+    ...R('Futures', UNIT.mmbtu, 'rate', [['Contract 1', 3.45, { start: 1997, endDate: '2024-04-05' }],
+      ['Contract 2', 3.5, { start: 1997, endDate: '2024-04-05' }], ['Contract 3', 3.55, { start: 1997, endDate: '2024-04-05' }],
+      ['Contract 4', 3.6, { start: 1997, endDate: '2024-04-05' }]])
+  ]
+});
+/* ---------------------------- PRODUCTION ---------------------------- */
+add({
+  section: 'Production', title: 'Gross withdrawals and production', route: 'natural-gas/prod',
+  desc: 'Components of natural gas production for the U.S., states and the Gulf of America.',
+  freqs: ['M', 'A'], geo: 'statesGoa', areaLabel: 'Area', release: 'Sep 30, 2026', sparse: true,
+  series: R('Production', UNIT.mmcf, 'flow', [['Gross withdrawals', 2.9e6], ['From gas wells', 1.3e6, { start: 1991, indent: 1 }],
+    ['From oil wells', 0.9e6, { start: 1991, indent: 1 }], ['From shale gas wells', 1.9e6, { start: 2007, indent: 1 }],
+    ['From coalbed wells', 60e3, { start: 2002, indent: 1 }], ['Repressuring', 120e3], ['Nonhydrocarbon gases removed', 30e3],
+    ['Vented and flared', 20e3], ['Marketed production', 2.6e6], ['NGPL production, gaseous equivalent', 300e3],
+    ['Dry production', 2.4e6, { start: 1997 }]])
+});
+
+add({
+  section: 'Production', title: 'Number of producing gas wells', route: 'natural-gas/prod',
+  desc: 'U.S. and state level data.', freqs: ['A'], geo: 'states', areaLabel: 'State', release: 'Sep 30, 2026', sparse: true,
+  series: R('Wells', UNIT.n, 'count', [['Producing gas wells', 540e3, { start: 1989, end: 2020 }]])
+});
+
+add({
+  section: 'Production', title: 'Number of gas producing oil wells', route: 'natural-gas/prod',
+  desc: 'U.S. and state level data.', freqs: ['A'], geo: 'states', areaLabel: 'State', release: 'Sep 30, 2026', sparse: true,
+  series: R('Wells', UNIT.n, 'count', [['Gas producing oil wells', 480e3, { start: 1989, end: 2020 }]])
+});
+
+add({
+  section: 'Production', title: 'Wellhead value and marketed production', route: 'natural-gas/prod',
+  desc: 'U.S. and state level natural gas wellhead values and prices of marketed production.', freqs: ['A'],
+  geo: 'states', areaLabel: 'State', release: 'Sep 30, 2026', sparse: true,
+  series: [...R('Marketed production', UNIT.mmcf, 'flow', [['Marketed production', 2.6e6, { amp: 0 }]]),
+    ...R('Wellhead', UNIT.kusd, 'flow', [['Wellhead value', 9.0e6, { amp: 0 }]]),
+    ...R('Wellhead', UNIT.mcf, 'rate', [['Wellhead price', 3.1, { amp: 0 }]])]
+});
+
+add({
+  section: 'Production', title: 'Offshore gross withdrawals', route: 'natural-gas/prod',
+  desc: 'U.S., state and Gulf of America gross withdrawals from oil and gas wells.', freqs: ['A'], geo: 'offshore',
+  areaLabel: 'Area', release: 'Sep 30, 2026',
+  series: R('Offshore', UNIT.mmcf, 'flow', [['Gross withdrawals', 2.1e6, { amp: 0, trend: -0.01 }],
+    ['From gas wells', 1.0e6, { amp: 0, trend: -0.015, indent: 1 }], ['From oil wells', 1.1e6, { amp: 0, trend: -0.006, indent: 1 }]])
+});
+
+add({
+  section: 'Production', title: 'Supplemental supplies', route: 'natural-gas/prod',
+  desc: 'U.S. and state supplies of synthetic natural gas, biomass, refinery gas, propane-air and other gases.',
+  freqs: ['M', 'A'], geo: 'states', areaLabel: 'State', release: 'Sep 30, 2026', sparse: true,
+  series: R('Supplemental', UNIT.mmcf, 'flow', [['Synthetic natural gas', 1.5e3, { amp: 0 }], ['Propane-air', 1.1e3, { amp: 0.3 }],
+    ['Refinery gas', 0.6e3, { amp: 0 }], ['Biomass gas', 1.2e3, { amp: 0.05, start: 2002 }], ['Other', 0.4e3, { amp: 0 }],
+    ['Total supplemental supplies', 4.8e3, { amp: 0.1 }]])
+});
+
+add({
+  section: 'Production', title: 'Natural gas plant processing', route: 'natural-gas/prod',
+  desc: 'U.S. and state level statistics for natural gas processed, total liquids extracted and extraction loss.',
+  freqs: ['A'], geo: 'states', areaLabel: 'State', release: 'Sep 30, 2026', sparse: true,
+  series: [...R('Processing', UNIT.mmcf, 'flow', [['Natural gas processed', 2.1e6, { amp: 0 }], ['Extraction loss', 80e3, { amp: 0 }]]),
+    ...R('Processing', UNIT.kbbl, 'flow', [['Total liquids extracted', 38e3, { amp: 0 }]])]
+});
+
+/* -------------------------- IMPORTS / EXPORTS -------------------------- */
+const TRADE_IMP = (b) => [
+  ...R('Volume', UNIT.mmcf, 'flow', [['Imports', b], ['By pipeline', b * 0.96, { indent: 1, start: 1997 }],
+    ['As liquefied natural gas', b * 0.04, { indent: 1, start: 1997 }]]),
+  ...R('Price', UNIT.mcf, 'rate', [['Imports', 3.4], ['By pipeline', 3.3, { indent: 1, start: 1997 }],
+    ['As liquefied natural gas', 4.6, { indent: 1, start: 1997 }]])
+];
+const TRADE_EXP = (b) => [
+  ...R('Volume', UNIT.mmcf, 'flow', [['Exports', b, { trend: 0.03 }], ['By pipeline', b * 0.45, { indent: 1, start: 1997 }],
+    ['As liquefied natural gas', b * 0.55, { indent: 1, start: 1997 }]]),
+  ...R('Price', UNIT.mcf, 'rate', [['Exports', 3.6], ['By pipeline', 3.1, { indent: 1, start: 1997 }],
+    ['As liquefied natural gas', 5.2, { indent: 1, start: 1997 }]])
+];
+
+add({ section: 'Imports/exports', title: 'U.S. imports by country', route: 'natural-gas/move', desc: 'Prices and volumes.',
+  freqs: ['M', 'A'], geo: 'importers', areaLabel: 'Country', release: 'Sep 30, 2026', sparse: true, series: TRADE_IMP(270e3) });
+add({ section: 'Imports/exports', title: 'U.S. exports by country', route: 'natural-gas/move', desc: 'Prices and volumes.',
+  freqs: ['M', 'A'], geo: 'exporters', areaLabel: 'Country', release: 'Sep 30, 2026', sparse: true, series: TRADE_EXP(590e3) });
+add({ section: 'Imports/exports', title: 'U.S. imports and exports by state', route: 'natural-gas/move', desc: 'Prices and volumes.',
+  freqs: ['M', 'A'], geo: 'states', areaLabel: 'State', release: 'Sep 30, 2026', sparse: true,
+  series: TRADE_IMP(270e3).map(s => Object.assign({}, s, { group: 'Imports: ' + s.group.toLowerCase(), key: 'i-' + s.key }))
+    .concat(TRADE_EXP(590e3).map(s => Object.assign({}, s, { group: 'Exports: ' + s.group.toLowerCase(), key: 'e-' + s.key }))) });
+add({ section: 'Imports/exports', title: 'U.S. imports by point of entry', route: 'natural-gas/move', desc: 'Prices and volumes.',
+  freqs: ['M', 'A'], geo: 'portsIn', areaLabel: 'Point of entry', release: 'Sep 30, 2026', sparse: true,
+  series: [...R('Volume', UNIT.mmcf, 'flow', [['Imports', 270e3]]), ...R('Price', UNIT.mcf, 'rate', [['Imports', 3.4]])] });
+add({ section: 'Imports/exports', title: 'U.S. exports by point of exit', route: 'natural-gas/move', desc: 'Prices and volumes.',
+  freqs: ['M', 'A'], geo: 'portsOut', areaLabel: 'Point of exit', release: 'Sep 30, 2026', sparse: true,
+  series: [...R('Volume', UNIT.mmcf, 'flow', [['Exports', 590e3, { trend: 0.03 }]]), ...R('Price', UNIT.mcf, 'rate', [['Exports', 3.6]])] });
+add({ section: 'Imports/exports', title: 'U.S. international and interstate movements of natural gas by state', route: 'natural-gas/move',
+  desc: 'International and interstate receipts, deliveries and net receipts by state.', freqs: ['A'], geo: 'states',
+  areaLabel: 'State', release: 'Sep 30, 2026', sparse: true,
+  series: [...R('Interstate', UNIT.mmcf, 'flow', [['Receipts', 1.4e6, { amp: 0 }], ['Deliveries', 1.4e6, { amp: 0 }], ['Net receipts', 0, { amp: 0, spread: 90e3 }]]),
+    ...R('International', UNIT.mmcf, 'flow', [['Receipts (imports)', 270e3, { amp: 0 }], ['Deliveries (exports)', 590e3, { amp: 0 }],
+      ['Net receipts', 0, { amp: 0, spread: 40e3 }]])]
+});
+/* ------------------------------ STORAGE ------------------------------ */
+add({
+  section: 'Storage', title: 'Weekly working gas in underground storage', route: 'natural-gas/stor',
+  desc: 'U.S. natural gas inventories held in underground storage facilities, by region. Weeks ending Friday.',
+  freqs: ['W'], geo: 'regions', areaLabel: 'Region', release: 'Oct 1, 2026',
+  series: [
+    ...R('Inventory', UNIT.bcf, 'stock', [['Working gas', 3.0e3, { amp: 0.42 }], ['Year ago', 2.9e3, { amp: 0.42 }],
+      ['Five-year average', 2.85e3, { amp: 0.4 }]]),
+    ...R('Change', UNIT.bcf, 'flow', [['Net change', 0, { amp: 0, spread: 85, peak: 7 }]]),
+    ...R('Change', UNIT.pct, 'pct', [['Difference from five-year average', 0, { amp: 0, spread: 6, peak: 3 }]])
+  ]
+});
+
+const STORAGE_ROWS = (cap) => [
+  ...R('Inventory', UNIT.mmcf, 'stock', [['Gas in storage', 6.2e6, { amp: 0.2 }], ['Base gas', 4.4e6, { amp: 0.01 }],
+    ['Working gas', 2.5e6, { amp: 0.7 }]].concat(cap ? [['Total capacity', 9.2e6, { amp: 0, start: 1989 }]] : [])),
+  ...R('Activity', UNIT.mmcf, 'flow', [['Injections', 330e3, { amp: -0.5, peak: 7 }], ['Withdrawals', 330e3, { amp: 0.6 }],
+    ['Net withdrawals', 0, { amp: 0, spread: 300e3 }]])
+];
+add({ section: 'Storage', title: 'Underground storage, all operators', route: 'natural-gas/stor',
+  desc: 'Total storage by base gas and working gas, and storage activity by state.', freqs: ['M', 'A'], geo: 'states',
+  areaLabel: 'State', release: 'Sep 30, 2026', sparse: true, series: STORAGE_ROWS(false) });
+add({ section: 'Storage', title: 'Underground storage by type', route: 'natural-gas/stor',
+  desc: 'U.S. storage and storage activity: all operators, salt cavern fields and nonsalt cavern fields.', freqs: ['M', 'A'],
+  geo: 'storageTypes', areaLabel: 'Storage type', release: 'Sep 30, 2026', series: STORAGE_ROWS(true) });
+
+const CAP_GROUPS = ['All fields', 'Salt caverns', 'Aquifers', 'Depleted fields'];
+const CAP_SHARE = [1, 0.12, 0.09, 0.79];
+add({ section: 'Storage', title: 'Underground storage capacity', route: 'natural-gas/stor',
+  desc: 'Storage capacity, working gas capacity and number of active fields for salt caverns, aquifers and depleted fields, by state.',
+  freqs: ['M', 'A'], geo: 'states', areaLabel: 'State', release: 'Sep 30, 2026', sparse: true,
+  series: CAP_GROUPS.flatMap((g, i) => [
+    ...R(g, UNIT.mmcf, 'stock', [['Storage capacity', 9.2e6 * CAP_SHARE[i], { amp: 0, start: 1989 }],
+      ['Working gas capacity', 4.8e6 * CAP_SHARE[i], { amp: 0, start: 1989 }]]),
+    ...R(g, UNIT.n, 'count', [['Active fields', 400 * CAP_SHARE[i], { start: 1989 }]]) ]) });
+add({ section: 'Storage', title: 'Liquefied natural gas additions to and withdrawals from storage', route: 'natural-gas/stor',
+  desc: 'LNG storage additions and withdrawals by state.', freqs: ['A'], geo: 'states', areaLabel: 'State',
+  release: 'Sep 30, 2026', sparse: true,
+  series: R('LNG storage', UNIT.mmcf, 'flow', [['Additions', 60e3, { amp: 0 }], ['Withdrawals', 58e3, { amp: 0 }],
+    ['Net withdrawals', 0, { amp: 0, spread: 6e3 }]]) });
+
+/* ----------------------------- CONSUMPTION ----------------------------- */
+const REL_MA = 'Monthly Sep 30, 2026; annual Nov 28, 2025';
+const SECTORS = [['Residential', 470e3, 0.7], ['Commercial', 320e3, 0.5], ['Industrial', 700e3, 0.05],
+  ['Vehicle fuel', 4.3e3, 0], ['Electric power', 1.0e6, -0.3]];
+add({ section: 'Consumption', title: 'Total consumption', route: 'natural-gas/cons',
+  desc: 'U.S. and state total consumption by lease and plant, pipeline, and end-use consumers by sector.',
+  freqs: ['M', 'A'], geo: 'states', areaLabel: 'State', release: REL_MA,
+  series: R('Consumption', UNIT.mmcf, 'flow', [['Total consumption', 2.6e6], ['Lease and plant fuel', 175e3],
+    ['Pipeline and distribution use', 100e3], ['Delivered to consumers', 2.35e6]]
+    .concat(SECTORS.map(([l, b, a]) => [l, b, { amp: a, indent: 1 }]))) });
+add({ section: 'Consumption', title: 'Delivered to consumers', route: 'natural-gas/cons',
+  desc: 'U.S. and state volumes delivered to end-use consumers by sector.', freqs: ['M', 'A'], geo: 'states',
+  areaLabel: 'State', release: REL_MA,
+  series: R('Delivered', UNIT.mmcf, 'flow', SECTORS.map(([l, b, a]) => [l, b, { amp: a }]).concat([['Total delivered', 2.35e6]])) });
+add({ section: 'Consumption', title: 'Number of consumers', route: 'natural-gas/cons',
+  desc: 'Number of sales and transported consumers for residential, commercial and industrial sectors by state.',
+  freqs: ['A'], geo: 'states', areaLabel: 'State', release: 'Sep 30, 2026',
+  series: [...R('Residential', UNIT.n, 'count', [['Consumers', 72e6]]),
+    ...R('Commercial', UNIT.n, 'count', [['Total consumers', 5.3e6], ['Sales', 4.9e6, { indent: 1 }], ['Transported', 0.4e6, { indent: 1 }]]),
+    ...R('Industrial', UNIT.n, 'count', [['Total consumers', 190e3], ['Sales', 150e3, { indent: 1 }], ['Transported', 40e3, { indent: 1 }]])] });
+add({ section: 'Consumption', title: 'State shares of U.S. deliveries', route: 'natural-gas/cons',
+  desc: "Each state's share of U.S. deliveries by sector and of total consumption.", freqs: ['A'], geo: 'states',
+  areaLabel: 'State', release: 'Sep 30, 2026',
+  series: R('Share of U.S.', UNIT.pct, 'share', [['Residential', 0], ['Commercial', 0], ['Industrial', 0],
+    ['Electric power', 0], ['Vehicle fuel', 0], ['Total consumption', 0]]) });
+add({ section: 'Consumption', title: 'Delivered for the account of others', route: 'natural-gas/cons',
+  desc: 'Commercial, industrial and electric utility deliveries for the account of others; percentage of total deliveries by state.',
+  freqs: ['A'], geo: 'states', areaLabel: 'State', release: 'Sep 30, 2026',
+  series: [...R('Volume', UNIT.mmcf, 'flow', [['Commercial', 230e3, { amp: 0 }], ['Industrial', 600e3, { amp: 0 }], ['Electric power', 900e3, { amp: 0 }]]),
+    ...R('Share of total deliveries', UNIT.pct, 'pct', [['Commercial', 72, { amp: 0 }], ['Industrial', 86, { amp: 0 }], ['Electric power', 91, { amp: 0 }]])] });
+add({ section: 'Consumption', title: 'Heat content of natural gas consumed', route: 'natural-gas/cons',
+  desc: 'Btu per cubic foot of natural gas delivered to consumers by state and other components of consumption for the U.S.',
+  freqs: ['M', 'A'], geo: 'states', areaLabel: 'State', release: 'Sep 30, 2026',
+  series: R('Heat content', UNIT.btu, 'btu', [['Total consumption', 1036], ['Delivered to consumers', 1036], ['Residential', 1037],
+    ['Commercial', 1036], ['Industrial', 1035], ['Electric power', 1034]]) });
+
+/* Finalize: make every series key unique within its table, then freeze. */
+TABLES.forEach(t => {
+  const seen = {};
+  t.series.forEach(s => { seen[s.key] = (seen[s.key] || 0) + 1; if (seen[s.key] > 1) s.key += '-' + seen[s.key]; });
+});
+const SECTION_ORDER = ['Summary', 'Prices', 'Production', 'Imports/exports', 'Storage', 'Consumption'];
+/* ------------------------------------------------------------------
+   routes.js  Real EIA API v2 dataset routes for each table.
+   Where two tables share one dataset, `match` keeps only the rows whose
+   series text matches. If nothing matches, the whole dataset is shown.
+   (Facet-level splits are best guesses until checked against live data.)
+------------------------------------------------------------------- */
+(function () {
+  const P = 'natural-gas/';
+  const MAP = [
+    ['Summary', 'Summary: price, supply, disposition', 'sum/lsum'],
+    ['Summary', 'U.S. monthly supply and disposition', 'sum/sndm'],
+    ['Summary', 'Annual supply and disposition by state', 'sum/snd'],
+    ['Prices', 'Prices', 'pri/sum'],
+    ['Prices', 'Residential', 'pri/rescom', /residential/i],
+    ['Prices', 'Commercial', 'pri/rescom', /commercial/i],
+    ['Prices', 'Natural gas spot and futures prices', 'pri/fut'],
+    ['Production', 'Gross withdrawals and production', 'prod/sum'],
+    ['Production', 'Number of producing gas wells', 'prod/wells'],
+    ['Production', 'Number of gas producing oil wells', 'prod/oilwells'],
+    ['Production', 'Wellhead value and marketed production', 'prod/whv'],
+    ['Production', 'Offshore gross withdrawals', 'prod/off'],
+    ['Production', 'Supplemental supplies', 'prod/ss'],
+    ['Production', 'Natural gas plant processing', 'prod/pp'],
+    ['Imports/exports', 'U.S. imports by country', 'move/impc'],
+    ['Imports/exports', 'U.S. exports by country', 'move/expc'],
+    ['Imports/exports', 'U.S. imports and exports by state', 'move/state'],
+    ['Imports/exports', 'U.S. imports by point of entry', 'move/poe1'],
+    ['Imports/exports', 'U.S. exports by point of exit', 'move/poe2'],
+    ['Imports/exports', 'U.S. international and interstate movements of natural gas by state', 'move/ist'],
+    ['Storage', 'Weekly working gas in underground storage', 'stor/wkly'],
+    ['Storage', 'Underground storage, all operators', 'stor/sum'],
+    ['Storage', 'Underground storage by type', 'stor/type'],
+    ['Storage', 'Underground storage capacity', 'stor/cap'],
+    ['Storage', 'Liquefied natural gas additions to and withdrawals from storage', 'stor/lng'],
+    ['Consumption', 'Total consumption', 'cons/sum', /total consumption|lease|plant fuel|pipeline|distribution use|delivered to consumers/i],
+    ['Consumption', 'Delivered to consumers', 'cons/sum', /residential|commercial|industrial|vehicle|electric power|delivered to consumers/i],
+    ['Consumption', 'Number of consumers', 'cons/num'],
+    ['Consumption', 'State shares of U.S. deliveries', 'cons/pns'],
+    ['Consumption', 'Delivered for the account of others', 'cons/acct'],
+    ['Consumption', 'Heat content of natural gas consumed', 'cons/heat']
+  ];
+  MAP.forEach(([sec, title, route, match]) => {
+    const t = TABLES.find(x => x.section === sec && x.title === title);
+    if (!t) throw new Error('routes.js: no table ' + sec + ' / ' + title);
+    t.route = P + route; t.match = match || null;
+  });
+})();
+/* ------------------------------------------------------------------
+   data.js  Mock data service.
+
+   The ONLY contract the UI depends on:
+
+     DataService.fetch({ tableId, freq, areaId, mode, measureKey }) -> Promise<Dataset>
+
+     Dataset = {
+       title, freq, freqLabel, mode,            // mode: 'series' | 'compare'
+       periods: [{ key, label, year, month }],  // oldest -> newest
+       series:  [{ key, label, group, unit, indent, dec, values: [number|null] }]
+     }
+
+   In 'series' mode each series is a measure for one area.
+   In 'compare' mode each series is one area for a single measure.
+   Replace this file with real API v2 calls and nothing else changes.
+------------------------------------------------------------------- */
+
+const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const DAY_MS = 86400000;
+const pad2 = n => String(n).padStart(2, '0');
+const isoDate = ms => new Date(ms).toISOString().slice(0, 10);
+
+/* ---- periods ---- */
+const periodCache = {};
+function periodsFor(freq) {
+  if (periodCache[freq]) return periodCache[freq];
+  const out = [];
+  if (freq === 'A') {
+    for (let y = 1973; y <= 2025; y++) out.push({ key: String(y), label: String(y), year: y, month: null });
+  } else if (freq === 'M') {
+    for (let y = 1973; y <= 2026; y++) for (let m = 1; m <= 12; m++) {
+      if (y === 2026 && m > 7) break;
+      out.push({ key: y + '-' + pad2(m), label: MONTH_ABBR[m - 1] + ' ' + y, year: y, month: m });
+    }
+  } else if (freq === 'W') {
+    for (let t = Date.UTC(2010, 0, 1); t <= Date.UTC(2026, 8, 25); t += 7 * DAY_MS) {
+      const d = new Date(t); out.push({ key: isoDate(t), label: isoDate(t), year: d.getUTCFullYear(), month: d.getUTCMonth() + 1 });
+    }
+  } else if (freq === 'D') {
+    for (let t = Date.UTC(1997, 0, 7); t <= Date.UTC(2026, 8, 30); t += DAY_MS) {
+      const d = new Date(t), wd = d.getUTCDay();
+      if (wd === 0 || wd === 6) continue;
+      out.push({ key: isoDate(t), label: isoDate(t), year: d.getUTCFullYear(), month: d.getUTCMonth() + 1 });
+    }
+  }
+  return (periodCache[freq] = out);
+}
+
+/* ---- dummy value model ---- */
+const INTENSIVE = { rate: 1, pct: 1, btu: 1 };
+
+function priceCurve(y) {
+  return 0.3 + 0.012 * (y - 1973) + 0.9 * Math.exp(-Math.pow(y - 2008, 2) / 18) + 1.0 * Math.exp(-Math.pow(y - 2022, 2) / 2);
+}
+
+function cell(table, s, area, p, freq) {
+  if (s.start && p.year < s.start) return null;
+  if (s.end && p.year > s.end) return null;
+  if (s.endDate && p.key > s.endDate) return null;
+  if (table.sparse && !area.total && hash01(table.id + area.id) < 0.12) return null;     // area reports nothing
+
+  const r = hash01(table.id + '|' + s.key + '|' + area.id + '|' + p.key);                // stable noise 0..1
+  const season = p.month ? Math.cos(2 * Math.PI * (p.month - s.peak) / 12) : 0;           // annual rows have none
+  const noise = (r - 0.5) * 2 * s.noise * (freq === 'D' ? 3 : 1);
+  let v;
+
+  if (s.kind === 'share') {
+    v = area.total ? 100 : area.weight * 100 * (0.6 + 0.8 * hash01(s.key + area.id)) * (1 + noise);
+  } else if (s.spread) {
+    v = s.base + s.spread * season + (r - 0.5) * s.spread * 0.5;
+    v *= INTENSIVE[s.kind] ? 1 : area.weight;
+  } else {
+    const level = s.kind === 'rate' ? priceCurve(p.year) : Math.pow(1 + s.trend, p.year - 2015);
+    v = s.base * level * (1 + s.amp * season) * (1 + noise);
+    if (freq === 'A' && s.kind === 'flow') v *= 12;
+    if (INTENSIVE[s.kind]) { if (!area.total) v *= 1 + (hash01(area.label + s.key) - 0.5) * 0.5; if (s.kind === 'pct') v = Math.min(v, 99.9); }
+    else v *= area.weight;
+  }
+  return Number(v.toFixed(s.dec));
+}
+
+/* ---- dataset assembly ---- */
+function buildDataset(table, req) {
+  const freq = table.freqs.includes(req.freq) ? req.freq : table.freqs[0];
+  const areas = GEO[table.geo].areas;
+  const area = areas.find(a => a.id === req.areaId) || areas[0];
+  const periods = periodsFor(freq);
+  const compare = req.mode === 'compare' && areas.length > 1;
+  const measure = table.series.find(s => s.key === req.measureKey) || table.series[0];
+
+  const series = compare
+    ? areas.map(a => ({ key: a.id, label: a.label, group: measure.label, unit: measure.unit, indent: 0, dec: measure.dec,
+        values: periods.map(p => cell(table, measure, a, p, freq)) }))
+    : table.series.map(s => ({ key: s.key, label: s.label, group: s.group, unit: s.unit, indent: s.indent || 0, dec: s.dec,
+        values: periods.map(p => cell(table, s, area, p, freq)) }));
+
+  return { title: table.title, freq, freqLabel: FREQ[freq], mode: compare ? 'compare' : 'series', areaLabel: area.label, periods, series };
+}
+
+const DataService = {
+  tables: () => TABLES,
+  table: id => TABLES.find(t => t.id === id),
+  areas: table => GEO[table.geo].areas,
+  fetch(req) { return Promise.resolve().then(() => buildDataset(DataService.table(req.tableId), req)); }
+};
+/* ------------------------------------------------------------------
+   live.js  Live data from EIA Open Data API v2. Same contract as data.js:
+
+     Live.fetch({ tableId, freq, areaId, span }) -> Promise<Dataset>
+
+   The key lives in memory only (set with Live.setKey). It is sent to
+   api.eia.gov as the api_key query parameter, which is how the API works.
+   Self-hosting: you may paste a key between the quotes below, but then
+   anyone who views the page source can read it. Leave it empty to have
+   visitors type their own.
+------------------------------------------------------------------- */
+const EIA_API_KEY = '';
+
+class LiveError extends Error { constructor(kind, message) { super(message); this.kind = kind; } }
+
+const Live = (() => {
+  const BASE = 'https://api.eia.gov/v2/';
+  const FREQ_ID = { M: 'monthly', A: 'annual', W: 'weekly', D: 'daily' };
+  const PAGE = 5000, MAX_PAGES = 40;
+  const meta = new Map(), data = new Map();
+  let key = '';
+
+  const setKey = (k) => { k = (k || '').trim(); if (k !== key) { key = k; meta.clear(); data.clear(); } };
+  const hasKey = () => !!key;
+
+  async function getJSON(path, params) {
+    const u = new URL(BASE + path);
+    (params || []).forEach(([k, v]) => u.searchParams.append(k, v));
+    u.searchParams.append('api_key', key);
+    let res;
+    try { res = await fetch(u); }
+    catch (e) { throw new LiveError('network', 'Could not reach api.eia.gov (offline, blocked, or the browser refused the cross-origin request).'); }
+    let body = null; try { body = await res.json(); } catch (e) { /* not JSON */ }
+    const apiMsg = body && (body.error || body.message);
+    if (res.status === 403 || res.status === 401 || /api[_ ]key/i.test(apiMsg || ''))
+      throw new LiveError('key', 'EIA did not accept this API key. Check it, or request a new one at eia.gov/opendata.');
+    if (res.status === 429) throw new LiveError('rate', 'EIA says too many requests. Wait a minute and try again.');
+    if (!res.ok || apiMsg) throw new LiveError('http', 'EIA returned an error (' + res.status + ')' + (apiMsg ? ': ' + apiMsg : '') + '.');
+    return body.response || {};
+  }
+
+  /* route metadata + values of the area facet, cached per route */
+  function prepare(table) {
+    if (meta.has(table.route)) return meta.get(table.route);
+    const p = (async () => {
+      const m = await getJSON(table.route + '/');
+      const facetIds = (m.facets || []).map(f => f.id);
+      const areaFacet = facetIds.includes('duoarea') ? 'duoarea'
+        : facetIds.find(f => !['series', 'process', 'product'].includes(f)) || null;
+      let areas = [];
+      if (areaFacet) {
+        const f = await getJSON(table.route + '/facet/' + areaFacet + '/');
+        areas = (f.facets || []).map(x => ({ id: x.id, label: x.name || x.id }));
+        areas.sort((a, b) => (a.id === 'NUS' ? -1 : b.id === 'NUS' ? 1 : a.label.localeCompare(b.label)));
+      }
+      const have = new Set((m.frequency || []).map(f => f.id));
+      const freqs = have.size ? table.freqs.filter(f => have.has(FREQ_ID[f])) : table.freqs;
+      return { areaFacet, areas, freqs: freqs.length ? freqs : table.freqs, start: m.startPeriod, end: m.endPeriod };
+    })();
+    meta.set(table.route, p);
+    p.catch(() => meta.delete(table.route));
+    return p;
+  }
+
+  function startFor(freq, span) {
+    if (span === 'all' || span == null) return null;
+    const n = new Date(), y = n.getUTCFullYear(), mo = n.getUTCMonth();
+    const iso = d => d.toISOString().slice(0, 10);
+    if (freq === 'A') return String(y - span - 3);
+    if (freq === 'M') return iso(new Date(Date.UTC(y, mo - span - 6, 1))).slice(0, 7);
+    if (freq === 'W') return iso(new Date(n.getTime() - (span + 8) * 7 * 86400000));
+    return iso(new Date(n.getTime() - (span + 30) * 86400000));
+  }
+
+  async function allRows(table, freq, area, areaFacet, span) {
+    const base = [['frequency', FREQ_ID[freq]], ['data[0]', 'value'], ['sort[0][column]', 'period'],
+      ['sort[0][direction]', 'asc'], ['length', PAGE]];
+    if (areaFacet && area) base.push(['facets[' + areaFacet + '][]', area]);
+    const start = startFor(freq, span); if (start) base.push(['start', start]);
+    const rows = []; let total = Infinity;
+    for (let page = 0; page < MAX_PAGES && rows.length < total; page++) {
+      const r = await getJSON(table.route + '/data/', base.concat([['offset', page * PAGE]]));
+      total = Number(r.total); if (!Number.isFinite(total)) total = 0;
+      if (!r.data || !r.data.length) break;
+      rows.push(...r.data);
+    }
+    return rows;
+  }
+
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  function periodObj(k) {
+    const y = Number(k.slice(0, 4)), m = k.length >= 7 ? Number(k.slice(5, 7)) : null;
+    return { key: k, label: k.length === 7 ? MONTHS[m - 1] + ' ' + y : k, year: y, month: m };
+  }
+  const decimals = (raw) => { const s = String(raw), i = s.indexOf('.'); return i < 0 ? 0 : Math.min(3, s.length - i - 1); };
+
+  /* rows -> Dataset. One series per `series` id; label comes from whichever name varies. */
+  function pivot(table, freq, rows, areaLabel) {
+    if (table.match) {
+      const kept = rows.filter(r => table.match.test([r['series-description'], r['process-name'], r['product-name']].join(' ')));
+      if (kept.length) rows = kept;
+    }
+    const by = new Map(), periodSet = new Set();
+    rows.forEach(r => {
+      const sid = r.series || [r.process, r.product, r.duoarea].join('|');
+      let s = by.get(sid);
+      if (!s) by.set(sid, s = { sid, proc: r['process-name'], prod: r['product-name'], desc: r['series-description'], unit: r.units || '', dec: 0, map: new Map() });
+      const v = r.value === null || r.value === '' || r.value === undefined ? null : Number(r.value);
+      if (v !== null && Number.isFinite(v)) { s.map.set(r.period, v); s.dec = Math.max(s.dec, decimals(r.value)); }
+      periodSet.add(r.period);
+    });
+    const list = [...by.values()].sort((a, b) => a.sid.localeCompare(b.sid));
+    const nProc = new Set(list.map(s => s.proc)).size, nProd = new Set(list.map(s => s.prod)).size;
+    const periods = [...periodSet].sort().map(periodObj);
+    const series = list.map(s => {
+      let group = table.title, label = s.desc || s.sid;
+      if (nProd > 1 && nProc > 1) { group = s.prod; label = s.proc; }
+      else if (nProc > 1 && s.proc) label = s.proc;
+      else if (nProd > 1 && s.prod) label = s.prod;
+      else if (list.length === 1) label = s.proc || s.prod || s.desc || s.sid;
+      return { key: s.sid, label, group, unit: s.unit, indent: 0, dec: s.dec, values: periods.map(p => s.map.has(p.key) ? s.map.get(p.key) : null) };
+    });
+    return { title: table.title, freq, freqLabel: FREQ[freq], mode: 'series', areaLabel, periods, series };
+  }
+
+  async function fetchDataset(req) {
+    const table = DataService.table(req.tableId), m = await prepare(table);
+    const freq = m.freqs.includes(req.freq) ? req.freq : m.freqs[0];
+    const area = m.areas.find(a => a.id === req.areaId) || m.areas[0];
+    const ck = [table.route, freq, area && area.id, req.span].join('|');
+    if (!data.has(ck)) {
+      const p = allRows(table, freq, area && area.id, m.areaFacet, req.span).then(rows => {
+        if (!rows.length) throw new LiveError('empty', 'EIA returned no rows for this selection.');
+        return pivot(table, freq, rows, area ? area.label : '');
+      });
+      data.set(ck, p); p.catch(() => data.delete(ck));
+    }
+    return data.get(ck);
+  }
+
+  return { setKey, hasKey, prepare, fetch: fetchDataset };
+})();
+/* ------------------------------------------------------------------
+   app.js  UI. Reads only from DataService (data.js); renders with Views.
+
+   Adding a chart later:
+     1. Register a renderer:  Views.chart = (dataset, el, opts) => { ... };
+     2. Add it to VIEW_LIST and the "View" control.
+   `dataset` is the same object the table view already receives: periods + series + values.
+------------------------------------------------------------------- */
+
+const $ = (id) => document.getElementById(id);
+
+/* tiny DOM helper: h('td', {class:'num'}, 'text') */
+function h(tag, props, ...kids) {
+  const el = document.createElement(tag);
+  for (const k in (props || {})) {
+    if (k === 'class') el.className = props[k];
+    else if (k === 'text') el.textContent = props[k];
+    else if (props[k] !== false && props[k] != null) el.setAttribute(k, props[k] === true ? '' : props[k]);
+  }
+  kids.flat().forEach(c => c != null && el.append(c.nodeType ? c : document.createTextNode(c)));
+  return el;
+}
+
+/* ---------------------------- state ---------------------------- */
+const SPANS = { A: [10, 20, 30, 'all'], M: [12, 24, 60, 120, 'all'], W: [26, 52, 156, 'all'], D: [30, 90, 250, 'all'] };
+const SPAN_NOUN = { A: 'years', M: 'months', W: 'weeks', D: 'days' };
+const SPAN_DEFAULT = { A: 20, M: 24, W: 52, D: 90 };
+
+const isLive = () => Live.hasKey();
+const svc = () => isLive() ? Live : DataService;
+const state = { tableId: null, freq: 'M', areaId: 'total', orientation: 'down', order: 'desc', span: null };
+
+const PREF_KEY = 'ngb-prefs';
+function loadPrefs() {
+  try { Object.assign(state, JSON.parse(localStorage.getItem(PREF_KEY) || '{}')); } catch (e) { /* no storage */ }
+  state.tableId = null; state.areaId = 'total';
+}
+function savePrefs() {
+  try { localStorage.setItem(PREF_KEY, JSON.stringify({ orientation: state.orientation, order: state.order })); } catch (e) { /* no storage */ }
+}
+
+/* -------------------------- formatting -------------------------- */
+function fmt(v, dec) {
+  return v == null ? 'NA' : v.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+}
+function visiblePeriodIndexes(ds) {
+  const n = ds.periods.length;
+  const span = state.span === 'all' ? n : Math.min(state.span, n);
+  const idx = []; for (let i = n - span; i < n; i++) idx.push(i);
+  return state.order === 'desc' ? idx.reverse() : idx;
+}
+
+/* ---------------------------- views ---------------------------- */
+const Views = { table: renderTable };
+
+/* consecutive series sharing group+unit become one header run */
+function groupRuns(series) {
+  const runs = [];
+  series.forEach(s => {
+    const last = runs[runs.length - 1];
+    if (last && last.group === s.group && last.unit === s.unit) last.n++;
+    else runs.push({ group: s.group, unit: s.unit, n: 1 });
+  });
+  return runs;
+}
+
+function renderTable(ds, el, opts) {
+  const idx = opts.idx, series = ds.series;
+  const t = h('table', { class: 'data' });
+  t.append(h('caption', { class: 'sr-only', text: ds.title + ', ' + ds.freqLabel.toLowerCase() }));
+
+  if (opts.orientation === 'down') {
+    const head = h('thead');
+    const runs = groupRuns(series);
+    const grouped = runs.some(r => r.group);
+    if (grouped) {
+      head.append(h('tr', { class: 'g' }, h('th', { class: 'corner', rowspan: 2, text: 'Period' }),
+        runs.map(r => h('th', { colspan: r.n }, h('b', { text: r.group }), '(' + r.unit + ')'))));
+      head.append(h('tr', { class: 'l' }, series.map(s => h('th', { class: s.indent ? 'sub' : '', scope: 'col', text: (s.indent ? '– ' : '') + s.label }))));
+    } else {
+      head.append(h('tr', { class: 'only' }, h('th', { class: 'corner', text: 'Period' }),
+        series.map(s => h('th', { scope: 'col', text: s.label }))));
+    }
+    const body = h('tbody');
+    idx.forEach(i => body.append(h('tr', null, h('th', { scope: 'row', text: ds.periods[i].label }),
+      series.map(s => cellTd(s.values[i], s.dec)))));
+    t.append(head, body);
+  } else {
+    t.append(h('thead', null, h('tr', { class: 'only' }, h('th', { class: 'corner', text: 'Series' }),
+      idx.map(i => h('th', { scope: 'col', text: ds.periods[i].label })))));
+    const body = h('tbody');
+    let lastKey = null;
+    series.forEach(s => {
+      const gk = s.group + '|' + s.unit;
+      if (s.group && gk !== lastKey) body.append(h('tr', { class: 'gr' }, h('th', { colspan: 1, text: s.group + ' (' + s.unit + ')' }),
+        h('td', { colspan: idx.length })));
+      lastKey = gk;
+      body.append(h('tr', null, h('th', { scope: 'row', class: 'series' + (s.indent ? ' sub' : ''), text: s.label }),
+        idx.map(i => cellTd(s.values[i], s.dec))));
+    });
+    t.append(body);
+  }
+  el.replaceChildren(t);
+}
+function cellTd(v, dec) { return h('td', { class: v == null ? 'num na' : 'num', text: fmt(v, dec) }); }
+
+/* ---------------------------- CSV ---------------------------- */
+function toCSV(ds, idx) {
+  const q = (s) => /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  const head = ['Period'].concat(ds.series.map(s => q((s.group && ds.mode === 'series' ? s.group + ': ' : '') + s.label + ' (' + s.unit + ')')));
+  const rows = idx.map(i => [ds.periods[i].label].concat(ds.series.map(s => s.values[i] == null ? '' : s.values[i])));
+  return [head].concat(rows).map(r => r.join(',')).join('\n');
+}
+
+/* ------------------------ catalog / nav ------------------------ */
+function renderNav(query) {
+  const nav = $('nav'), q = (query || '').trim().toLowerCase();
+  nav.replaceChildren();
+  let shown = 0;
+  SECTION_ORDER.forEach(sec => {
+    const items = DataService.tables().filter(t => t.section === sec && (!q || t.title.toLowerCase().includes(q)));
+    if (!items.length) return;
+    shown += items.length;
+    nav.append(h('h2', { text: sec }), h('ul', null, items.map(t =>
+      h('li', null, h('a', { href: '#' + t.id, 'aria-current': t.id === state.tableId ? 'page' : null },
+        h('span', { text: t.title }), h('span', { class: 'f', text: t.freqs.join(' ') }))))));
+  });
+  if (!shown) nav.append(h('p', { class: 'none', text: 'No table matches "' + query + '".' }));
+}
+
+/* ------------------------- controls UI ------------------------- */
+function option(value, label, selected) { return h('option', { value, selected: selected ? true : null, text: label }); }
+
+let liveMeta = null;                                   // { areas, freqs } for the open table in live mode
+const areasFor = (table) => isLive() ? (liveMeta ? liveMeta.areas : []) : DataService.areas(table);
+const freqsFor = (table) => isLive() && liveMeta ? liveMeta.freqs : table.freqs;
+
+function renderControls(table) {
+  const form = $('controls'), areas = areasFor(table);
+  const multi = areas.length > 1;
+  const kids = [];
+
+  kids.push(h('div', { class: 'ctl' }, h('span', { class: 'lbl', id: 'lbl-freq', text: 'Frequency' }),
+    h('div', { class: 'seg', role: 'radiogroup', 'aria-labelledby': 'lbl-freq' }, freqsFor(table).map(f =>
+      h('label', null, h('input', { type: 'radio', name: 'freq', value: f, id: 'freq-' + f, checked: f === state.freq ? true : null }),
+        h('span', { text: FREQ[f] }))))));
+
+  if (multi) {
+    kids.push(h('div', { class: 'ctl' }, h('label', { for: 'area', text: table.areaLabel }),
+      h('select', { id: 'area' }, areas.map(a => option(a.id, a.label, a.id === state.areaId)))));
+  }
+
+  kids.push(h('div', { class: 'ctl' }, h('label', { for: 'span', text: 'Range' }),
+    h('select', { id: 'span' }, SPANS[state.freq].map(n => option(String(n), n === 'all' ? 'All periods' : 'Last ' + n + ' ' + SPAN_NOUN[state.freq], String(n) === String(state.span))))));
+  kids.push(h('div', { class: 'ctl' }, h('label', { for: 'order', text: 'Order' }),
+    h('select', { id: 'order' }, option('desc', 'Newest first', state.order === 'desc'), option('asc', 'Oldest first', state.order === 'asc'))));
+  kids.push(h('div', { class: 'ctl' }, h('label', { for: 'orient', text: 'Layout' }),
+    h('select', { id: 'orient' }, option('down', 'Periods down the side', state.orientation === 'down'), option('across', 'Periods across the top', state.orientation === 'across'))));
+  kids.push(h('div', { class: 'spacer' }));
+  kids.push(h('button', { class: 'btn', type: 'button', id: 'copy', text: 'Copy as CSV' }));
+  form.replaceChildren(...kids);
+}
+
+/* ---------------------------- refresh ---------------------------- */
+let renderToken = 0;
+function showError(err) {
+  $('sheet').replaceChildren(h('p', { class: 'none', text: err.message || String(err) }));
+  $('status').textContent = err.message || String(err);
+  $('foot').replaceChildren();
+  refresh.last = null;
+}
+async function refresh() {
+  const table = DataService.table(state.tableId), token = ++renderToken;
+  let ds;
+  try {
+    if (isLive()) $('status').textContent = 'Loading from EIA...';
+    ds = await svc().fetch({ tableId: table.id, freq: state.freq, areaId: state.areaId, span: state.span });
+  } catch (err) { if (token === renderToken) showError(err); return; }
+  if (token !== renderToken) return;                       // a newer request superseded this one
+  const idx = visiblePeriodIndexes(ds);
+  Views.table(ds, $('sheet'), { idx, orientation: state.orientation });
+  const first = ds.periods[idx[idx.length - 1]].label, last = ds.periods[idx[0]].label;
+  const span = state.order === 'desc' ? [last, first] : [first, last];
+  $('status').textContent = '';
+  $('foot').replaceChildren(
+    h('span', { text: idx.length + ' ' + SPAN_NOUN[ds.freq] + ' shown, ' + span[1] + ' to ' + span[0] }),
+    h('span', { text: ds.series.length + ' series' }),
+    h('span', { text: isLive() ? 'NA = not reported. Source: EIA Open Data API v2, ' + table.route + '.' : 'NA = not available. Placeholder numbers.' }));
+  refresh.last = { ds, idx };
+}
+
+function renderMode() {
+  const live = isLive();
+  $('mode').className = 'modebar ' + (live ? 'live' : 'demo');
+  $('mode').textContent = live ? 'Live data from the EIA Open Data API.' : 'Placeholder numbers. Paste an EIA API key above to load live data.';
+}
+
+function renderHeader(table) {
+  $('crumb').textContent = table.section;
+  $('title').textContent = table.title;
+  $('desc').textContent = table.desc;
+  const link = (id, label) => h('a', { id, target: '_blank', rel: 'noopener', text: label });
+  $('meta').replaceChildren(
+    ...[['Release date', table.release], ['Frequencies', table.freqs.map(f => FREQ[f]).join(', ')], ['API v2 route', table.route]]
+      .map(([k, v]) => h('div', null, h('dt', { text: k }), h('dd', { text: v }))),
+    h('div', null, h('dt', { text: 'API browser' }), h('dd', null, link('api-browser', 'Open'))),
+    h('div', null, h('dt', { text: 'Route JSON' }), h('dd', null, link('api-json', 'Open with key'))));
+  renderApiLinks(table);
+  document.title = table.title + ' · Natural Gas Browser';
+}
+
+/* API links: the browser page needs no key; the JSON link is built from the key typed into the page. */
+function renderApiLinks(table) {
+  const key = $('apikey').value.trim();
+  $('api-browser').href = 'https://www.eia.gov/opendata/browser/' + table.route;
+  const json = $('api-json');
+  if (key) { json.href = 'https://api.eia.gov/v2/' + table.route + '/?api_key=' + encodeURIComponent(key); json.removeAttribute('aria-disabled'); }
+  else { json.removeAttribute('href'); json.setAttribute('aria-disabled', 'true'); }
+}
+
+function selectTable(id) {
+  const table = DataService.table(id) || DataService.tables()[0], token = ++selectToken;
+  state.tableId = table.id; liveMeta = null;
+  renderNav($('find').value); renderHeader(table);
+  const start = () => {
+    const fr = freqsFor(table);
+    state.freq = fr.includes('M') ? 'M' : fr[0];
+    state.span = SPAN_DEFAULT[state.freq];
+    state.areaId = isLive() ? (areasFor(table)[0] || {}).id : 'total';
+    renderControls(table); refresh();
+  };
+  if (!isLive()) return start();
+  renderControls(table); $('sheet').replaceChildren(); $('status').textContent = 'Loading from EIA...';
+  Live.prepare(table).then(m => { if (token === selectToken) { liveMeta = m; start(); } },
+    err => { if (token === selectToken) showError(err); });
+}
+let selectToken = 0;
+
+/* --------------------------- events --------------------------- */
+$('controls').addEventListener('change', (e) => {
+  const t = e.target, table = DataService.table(state.tableId);
+  if (t.name === 'freq') { state.freq = t.value; state.span = SPAN_DEFAULT[t.value]; }
+  else if (t.id === 'area') state.areaId = t.value;
+  else if (t.id === 'span') state.span = t.value === 'all' ? 'all' : Number(t.value);
+  else if (t.id === 'order') state.order = t.value;
+  else if (t.id === 'orient') state.orientation = t.value;
+  const focusId = t.id;
+  savePrefs(); renderControls(table); refresh();
+  if (focusId && $(focusId)) $(focusId).focus();            // keep keyboard position after the form re-renders
+});
+
+$('controls').addEventListener('click', async (e) => {
+  if (e.target.id !== 'copy' || !refresh.last) return;
+  const { ds, idx } = refresh.last, text = toCSV(ds, idx.slice().sort((a, b) => a - b).reverse());
+  const box = $('csv');
+  try { await navigator.clipboard.writeText(text); $('copybox').hidden = true; $('status').textContent = 'Copied ' + (idx.length + 1) + ' lines of CSV.'; }
+  catch (err) { box.value = text; $('copybox').hidden = false; box.focus(); box.select(); $('status').textContent = 'Clipboard is blocked here. The CSV is selected below; copy it with your keyboard.'; }
+});
+
+$('find').addEventListener('input', (e) => renderNav(e.target.value));
+$('apikey').addEventListener('input', () => renderApiLinks(DataService.table(state.tableId)));
+$('apikey').addEventListener('change', () => { Live.setKey($('apikey').value); renderMode(); selectTable(state.tableId); });
+
+window.addEventListener('hashchange', () => {
+  selectTable(location.hash.slice(1));
+  if (!wide.matches) $('rail').open = false;
+  $('main').scrollIntoView({ block: 'start' });
+});
+
+/* the catalog rail is always open on wide screens and collapsible on narrow ones */
+const wide = window.matchMedia('(min-width: 861px)');
+const syncRail = () => { $('rail').open = wide.matches; };
+wide.addEventListener('change', syncRail);
+
+/* ----------------------------- boot ----------------------------- */
+loadPrefs(); syncRail();
+if (EIA_API_KEY) $('apikey').value = EIA_API_KEY;
+Live.setKey($('apikey').value); renderMode();
+selectTable(location.hash.slice(1));
+</script>
