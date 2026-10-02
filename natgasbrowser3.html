@@ -54,6 +54,7 @@ section:last-child{border-bottom:none}
 .mh.c{text-align:center}
 .row{border-top:1px solid var(--line2)}
 .rowbtn{all:unset;box-sizing:border-box;cursor:pointer;width:100%;min-height:44px;padding:6px 16px}
+.rowbtn.grid{display:grid;grid-template-columns:minmax(220px,1.6fr) repeat(6,minmax(78px,1fr)) 96px 72px 28px;column-gap:12px;align-items:center}
 .rowbtn:hover{background:var(--hover)}
 .rowbtn:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .lab{font-size:15px}
@@ -1504,8 +1505,7 @@ n3010@2m=1832 1272 929 708 378 224|1989
 n3020@2m=1716 1204 992 893 664 455|1989
 n3035@2m=6015 6100 5838 5441 5306 5520|2001
 na1570_@_2m=1 1 1 1 1 1|2010
-n3045@2m=2755 3148 3552 5225 5714 10131|2001
-`;
+n3045@2m=2755 3148 3552 5225 5714 10131|2001`;
 
 (function(){
 'use strict';
