@@ -1,0 +1,191 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Refinery Capacity Browser</title>
+<style>
+:root{--bg:#fbfbf8;--fg:#1d2320;--mute:#5e6862;--line:#d9dcd5;--hd:#eef0ea;--acc:#1f5f4a;--hi:#f4f6ef;--neg:#9a2f22;--pos:#1f5f4a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141816;--fg:#e4e8e2;--mute:#9aa49d;--line:#2d3430;--hd:#1d2320;--acc:#7cc3a7;--hi:#1a201d;--neg:#e58a7c;--pos:#7cc3a7;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141816;--fg:#e4e8e2;--mute:#9aa49d;--line:#2d3430;--hd:#1d2320;--acc:#7cc3a7;--hi:#1a201d;--neg:#e58a7c;--pos:#7cc3a7;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;padding-inline:16px;padding-block:16px 40px;max-width:1200px;margin-inline:auto}
+h1{font-size:18px;margin:0 0 2px;font-weight:650}
+.sub{color:var(--mute);margin:0 0 14px;font-size:13px}
+.ctl{display:flex;flex-wrap:wrap;gap:10px 14px;margin-bottom:10px}
+label{display:flex;flex-direction:column;gap:2px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--mute);min-width:0}
+select,button{font:inherit;font-size:14px;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:5px 7px;min-width:0}
+select:focus,input:focus,button:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+button{cursor:pointer;align-self:flex-end}
+.chk{flex-direction:row;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-size:13px;color:var(--fg);align-self:flex-end;padding-bottom:6px}
+.meta{color:var(--mute);font-size:12px;margin:6px 0}
+.wrap{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:4px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{position:sticky;top:0;background:var(--hd);font-weight:600;font-size:12px;cursor:pointer;user-select:none;z-index:1}
+th.l,td.l{text-align:left}
+td.l{white-space:normal;min-width:11em}
+tbody tr:hover td{background:var(--hi)}
+tr.tot td{font-weight:650;background:var(--hd);position:sticky;bottom:0}
+td.sub2{color:var(--mute)}
+.neg{color:var(--neg)}.pos{color:var(--pos)}
+th .ar{color:var(--acc)}
+details{margin-top:14px;font-size:13px;color:var(--mute)}
+summary{cursor:pointer;color:var(--fg)}
+details p{margin:6px 0;max-width:75ch}
+</style>
+<h1>Refinery Capacity Browser</h1>
+<p class="sub">EIA-820 Annual Refinery Report, capacity as of January 1, <span id="yrs"></span>. Barrels per day unless a column says otherwise.</p>
+<div class="ctl">
+ <label>View<select id="view"><option value="c">Compare items (one year)</option><option value="t">Trend (one item, all years)</option></select></label>
+ <label>Level<select id="level"><option value="f">Facility</option><option value="o">Operator</option><option value="k">Corporation</option><option value="s">State</option><option value="p" selected>PAD district</option><option value="u">U.S.</option></select></label>
+ <label>Measure<select id="group"></select></label>
+ <label>Basis<select id="basis"></select></label>
+ <label id="yl">Year<select id="year"></select></label>
+ <label id="il" hidden>Item<select id="item"></select></label>
+ <label class="chk"><input type="checkbox" id="terr">Include territories (PAD VI)</label>
+ <button id="copy" type="button">Copy CSV</button>
+</div>
+<div class="meta" id="meta" aria-live="polite"></div>
+<div class="wrap"><table id="tbl"></table></div>
+<details><summary>Notes</summary>
+<p>"U.S." is PAD I–V (50 states and D.C.), matching the published report. PAD VI (territories) appears only in 2022 (Limetree Bay, U.S. Virgin Islands) and is excluded unless the box is checked.</p>
+<p>"Refineries" counts every operable site, including six process operators with no crude distillation unit (Enterprise and Targa Mont Belvieu, Equistar Channelview, Pasadena Performance Products, Excel Paralubes Westlake, Trecora Silsbee). "Idle" means crude distillation completely idle (idle capacity &gt; 0 and no operating capacity); non-crude operators count as operating.</p>
+<p>The workbooks carry no facility ID. Facilities are linked across years by state and site name, adding the operator when more than one company shares a site name. Renames and ownership changes can split a facility's history (for example Woods Cross, Anacortes, Toledo, Channelview, Billings). Operator and corporation names are normalized by spelling only, so a merger shows as a new name.</p>
+<p>Next-year values are what respondents projected on the survey. Stream-day capacity of nonrespondents is derived as calendar day ÷ 0.95 and their downstream and production capacity is carried forward. Hydrogen is MMcf/day and sulfur is short tons/day. Zero values are not stored in the source and display as 0.</p>
+</details>
+<script>
+let D;
+const ROM=['','I','II','III','IV','V','VI'];
+const $=id=>document.getElementById(id);
+const UN=[['vac','Vacuum distillation'],['dc','Thermal: delayed coking'],['fc','Thermal: fluid coking'],['vb','Thermal: visbreaking'],['ot','Thermal: other'],['fresh','Cat cracking: fresh feed'],['recyc','Cat cracking: recycled'],['hcd','Hydrocracking: distillate'],['hcg','Hydrocracking: gas oil'],['hcr','Hydrocracking: residual'],['rfl','Reforming: low pressure'],['rfh','Reforming: high pressure'],['fsd','Fuels solvent deasphalting'],['dn','Desulf: naphtha/reformer feed'],['dg','Desulf: gasoline'],['dk','Desulf: kerosene/jet'],['dd','Desulf: diesel'],['do','Desulf: other distillate'],['dr','Desulf: residual'],['dh','Desulf: heavy gas oil'],['dx','Desulf: other']];
+const PR=[['alk','Alkylates'],['aro','Aromatics'],['asp','Asphalt & road oil'],['iso4','Isomerization: isobutane'],['iso5','Isomerization: isopentane/hexane'],['lub','Lubricants'],['coke','Petcoke, market'],['h2','Hydrogen (MMcf/d)'],['s','Sulfur (short tons/d)']];
+const GROUPS={
+ dist:{label:'Crude distillation',bases:[['cd','Calendar day'],['sd','Stream day']],items:b=>[[b+'.tot','Operable'],[b+'.op','Operating'],[b+'.idle','Idle']].concat(b=='sd'?[['sd.proj','Projected next year']]:[]),cnt:true},
+ down:{label:'Downstream charge',bases:[['ds','Current year, stream day'],['dc','Current year, calendar day'],['dn','Next year, stream day']],items:b=>UN.map(u=>[b+'.'+u[0],u[1]])},
+ prod:{label:'Production',bases:[['pc','Current year'],['pn','Next year']],items:b=>PR.map(p=>[b+'.'+p[0],p[1]])}
+};
+const MI={};
+const cache={};
+function rows(y){
+ if(cache[y])return cache[y];
+ const Y=D.y[y],f=Y.f,v=Y.v,out=[];
+ for(let i=0;i<f.length;i+=4){const fi=f[i];out.push({fi:fi,op:f[i+1],corp:f[i+2],pad:f[i+3],site:D.facs[fi][0],state:D.facs[fi][1],v:{}})}
+ for(let i=0;i<v.length;i+=3)out[v[i]].v[MI[v[i+1]]]=v[i+2];
+ out.forEach(r=>{r.idle=(r.v['cd.idle']||0)>0&&!(r.v['cd.op']||0)});
+ return cache[y]=out;
+}
+function keyOf(r,l){return l=='f'?r.fi:l=='o'?r.op:l=='k'?r.corp:l=='s'?r.state:l=='p'?r.pad:'US'}
+function nameOf(k,l,r){return l=='f'?r.site+', '+r.state:l=='o'?D.ops[k]:l=='k'?D.corps[k]:l=='s'?k:l=='p'?'PAD '+ROM[k]:'U.S. (PAD I–V)'}
+function agg(y,l,terr){
+ const M=new Map();
+ const add=(k,r,nm)=>{let e=M.get(k);if(!e){e={name:nm,sub:'',s:{},n:0,idle:0};M.set(k,e)}
+  e.n++;if(r.idle)e.idle++;for(const c in r.v)e.s[c]=(e.s[c]||0)+r.v[c];if(l=='f')e.sub=D.ops[r.op];return e};
+ rows(y).forEach(r=>{
+  if(r.pad==6&&!terr)return;
+  if(l=='u'){add('US',r,'U.S. (PAD I–V)');return}
+  add(keyOf(r,l),r,nameOf(keyOf(r,l),l,r));
+ });
+ return M;
+}
+const S={sortCol:null,asc:false,model:null};
+const fmt=n=>n==null?'':Math.round(n).toLocaleString('en-US');
+function model(){
+ const g=GROUPS[$('group').value],b=$('basis').value,l=$('level').value,terr=$('terr').checked;
+ const items=g.items(b);let head,body,total=null;
+  if($('view').value=='c'){
+  const y=$('year').value,M=agg(y,l,terr);
+  head=[{t:'Name',l:1}];if(l=='f')head.push({t:'Operator',l:1});head.push({t:'Refineries'});
+  if(g.cnt)head.push({t:'Idle sites'});
+  items.forEach(i=>head.push({t:i[1]}));
+  body=[...M.values()].map(e=>{const c=[e.name];if(l=='f')c.push(e.sub);c.push(e.n);if(g.cnt)c.push(e.idle);items.forEach(i=>c.push(e.s[i[0]]||0));return c});
+  const first=l=='f'?2:1;
+  if(l!='u'&&body.length>1){total=['Total'];if(l=='f')total.push('');for(let j=first;j<head.length;j++)total.push(body.reduce((a,r)=>a+r[j],0))}
+  S.lead=first;
+  if(l=='p'||l=='s'||l=='k'||l=='o'||l=='f'){}
+ }else{
+  const it=$('item').value,yrs=D.years;
+  const Ms=yrs.map(y=>agg(y,l,terr));
+  const names=new Map();
+  Ms.forEach(M=>M.forEach((e,k)=>{if(!names.has(k))names.set(k,e);else names.get(k).name=e.name}));
+  // use latest spelling
+  yrs.forEach((y,i)=>Ms[i].forEach((e,k)=>{names.get(k).name=e.name;names.get(k).sub=e.sub}));
+  head=[{t:'Name',l:1}];if(l=='f')head.push({t:'Operator',l:1});
+  yrs.forEach(y=>head.push({t:String(y)}));
+  head.push({t:'Δ '+yrs[yrs.length-2]+'→'+yrs[yrs.length-1]},{t:'Δ %'});
+  body=[];
+  names.forEach((nm,k)=>{
+   const vals=Ms.map(M=>{const e=M.get(k);return e?(e.s[it]||0):null});
+   const a=vals[vals.length-2],z=vals[vals.length-1];
+   const c=[nm.name];if(l=='f')c.push(nm.sub);
+   vals.forEach(x=>c.push(x));
+   c.push(a!=null&&z!=null?z-a:null);c.push(a!=null&&z!=null&&a!==0?(z-a)/a*100:null);
+   body.push(c)});
+  S.lead=l=='f'?2:1;
+  if(l!='u'&&body.length>1){total=['Total'];if(l=='f')total.push('');for(let j=0;j<yrs.length;j++){total.push(body.reduce((a,r)=>a+(r[S.lead+j]||0),0))}
+   const a=total[S.lead+yrs.length-2],z=total[S.lead+yrs.length-1];total.push(z-a);total.push(a?(z-a)/a*100:null)}
+ }
+ return{head,body,total,items};
+}
+function render(){
+ const m=model();S.model=m;
+ const lead=S.lead;
+ if(S.sortCol==null||S.sortCol>=m.head.length){S.sortCol=lead;S.asc=false}
+ const sc=S.sortCol;
+ m.body.sort((a,b)=>{const x=a[sc],y=b[sc];if(x==y)return 0;if(x==null)return 1;if(y==null)return -1;
+  return (typeof x=='string'?x.localeCompare(y):x-y)*(S.asc?1:-1)});
+ const tr=$('tbl');tr.textContent='';
+ const th=document.createElement('thead'),hr=document.createElement('tr');
+ m.head.forEach((h,j)=>{const t=document.createElement('th');if(h.l)t.className='l';t.textContent=h.t;
+  if(j==sc){const s=document.createElement('span');s.className='ar';s.textContent=(S.asc?' ▲':' ▼');t.appendChild(s)}
+  t.onclick=()=>{if(S.sortCol==j)S.asc=!S.asc;else{S.sortCol=j;S.asc=j<lead}render()};
+  t.title='Sort';hr.appendChild(t)});
+ th.appendChild(hr);tr.appendChild(th);
+ const tb=document.createElement('tbody');
+ const isTrend=$('view').value=='t';
+ const mk=(r,cls)=>{const row=document.createElement('tr');if(cls)row.className=cls;
+  r.forEach((v,j)=>{const td=document.createElement('td');
+   if(j<lead){td.className='l'+(j==1?' sub2':'');td.textContent=v}
+   else{
+    const dl=isTrend&&j>=r.length-2;
+    if(v==null)td.textContent='–';
+    else if(dl&&j==r.length-1){td.textContent=(v>0?'+':'')+v.toFixed(1)+'%';td.className=v>0?'pos':v<0?'neg':''}
+    else if(dl){td.textContent=(v>0?'+':'')+fmt(v);td.className=v>0?'pos':v<0?'neg':''}
+    else td.textContent=fmt(v)}
+   row.appendChild(td)});return row};
+ m.body.forEach(r=>tb.appendChild(mk(r)));
+ if(m.total)tb.appendChild(mk(m.total,'tot'));
+ tr.appendChild(tb);
+ const g=GROUPS[$('group').value];
+ $('meta').textContent=m.body.length+' row'+(m.body.length==1?'':'s')+' · '+g.label+' · '+g.bases.find(x=>x[0]==$('basis').value)[1]+($('view').value=='c'?' · as of Jan 1, '+$('year').value:' · '+($('item').selectedOptions[0]||{}).textContent)+($('terr').checked?' · incl. PAD VI':'');
+}
+function csvCell(v){v=v==null?'':String(v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+function csv(){const m=S.model;const L=[m.head.map(h=>csvCell(h.t)).join(',')];
+ const isT=$('view').value=='t';
+ m.body.concat(m.total?[m.total]:[]).forEach(r=>L.push(r.map((v,j)=>csvCell(isT&&j==r.length-1&&v!=null?v.toFixed(2):v)).join(',')));return L.join('\n')}
+function setBases(){
+ const g=GROUPS[$('group').value],bs=$('basis'),cur=bs.value;bs.textContent='';
+ g.bases.forEach(b=>{const o=document.createElement('option');o.value=b[0];o.textContent=b[1];bs.appendChild(o)});
+ if(g.bases.some(b=>b[0]==cur))bs.value=cur;setItems();
+}
+function setItems(){
+ const g=GROUPS[$('group').value],it=$('item'),cur=it.value;it.textContent='';
+ g.items($('basis').value).forEach(i=>{const o=document.createElement('option');o.value=i[0];o.textContent=i[1];it.appendChild(o)});
+ const keep=[...it.options].some(o=>o.value==cur);if(keep)it.value=cur;
+}
+function setView(){const t=$('view').value=='t';$('yl').hidden=t;$('il').hidden=!t;S.sortCol=null;S.asc=false}
+function init(){
+ D.m.forEach((c,i)=>MI[i]=c);
+ for(const k in GROUPS){const o=document.createElement('option');o.value=k;o.textContent=GROUPS[k].label;$('group').appendChild(o)}
+ D.years.slice().reverse().forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=y;$('year').appendChild(o)});
+ setBases();
+ const re=()=>{S.sortCol=null;S.asc=false;render()};
+ $('view').onchange=()=>{setView();render()};
+ $('level').onchange=re;$('terr').onchange=render;$('year').onchange=render;$('item').onchange=render;
+ $('group').onchange=()=>{setBases();re()};
+ $('basis').onchange=()=>{setItems();re()};
+ $('copy').onclick=()=>{const b=$('copy'),t=csv();
+  const ok=()=>{b.textContent='Copied';setTimeout(()=>b.textContent='Copy CSV',1200)};
+  const fb=()=>{const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');ok()}catch(e){b.textContent='Copy failed'}a.remove()};
+  if(navigator.clipboard)navigator.clipboard.writeText(t).then(ok,fb);else fb()};
+ $('yrs').textContent=D.years[0]+'–'+D.years[D.years.length-1];render();
+}
+fetch('data.json',{cache:'no-store'}).then(r=>r.json()).then(d=>{D=d;init()}).catch(e=>{document.getElementById('meta').textContent='Could not load data: '+e});
+</script>
